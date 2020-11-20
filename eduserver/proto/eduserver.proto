@@ -1,0 +1,40 @@
+syntax = "proto3";
+package proto;
+
+option go_package = ".;proto";
+
+import "google/protobuf/timestamp.proto";
+
+message ReceiptEvent {
+    string UserID = 1;
+    string RoomID = 2;
+    string EventID = 3;
+    string Type = 4;
+    google.protobuf.Timestamp Timestamp = 5;
+}
+
+message TypingEvent {
+    string UserID = 1;
+    string RoomID = 2;
+    bool Typing = 3;
+    uint64 Timeout = 4;
+    google.protobuf.Timestamp OriginServerTS = 5;
+}
+
+message SendToDeviceEvent {
+    string UserID = 1;
+    string DeviceID = 2;
+    string Sender = 3;
+    string Type = 4;
+    bytes Content = 5;
+}
+
+
+
+message EmptyResponse {}
+
+service EduService {
+    rpc SendReceiptEvent(ReceiptEvent) returns (EmptyResponse) {}
+    rpc SendTypingEvent(TypingEvent) returns (EmptyResponse) {}
+    rpc SendToDevice(SendToDeviceEvent) returns (EmptyResponse) {}
+}
