@@ -53,7 +53,7 @@ func NewEDUServiceGRPC(
 
 // Listen starts the grpc server
 func (e *eduService) Listen() {
-	l, err := net.Listen("tcp", ":9090")
+	l, err := net.Listen("tcp", e.cfg.InternalAPI.GRPCListen)
 	if err != nil {
 		logrus.WithError(err).Fatal("Error listening")
 	}

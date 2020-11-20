@@ -115,8 +115,10 @@ type Derived struct {
 }
 
 type InternalAPIOptions struct {
-	Listen  HTTPAddress `yaml:"listen"`
-	Connect HTTPAddress `yaml:"connect"`
+	Listen      HTTPAddress `yaml:"listen"`
+	Connect     HTTPAddress `yaml:"connect"`
+	GRPCListen  string      `yaml:"grpc_listen"`
+	GRPCConnect string      `yaml:"grpc_connect"`
 }
 
 type ExternalAPIOptions struct {

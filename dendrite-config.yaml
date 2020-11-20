@@ -159,6 +159,8 @@ edu_server:
   internal_api:
     listen: http://localhost:7778
     connect: http://localhost:7778
+    grpc_listen: localhost:9090
+    grpc_connect: localhost:9090
 
 # Configuration for the Federation API.
 federation_api:
