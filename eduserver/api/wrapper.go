@@ -17,7 +17,9 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"time"
+
+	"github.com/matrix-org/dendrite/eduserver/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/matrix-org/gomatrixserverlib"
 )
@@ -27,18 +29,13 @@ func SendTyping(
 	ctx context.Context, eduAPI EDUServerInputAPI, userID, roomID string,
 	typing bool, timeoutMS int64,
 ) error {
-	requestData := InputTypingEvent{
+	_, err := eduAPI.SendTypingEvent(ctx, &proto.TypingEvent{
 		UserID:         userID,
 		RoomID:         roomID,
 		Typing:         typing,
-		TimeoutMS:      timeoutMS,
-		OriginServerTS: gomatrixserverlib.AsTimestamp(time.Now()),
-	}
-
-	var response InputTypingEventResponse
-	err := eduAPI.InputTypingEvent(
-		ctx, &InputTypingEventRequest{InputTypingEvent: requestData}, &response,
-	)
+		Timeout:        uint64(timeoutMS),
+		OriginServerTS: timestamppb.Now(),
+	})
 
 	return err
 }
@@ -52,20 +49,15 @@ func SendToDevice(
 	if err != nil {
 		return err
 	}
-	requestData := InputSendToDeviceEvent{
+
+	_, err = eduAPI.SendToDevice(ctx, &proto.SendToDeviceEvent{
 		UserID:   userID,
 		DeviceID: deviceID,
-		SendToDeviceEvent: gomatrixserverlib.SendToDeviceEvent{
-			Sender:  sender,
-			Type:    eventType,
-			Content: js,
-		},
-	}
-	request := InputSendToDeviceEventRequest{
-		InputSendToDeviceEvent: requestData,
-	}
-	response := InputSendToDeviceEventResponse{}
-	return eduAPI.InputSendToDeviceEvent(ctx, &request, &response)
+		Sender:   sender,
+		Type:     eventType,
+		Content:  js,
+	})
+	return err
 }
 
 // SendReceipt sends a receipt event to EDU Server
@@ -74,15 +66,13 @@ func SendReceipt(
 	eduAPI EDUServerInputAPI, userID, roomID, eventID, receiptType string,
 	timestamp gomatrixserverlib.Timestamp,
 ) error {
-	request := InputReceiptEventRequest{
-		InputReceiptEvent: InputReceiptEvent{
-			UserID:    userID,
-			RoomID:    roomID,
-			EventID:   eventID,
-			Type:      receiptType,
-			Timestamp: timestamp,
-		},
-	}
-	response := InputReceiptEventResponse{}
-	return eduAPI.InputReceiptEvent(ctx, &request, &response)
+	_, err := eduAPI.SendReceiptEvent(ctx, &proto.ReceiptEvent{
+		UserID:    userID,
+		RoomID:    roomID,
+		EventID:   eventID,
+		Type:      receiptType,
+		Timestamp: timestamppb.New(timestamp.Time()),
+	})
+
+	return err
 }

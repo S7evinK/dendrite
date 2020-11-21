@@ -23,6 +23,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/matrix-org/dendrite/eduserver/intgrpc"
+
 	"github.com/matrix-org/dendrite/internal/caching"
 	"github.com/matrix-org/dendrite/internal/httputil"
 	"github.com/matrix-org/gomatrixserverlib"
@@ -38,7 +40,6 @@ import (
 	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	asinthttp "github.com/matrix-org/dendrite/appservice/inthttp"
 	eduServerAPI "github.com/matrix-org/dendrite/eduserver/api"
-	eduinthttp "github.com/matrix-org/dendrite/eduserver/inthttp"
 	federationSenderAPI "github.com/matrix-org/dendrite/federationsender/api"
 	fsinthttp "github.com/matrix-org/dendrite/federationsender/inthttp"
 	"github.com/matrix-org/dendrite/internal/config"
@@ -196,11 +197,7 @@ func (b *BaseDendrite) UserAPIClient() userapi.UserInternalAPI {
 
 // EDUServerClient returns EDUServerInputAPI for hitting the EDU server over HTTP
 func (b *BaseDendrite) EDUServerClient() eduServerAPI.EDUServerInputAPI {
-	e, err := eduinthttp.NewEDUServerClient(b.Cfg.EDUServerURL(), b.apiHttpClient)
-	if err != nil {
-		logrus.WithError(err).Panic("EDUServerClient failed", b.apiHttpClient)
-	}
-	return e
+	return intgrpc.NewEDUServiceGRPCClient(b.Cfg.EDUServer.InternalAPI.GRPCConnect)
 }
 
 // FederationSenderHTTPClient returns FederationSenderInternalAPI for hitting

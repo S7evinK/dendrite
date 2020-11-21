@@ -20,7 +20,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type eduService struct {
+type EduServiceServer struct {
 	Cache                        *cache.EDUCache
 	OutputReceiptEventTopic      string
 	OutputTypingEventTopic       string
@@ -35,11 +35,11 @@ func NewEDUServiceGRPC(
 	cfg *config.EDUServer,
 	eduCache *cache.EDUCache,
 	userAPI userapi.UserInternalAPI,
-) *eduService {
+) *EduServiceServer {
 
 	_, producer := kafka.SetupConsumerProducer(&cfg.Matrix.Kafka)
 
-	return &eduService{
+	return &EduServiceServer{
 		ServerName:                   cfg.Matrix.ServerName,
 		OutputReceiptEventTopic:      cfg.Matrix.Kafka.TopicFor(config.TopicOutputReceiptEvent),
 		OutputTypingEventTopic:       cfg.Matrix.Kafka.TopicFor(config.TopicOutputTypingEvent),
@@ -52,21 +52,21 @@ func NewEDUServiceGRPC(
 }
 
 // Listen starts the grpc server
-func (e *eduService) Listen() {
-	l, err := net.Listen("tcp", e.cfg.InternalAPI.GRPCListen)
+func (e *EduServiceServer) Listen(addr string) {
+	logrus.Debugf("starting gRPC EduServiceServer on %v", addr)
+	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		logrus.WithError(err).Fatal("Error listening")
 	}
 
 	s := grpc.NewServer()
 	proto.RegisterEduServiceServer(s, e)
-	logrus.Debug("starting grpc server")
 	if err := s.Serve(l); err != nil {
 		logrus.WithError(err).Fatal("error serving")
 	}
 }
 
-func (e *eduService) SendReceiptEvent(
+func (e *EduServiceServer) SendReceiptEvent(
 	ctx context.Context,
 	in *proto.ReceiptEvent,
 ) (*proto.EmptyResponse, error) {
@@ -97,7 +97,7 @@ func (e *eduService) SendReceiptEvent(
 	return &proto.EmptyResponse{}, err
 }
 
-func (e *eduService) SendTypingEvent(
+func (e *EduServiceServer) SendTypingEvent(
 	ctx context.Context,
 	in *proto.TypingEvent,
 ) (*proto.EmptyResponse, error) {
@@ -111,7 +111,7 @@ func (e *eduService) SendTypingEvent(
 	return &proto.EmptyResponse{}, err
 }
 
-func (e *eduService) sendTypingEvent(in *proto.TypingEvent) error {
+func (e *EduServiceServer) sendTypingEvent(in *proto.TypingEvent) error {
 	ev := &api.TypingEvent{
 		Type:   gomatrixserverlib.MTyping,
 		RoomID: in.RoomID,
@@ -149,7 +149,7 @@ func (e *eduService) sendTypingEvent(in *proto.TypingEvent) error {
 	return err
 }
 
-func (e *eduService) SendToDevice(ctx context.Context, ise *proto.SendToDeviceEvent) (*proto.EmptyResponse, error) {
+func (e *EduServiceServer) SendToDevice(ctx context.Context, ise *proto.SendToDeviceEvent) (*proto.EmptyResponse, error) {
 	devices := []string{}
 	_, domain, err := gomatrixserverlib.SplitID('@', ise.UserID)
 	if err != nil {

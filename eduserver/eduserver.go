@@ -17,22 +17,11 @@
 package eduserver
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/matrix-org/dendrite/eduserver/api"
 	"github.com/matrix-org/dendrite/eduserver/cache"
-	"github.com/matrix-org/dendrite/eduserver/input"
-	"github.com/matrix-org/dendrite/eduserver/inthttp"
-	"github.com/matrix-org/dendrite/internal/config"
+	"github.com/matrix-org/dendrite/eduserver/intgrpc"
 	"github.com/matrix-org/dendrite/internal/setup"
-	"github.com/matrix-org/dendrite/internal/setup/kafka"
 	userapi "github.com/matrix-org/dendrite/userapi/api"
 )
-
-// AddInternalRoutes registers HTTP handlers for the internal API. Invokes functions
-// on the given input API.
-func AddInternalRoutes(internalMux *mux.Router, inputAPI api.EDUServerInputAPI) {
-	inthttp.AddRoutes(inputAPI, internalMux)
-}
 
 // NewInternalAPI returns a concerete implementation of the internal API. Callers
 // can call functions directly on the returned API or via an HTTP interface using AddInternalRoutes.
@@ -40,18 +29,6 @@ func NewInternalAPI(
 	base *setup.BaseDendrite,
 	eduCache *cache.EDUCache,
 	userAPI userapi.UserInternalAPI,
-) api.EDUServerInputAPI {
-	cfg := &base.Cfg.EDUServer
-
-	_, producer := kafka.SetupConsumerProducer(&cfg.Matrix.Kafka)
-
-	return &input.EDUServerInputAPI{
-		Cache:                        eduCache,
-		UserAPI:                      userAPI,
-		Producer:                     producer,
-		OutputTypingEventTopic:       cfg.Matrix.Kafka.TopicFor(config.TopicOutputTypingEvent),
-		OutputSendToDeviceEventTopic: cfg.Matrix.Kafka.TopicFor(config.TopicOutputSendToDeviceEvent),
-		OutputReceiptEventTopic:      cfg.Matrix.Kafka.TopicFor(config.TopicOutputReceiptEvent),
-		ServerName:                   cfg.Matrix.ServerName,
-	}
+) *intgrpc.EduServiceServer {
+	return intgrpc.NewEDUServiceGRPC(&base.Cfg.EDUServer, eduCache, userAPI)
 }

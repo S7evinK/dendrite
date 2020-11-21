@@ -23,6 +23,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/matrix-org/dendrite/eduserver/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	eduserverAPI "github.com/matrix-org/dendrite/eduserver/api"
 	"github.com/matrix-org/dendrite/internal/config"
@@ -370,17 +373,13 @@ func (t *txnReq) processReceiptEvent(ctx context.Context,
 ) error {
 	// store every event
 	for _, eventID := range eventIDs {
-		req := eduserverAPI.InputReceiptEventRequest{
-			InputReceiptEvent: eduserverAPI.InputReceiptEvent{
-				UserID:    userID,
-				RoomID:    roomID,
-				EventID:   eventID,
-				Type:      receiptType,
-				Timestamp: timestamp,
-			},
-		}
-		resp := eduserverAPI.InputReceiptEventResponse{}
-		if err := t.eduAPI.InputReceiptEvent(ctx, &req, &resp); err != nil {
+		if _, err := t.eduAPI.SendReceiptEvent(ctx, &proto.ReceiptEvent{
+			UserID:    userID,
+			RoomID:    roomID,
+			EventID:   eventID,
+			Type:      receiptType,
+			Timestamp: timestamppb.New(timestamp.Time()),
+		}); err != nil {
 			return fmt.Errorf("unable to set receipt event: %w", err)
 		}
 	}

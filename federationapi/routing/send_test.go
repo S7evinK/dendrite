@@ -8,7 +8,8 @@ import (
 	"testing"
 	"time"
 
-	eduAPI "github.com/matrix-org/dendrite/eduserver/api"
+	"github.com/matrix-org/dendrite/eduserver/proto"
+
 	fsAPI "github.com/matrix-org/dendrite/federationsender/api"
 	"github.com/matrix-org/dendrite/internal/test"
 	"github.com/matrix-org/dendrite/roomserver/api"
@@ -56,32 +57,18 @@ func init() {
 
 type testEDUProducer struct {
 	// this producer keeps track of calls to InputTypingEvent
-	invocations []eduAPI.InputTypingEventRequest
+	invocations []*proto.TypingEvent
 }
 
-func (p *testEDUProducer) InputTypingEvent(
-	ctx context.Context,
-	request *eduAPI.InputTypingEventRequest,
-	response *eduAPI.InputTypingEventResponse,
-) error {
-	p.invocations = append(p.invocations, *request)
-	return nil
+func (e testEDUProducer) SendReceiptEvent(ctx context.Context, in *proto.ReceiptEvent) (*proto.EmptyResponse, error) {
+	return nil, nil
 }
-
-func (p *testEDUProducer) InputSendToDeviceEvent(
-	ctx context.Context,
-	request *eduAPI.InputSendToDeviceEventRequest,
-	response *eduAPI.InputSendToDeviceEventResponse,
-) error {
-	return nil
+func (e testEDUProducer) SendTypingEvent(ctx context.Context, in *proto.TypingEvent) (*proto.EmptyResponse, error) {
+	e.invocations = append(e.invocations, in)
+	return nil, nil
 }
-
-func (o *testEDUProducer) InputReceiptEvent(
-	ctx context.Context,
-	request *eduAPI.InputReceiptEventRequest,
-	response *eduAPI.InputReceiptEventResponse,
-) error {
-	return nil
+func (e testEDUProducer) SendToDevice(ctx context.Context, in *proto.SendToDeviceEvent) (*proto.EmptyResponse, error) {
+	return nil, nil
 }
 
 type testRoomserverAPI struct {

@@ -9,8 +9,8 @@ type EDUServer struct {
 func (c *EDUServer) Defaults() {
 	c.InternalAPI.Listen = "http://localhost:7778"
 	c.InternalAPI.Connect = "http://localhost:7778"
-	c.InternalAPI.GRPCConnect = "localhost:9090"
-	c.InternalAPI.GRPCListen = "localhost:9090"
+	c.InternalAPI.GRPCConnect = "localhost:0"
+	c.InternalAPI.GRPCListen = "localhost:0"
 }
 
 func (c *EDUServer) Verify(configErrs *ConfigErrors, isMonolith bool) {

@@ -16,10 +16,12 @@ package main
 
 import (
 	"flag"
+	"net"
 	"os"
 
+	"github.com/matrix-org/dendrite/eduserver/intgrpc"
+
 	"github.com/matrix-org/dendrite/appservice"
-	"github.com/matrix-org/dendrite/eduserver"
 	"github.com/matrix-org/dendrite/eduserver/cache"
 	"github.com/matrix-org/dendrite/federationsender"
 	"github.com/matrix-org/dendrite/internal/config"
@@ -113,19 +115,28 @@ func main() {
 	userAPI := userapi.NewInternalAPI(accountDB, &cfg.UserAPI, cfg.Derived.ApplicationServices, keyAPI)
 	keyAPI.SetUserAPI(userAPI)
 
-	eduInputAPI := eduserver.NewInternalAPI(
-		base, cache.New(), userAPI,
-	)
-	if base.UseHTTPAPIs {
-		eduserver.AddInternalRoutes(base.InternalAPIMux, eduInputAPI)
-		eduInputAPI = base.EDUServerClient()
-	}
+	eduInputAPI := intgrpc.NewEDUServiceGRPC(&base.Cfg.EDUServer, cache.New(), userAPI)
 
 	asAPI := appservice.NewInternalAPI(base, userAPI, rsAPI)
 	if base.UseHTTPAPIs {
 		appservice.AddInternalRoutes(base.InternalAPIMux, asAPI)
 		asAPI = base.AppserviceHTTPClient()
 	}
+
+	// TODO: solve sytest issues; just for testing!
+	addr, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	grpcAddr := addr.Addr().String()
+	logrus.Debugf("Addr for gRPC: %+v", grpcAddr)
+	_ = addr.Close()
+
+	go func() {
+		eduInputAPI.Listen(grpcAddr)
+	}()
+	// start gRPC Client
+	eduInputAPIClient := intgrpc.NewEDUServiceGRPCClient(grpcAddr)
 
 	monolith := setup.Monolith{
 		Config:    base.Cfg,
@@ -135,7 +146,7 @@ func main() {
 		KeyRing:   keyRing,
 
 		AppserviceAPI:       asAPI,
-		EDUInternalAPI:      eduInputAPI,
+		EDUInternalAPI:      eduInputAPIClient,
 		FederationSenderAPI: fsAPI,
 		RoomserverAPI:       rsAPI,
 		ServerKeyAPI:        skAPI,

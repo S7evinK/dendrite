@@ -8,29 +8,28 @@ import (
 	"google.golang.org/grpc"
 )
 
-type eduserviceClient struct {
+type EduServiceClient struct {
 	client proto.EduServiceClient
 }
 
-func NewEDUServiceGRPCClient(addr string) *eduserviceClient {
+func NewEDUServiceGRPCClient(addr string) EduServiceClient {
 	conn, err := grpc.Dial(addr, grpc.WithInsecure())
 	if err != nil {
-		logrus.WithError(err).Fatal("unable to dial")
+		logrus.WithError(err).Fatalf("unable to dial: %+v", err)
 	}
 
-	return &eduserviceClient{
-		client: proto.NewEduServiceClient(conn),
-	}
+	c := proto.NewEduServiceClient(conn)
+	return EduServiceClient{client: c}
 }
 
-func (e eduserviceClient) SendReceiptEvent(ctx context.Context, request *proto.ReceiptEvent) (*proto.EmptyResponse, error) {
-	return e.client.SendReceiptEvent(ctx, request)
+func (e EduServiceClient) SendReceiptEvent(ctx context.Context, in *proto.ReceiptEvent) (*proto.EmptyResponse, error) {
+	return e.client.SendReceiptEvent(ctx, in)
 }
 
-func (e eduserviceClient) SendTypingEvent(ctx context.Context, request *proto.TypingEvent) (*proto.EmptyResponse, error) {
+func (e EduServiceClient) SendTypingEvent(ctx context.Context, request *proto.TypingEvent) (*proto.EmptyResponse, error) {
 	return e.client.SendTypingEvent(ctx, request)
 }
 
-func (e eduserviceClient) SendToDevice(ctx context.Context, request *proto.SendToDeviceEvent) (*proto.EmptyResponse, error) {
+func (e EduServiceClient) SendToDevice(ctx context.Context, request *proto.SendToDeviceEvent) (*proto.EmptyResponse, error) {
 	return e.client.SendToDevice(ctx, request)
 }

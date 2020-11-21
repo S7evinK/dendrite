@@ -18,7 +18,7 @@
 package api
 
 import (
-	"context"
+	"github.com/matrix-org/dendrite/eduserver/proto"
 
 	"github.com/matrix-org/gomatrixserverlib"
 )
@@ -77,21 +77,5 @@ type InputReceiptEventResponse struct{}
 
 // EDUServerInputAPI is used to write events to the typing server.
 type EDUServerInputAPI interface {
-	InputTypingEvent(
-		ctx context.Context,
-		request *InputTypingEventRequest,
-		response *InputTypingEventResponse,
-	) error
-
-	InputSendToDeviceEvent(
-		ctx context.Context,
-		request *InputSendToDeviceEventRequest,
-		response *InputSendToDeviceEventResponse,
-	) error
-
-	InputReceiptEvent(
-		ctx context.Context,
-		request *InputReceiptEventRequest,
-		response *InputReceiptEventResponse,
-	) error
+	proto.EduServiceServer
 }
