@@ -1,0 +1,12 @@
+syntax = "proto3";
+package proto;
+
+option go_package = ".;proto";
+
+import "inputevent.proto";
+
+message EmptyResponse {}
+
+service RoomService {
+    rpc InputRoomEvents(RoomEvent) returns (EmptyResponse) ;
+}

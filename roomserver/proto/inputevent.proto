@@ -1,0 +1,89 @@
+syntax = "proto3";
+package proto;
+
+option go_package = ".;proto";
+
+import "google/protobuf/timestamp.proto";
+
+message InputRoomEvents {
+    repeated RoomEvent RoomEvents = 1;
+}
+
+enum Kind {
+    Outlier = 0;
+    New = 1;
+    Old = 2;
+}
+
+enum RoomVersion {
+    V1 = 0;
+    V2 = 1;
+    V3 = 2;
+    V4 = 3;
+    V5 = 4;
+    V6 = 5;
+}
+
+message RoomEvent {
+    Kind Kind = 1;
+    HeaderedEvent Event = 2;
+    repeated string AuthEventIDs = 3;
+    bool HasState = 4;
+    repeated string StateEventIDs = 5;
+    string SendAsServer = 6;
+    TransactionID TransactionID = 7;
+}
+
+message TransactionID {
+    int64 SessionID = 1;
+    string TransactionID = 2;
+}
+
+message HeaderedEvent {
+    EventHeader EventHeader = 1;
+}
+
+message EventHeader{
+    RoomVersion RoomVersion = 1;
+}
+
+message Event {
+    bool Redacted = 1;
+    bytes EventJSON = 2;
+    oneof fields {
+        EventV1 EventV1 = 4;
+        EventV2 EventV2 = 5;
+    }
+    RoomVersion RoomVersion = 3;
+}
+
+message EventV1 {
+    eventFields EventFields = 1;
+    repeated EventReference PrevEvents = 2;
+    repeated EventReference AuthEvents = 3;
+}
+
+message EventV2 {
+    eventFields EventFields = 1;
+    repeated string PrevEvents = 2;
+    repeated string AuthEvents = 3;
+}
+
+message EventReference {
+    string EventID = 1;
+    bytes EventSHA256 = 2;
+}
+
+message eventFields {
+    string EventID = 1;
+    string RoomID = 2;
+    string Sender = 3;
+    string Type = 4;
+    string StateKey = 5; // optional ?
+    bytes RawJSON = 6;
+    string Redacts = 7;
+    int64 Depth = 8;
+    bytes Unsigned = 9;
+    google.protobuf.Timestamp OriginServerTS = 10;
+    string Origin = 11;
+}
