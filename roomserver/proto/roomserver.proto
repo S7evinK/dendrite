@@ -1,12 +1,17 @@
 syntax = "proto3";
-package proto;
+package roomserver;
 
 option go_package = ".;proto";
 
-import "inputevent.proto";
+import "query.proto";
 
 message EmptyResponse {}
 
 service RoomService {
-    rpc InputRoomEvents(RoomEvent) returns (EmptyResponse) ;
+    rpc QueryServerBannedFromRoom(query.ServerBannedFromRoomRequest) returns (query.ServerBannedFromRoomResponse);
+    rpc QuerySharedUsers(query.SharedUsersRequest) returns (query.SharedUsersResponse);
+    rpc QueryRoomsForUser(query.RoomsForUserRequest) returns (query.RoomsForUserResponse);
+    rpc QueryPublishedRooms (query.PublishedRoomsRequest) returns (query.PublishedRoomsResponse);
+    rpc QueryRoomVersionForRoom (query.RoomVersionForRoomRequest) returns (query.RoomVersionForRoomResponse);
+    rpc QueryRoomVersionCapabilities (query.RoomVersionCapabilitiesRequest) returns (query.RoomVersionCapabilitiesResponse);
 }

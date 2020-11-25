@@ -1,0 +1,57 @@
+syntax = "proto3";
+package query;
+
+option go_package = ".;proto";
+
+import "roomversion.proto";
+
+// This contains all messages for the internal queryer
+
+message ServerBannedFromRoomRequest {
+    string ServerName = 1;
+    string RoomID = 2;
+}
+
+message ServerBannedFromRoomResponse {
+    bool Banned = 1;
+}
+
+message SharedUsersRequest {
+    string UserID = 1;
+    repeated string ExcludeRoomIDs = 2;
+    repeated string IncludeRoomIDs = 3;
+}
+
+message SharedUsersResponse {
+    map<string,int64> UserIDsToCount = 1;
+}
+
+message RoomsForUserRequest {
+    string UserID = 1;
+    string WantMembership = 2;
+}
+
+message RoomsForUserResponse {
+    repeated string RoomIDs = 1;
+}
+
+message PublishedRoomsRequest {}
+
+message PublishedRoomsResponse {
+    repeated string RoomIDs = 1;
+}
+
+message RoomVersionForRoomRequest {
+    string RoomID = 1;
+}
+
+message RoomVersionForRoomResponse {
+    common.RoomVersion RoomVersion = 1;
+}
+
+message RoomVersionCapabilitiesRequest {}
+
+message RoomVersionCapabilitiesResponse {
+    common.RoomVersion DefaultRoomVersion = 1;
+    map<string,string> AvailableRoomVersions = 2; // Must be manually handled!
+}

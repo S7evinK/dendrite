@@ -4,6 +4,7 @@ package proto;
 option go_package = ".;proto";
 
 import "google/protobuf/timestamp.proto";
+import "roomversion.proto";
 
 message InputRoomEvents {
     repeated RoomEvent RoomEvents = 1;
@@ -15,18 +16,9 @@ enum Kind {
     Old = 2;
 }
 
-enum RoomVersion {
-    V1 = 0;
-    V2 = 1;
-    V3 = 2;
-    V4 = 3;
-    V5 = 4;
-    V6 = 5;
-}
-
 message RoomEvent {
     Kind Kind = 1;
-    HeaderedEvent Event = 2;
+    HeaderedEvent HeaderedEvent = 2;
     repeated string AuthEventIDs = 3;
     bool HasState = 4;
     repeated string StateEventIDs = 5;
@@ -41,32 +33,33 @@ message TransactionID {
 
 message HeaderedEvent {
     EventHeader EventHeader = 1;
+    Event Event = 2;
 }
 
 message EventHeader{
-    RoomVersion RoomVersion = 1;
+    common.RoomVersion RoomVersion = 1;
 }
 
 message Event {
     bool Redacted = 1;
     bytes EventJSON = 2;
-    oneof fields {
+    oneof Fields {
         EventV1 EventV1 = 4;
         EventV2 EventV2 = 5;
     }
-    RoomVersion RoomVersion = 3;
+    common.RoomVersion RoomVersion = 3;
 }
 
 message EventV1 {
-    eventFields EventFields = 1;
-    repeated EventReference PrevEvents = 2;
-    repeated EventReference AuthEvents = 3;
+    EventFields EventFields = 1;
+    repeated string PrevEvents = 2;
+    repeated string AuthEvents = 3;
 }
 
 message EventV2 {
-    eventFields EventFields = 1;
-    repeated string PrevEvents = 2;
-    repeated string AuthEvents = 3;
+    EventFields EventFields = 1;
+    repeated EventReference PrevEvents = 2;
+    repeated EventReference AuthEvents = 3;
 }
 
 message EventReference {
@@ -74,7 +67,7 @@ message EventReference {
     bytes EventSHA256 = 2;
 }
 
-message eventFields {
+message EventFields {
     string EventID = 1;
     string RoomID = 2;
     string Sender = 3;
