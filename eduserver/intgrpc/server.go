@@ -51,7 +51,7 @@ func NewEDUServiceGRPC(
 	}
 }
 
-// Listen starts the grpc server
+// Listen starts a standalone grpc server
 func (e *EduServiceServer) Listen(addr string) {
 	logrus.Debugf("starting gRPC EduServiceServer on %v", addr)
 	l, err := net.Listen("tcp", addr)
@@ -64,6 +64,11 @@ func (e *EduServiceServer) Listen(addr string) {
 	if err := s.Serve(l); err != nil {
 		logrus.WithError(err).Fatal("error serving")
 	}
+}
+
+// Attach attaches this service to an existing grpc server
+func (e *EduServiceServer) Attach(server *grpc.Server) {
+	proto.RegisterEduServiceServer(server, e)
 }
 
 func (e *EduServiceServer) SendReceiptEvent(

@@ -19,10 +19,11 @@ import (
 	"net"
 	"os"
 
-	"github.com/matrix-org/dendrite/eduserver/intgrpc"
+	"google.golang.org/grpc"
 
 	"github.com/matrix-org/dendrite/appservice"
 	"github.com/matrix-org/dendrite/eduserver/cache"
+	"github.com/matrix-org/dendrite/eduserver/intgrpc"
 	"github.com/matrix-org/dendrite/federationsender"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/internal/mscs"
@@ -128,15 +129,20 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	grpcAddr := addr.Addr().String()
-	logrus.Debugf("Addr for gRPC: %+v", grpcAddr)
-	_ = addr.Close()
 
+	// create gRPC Server and attach services
+	s := grpc.NewServer()
+	eduInputAPI.Attach(s)
+
+	// start gRPC Server
 	go func() {
-		eduInputAPI.Listen(grpcAddr)
+		logrus.Debugf("starting gRPC server on %v", addr.Addr().String())
+		if err := s.Serve(addr); err != nil {
+			logrus.WithError(err).Fatal("error serving")
+		}
 	}()
-	// start gRPC Client
-	eduInputAPIClient := intgrpc.NewEDUServiceGRPCClient(grpcAddr)
+	// create eduAPI gRPC Client
+	eduInputAPIClient := intgrpc.NewEDUServiceGRPCClient(addr.Addr().String())
 
 	monolith := setup.Monolith{
 		Config:    base.Cfg,
