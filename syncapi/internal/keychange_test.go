@@ -9,6 +9,7 @@ import (
 	"github.com/Shopify/sarama"
 	keyapi "github.com/matrix-org/dendrite/keyserver/api"
 	"github.com/matrix-org/dendrite/roomserver/api"
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/dendrite/syncapi/types"
 	userapi "github.com/matrix-org/dendrite/userapi/api"
 	"github.com/matrix-org/gomatrixserverlib"
@@ -54,6 +55,14 @@ type mockRoomserverAPI struct {
 	roomIDToJoinedMembers map[string][]string
 }
 
+func (s *mockRoomserverAPI) QueryPublishedRoomsGRPC(ctx context.Context, req *roomProto.PublishedRoomsRequest) (*roomProto.PublishedRoomsResponse, error) {
+	return &roomProto.PublishedRoomsResponse{}, nil
+}
+
+func (s *mockRoomserverAPI) QueryRoomsForUserGRPC(ctx context.Context, req *roomProto.RoomsForUserRequest) (*roomProto.RoomsForUserResponse, error) {
+	return &roomProto.RoomsForUserResponse{}, nil
+}
+
 // QueryRoomsForUser retrieves a list of room IDs matching the given query.
 func (s *mockRoomserverAPI) QueryRoomsForUser(ctx context.Context, req *api.QueryRoomsForUserRequest, res *api.QueryRoomsForUserResponse) error {
 	return nil
@@ -77,7 +86,8 @@ func (s *mockRoomserverAPI) QueryBulkStateContent(ctx context.Context, req *api.
 }
 
 // QuerySharedUsers returns a list of users who share at least 1 room in common with the given user.
-func (s *mockRoomserverAPI) QuerySharedUsers(ctx context.Context, req *api.QuerySharedUsersRequest, res *api.QuerySharedUsersResponse) error {
+func (s *mockRoomserverAPI) QuerySharedUsersGRPC(ctx context.Context, req *roomProto.SharedUsersRequest) (*roomProto.SharedUsersResponse, error) {
+	res := &roomProto.SharedUsersResponse{}
 	roomsToQuery := req.IncludeRoomIDs
 	for roomID, members := range s.roomIDToJoinedMembers {
 		exclude := false
@@ -98,13 +108,13 @@ func (s *mockRoomserverAPI) QuerySharedUsers(ctx context.Context, req *api.Query
 		}
 	}
 
-	res.UserIDsToCount = make(map[string]int)
+	res.UserIDsToCount = make(map[string]int64)
 	for _, roomID := range roomsToQuery {
 		for _, userID := range s.roomIDToJoinedMembers[roomID] {
 			res.UserIDsToCount[userID]++
 		}
 	}
-	return nil
+	return res, nil
 }
 
 type wantCatchup struct {

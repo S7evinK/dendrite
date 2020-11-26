@@ -22,6 +22,7 @@ import (
 	"github.com/matrix-org/dendrite/keyserver/api"
 	keyapi "github.com/matrix-org/dendrite/keyserver/api"
 	roomserverAPI "github.com/matrix-org/dendrite/roomserver/api"
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/dendrite/syncapi/types"
 	"github.com/matrix-org/gomatrixserverlib"
 	"github.com/matrix-org/util"
@@ -96,8 +97,8 @@ func DeviceListCatchup(
 		return hasNew, nil
 	}
 	// QueryKeyChanges gets ALL users who have changed keys, we want the ones who share rooms with the user.
-	var sharedUsersMap map[string]int
-	sharedUsersMap, queryRes.UserIDs = filterSharedUsers(ctx, rsAPI, userID, queryRes.UserIDs)
+	sharedUsersMap, uids := filterSharedUsers(ctx, rsAPI, userID, queryRes.UserIDs)
+	queryRes.UserIDs = uids
 	util.GetLogger(ctx).Debugf(
 		"QueryKeyChanges request p=%d,off=%d,to=%d response p=%d off=%d uids=%v",
 		partition, offset, toOffset, queryRes.Partition, queryRes.Offset, queryRes.UserIDs,
@@ -151,13 +152,16 @@ func TrackChangedUsers(
 	// - Get users in newly left room. - QueryCurrentState
 	// - Loop set of users and decrement by 1 for each user in newly left room.
 	// - If count=0 then they share no more rooms so inform BOTH parties of this via 'left'=[...] in /sync.
-	var queryRes roomserverAPI.QuerySharedUsersResponse
-	err = rsAPI.QuerySharedUsers(ctx, &roomserverAPI.QuerySharedUsersRequest{
+	queryRes, err := rsAPI.QuerySharedUsersGRPC(ctx, &roomProto.SharedUsersRequest{
 		UserID:         userID,
 		IncludeRoomIDs: newlyLeftRooms,
-	}, &queryRes)
+	})
 	if err != nil {
 		return nil, nil, err
+	}
+	// due to gRPC setting maps to nil, if they are empty, we need to check for a nil map.
+	if queryRes.UserIDsToCount == nil {
+		queryRes.UserIDsToCount = make(map[string]int64)
 	}
 	var stateRes roomserverAPI.QueryBulkStateContentResponse
 	err = rsAPI.QueryBulkStateContent(ctx, &roomserverAPI.QueryBulkStateContentRequest{
@@ -193,12 +197,16 @@ func TrackChangedUsers(
 	// - Loop set of users in newly joined room, do they appear in the set of users prior to joining?
 	// - If yes: then they already shared a room in common, do nothing.
 	// - If no: then they are a brand new user so inform BOTH parties of this via 'changed=[...]'
-	err = rsAPI.QuerySharedUsers(ctx, &roomserverAPI.QuerySharedUsersRequest{
+	queryRes, err = rsAPI.QuerySharedUsersGRPC(ctx, &roomProto.SharedUsersRequest{
 		UserID:         userID,
 		ExcludeRoomIDs: newlyJoinedRooms,
-	}, &queryRes)
+	})
 	if err != nil {
 		return nil, left, err
+	}
+	// due to gRPC setting maps to nil, if they are empty, we need to check for a nil map.
+	if queryRes.UserIDsToCount == nil {
+		queryRes.UserIDsToCount = make(map[string]int64)
 	}
 	err = rsAPI.QueryBulkStateContent(ctx, &roomserverAPI.QueryBulkStateContentRequest{
 		RoomIDs: newlyJoinedRooms,
@@ -229,15 +237,18 @@ func TrackChangedUsers(
 
 func filterSharedUsers(
 	ctx context.Context, rsAPI roomserverAPI.RoomserverInternalAPI, userID string, usersWithChangedKeys []string,
-) (map[string]int, []string) {
+) (map[string]int64, []string) {
 	var result []string
-	var sharedUsersRes roomserverAPI.QuerySharedUsersResponse
-	err := rsAPI.QuerySharedUsers(ctx, &roomserverAPI.QuerySharedUsersRequest{
+	sharedUsersRes, err := rsAPI.QuerySharedUsersGRPC(ctx, &roomProto.SharedUsersRequest{
 		UserID: userID,
-	}, &sharedUsersRes)
+	})
 	if err != nil {
 		// default to all users so we do needless queries rather than miss some important device update
 		return nil, usersWithChangedKeys
+	}
+	// due to gRPC setting maps to nil, if they are empty, we need to check for a nil map.
+	if sharedUsersRes.UserIDsToCount == nil {
+		sharedUsersRes.UserIDsToCount = make(map[string]int64)
 	}
 	// We forcibly put ourselves in this list because we should be notified about our own device updates
 	// and if we are in 0 rooms then we don't technically share any room with ourselves so we wouldn't

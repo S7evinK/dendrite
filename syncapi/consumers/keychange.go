@@ -23,6 +23,7 @@ import (
 	"github.com/matrix-org/dendrite/internal"
 	"github.com/matrix-org/dendrite/keyserver/api"
 	roomserverAPI "github.com/matrix-org/dendrite/roomserver/api"
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
 	syncinternal "github.com/matrix-org/dendrite/syncapi/internal"
 	"github.com/matrix-org/dendrite/syncapi/storage"
 	syncapi "github.com/matrix-org/dendrite/syncapi/sync"
@@ -105,13 +106,16 @@ func (s *OutputKeyChangeEventConsumer) onMessage(msg *sarama.ConsumerMessage) er
 		return err
 	}
 	// work out who we need to notify about the new key
-	var queryRes roomserverAPI.QuerySharedUsersResponse
-	err := s.rsAPI.QuerySharedUsers(context.Background(), &roomserverAPI.QuerySharedUsersRequest{
+	res, err := s.rsAPI.QuerySharedUsersGRPC(context.Background(), &roomProto.SharedUsersRequest{
 		UserID: output.UserID,
-	}, &queryRes)
+	})
 	if err != nil {
 		log.WithError(err).Error("syncapi: failed to QuerySharedUsers for key change event from key server")
 		return err
+	}
+	// due to gRPC setting maps to nil, if they are empty, we need to check for a nil map.
+	if res.UserIDsToCount == nil {
+		res.UserIDsToCount = make(map[string]int64)
 	}
 	// TODO: f.e queryRes.UserIDsToCount : notify users by waking up streams
 	posUpdate := types.NewStreamToken(0, 0, map[string]*types.LogPosition{
@@ -120,7 +124,7 @@ func (s *OutputKeyChangeEventConsumer) onMessage(msg *sarama.ConsumerMessage) er
 			Partition: msg.Partition,
 		},
 	})
-	for userID := range queryRes.UserIDsToCount {
+	for userID := range res.UserIDsToCount {
 		s.notifier.OnNewKeyChange(posUpdate, userID, output.UserID)
 	}
 	return nil
