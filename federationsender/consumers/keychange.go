@@ -19,6 +19,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/Shopify/sarama"
 	"github.com/matrix-org/dendrite/federationsender/queue"
 	"github.com/matrix-org/dendrite/federationsender/storage"
@@ -92,11 +94,10 @@ func (t *KeyChangeConsumer) onMessage(msg *sarama.ConsumerMessage) error {
 		return nil
 	}
 
-	var queryRes roomserverAPI.QueryRoomsForUserResponse
-	err = t.rsAPI.QueryRoomsForUser(context.Background(), &roomserverAPI.QueryRoomsForUserRequest{
+	queryRes, err := t.rsAPI.QueryRoomsForUserGRPC(context.Background(), &roomProto.RoomsForUserRequest{
 		UserID:         m.UserID,
 		WantMembership: "join",
-	}, &queryRes)
+	})
 	if err != nil {
 		logger.WithError(err).Error("failed to calculate joined rooms for user")
 		return nil

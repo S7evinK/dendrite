@@ -142,6 +142,12 @@ func (r *FederationSenderInternalAPI) performJoinUsingServer(
 ) error {
 	// Try to perform a make_join using the information supplied in the
 	// request.
+	logrus.WithFields(logrus.Fields{
+		"server":  serverName,
+		"roomID":  roomID,
+		"userID":  userID,
+		"version": supportedVersions,
+	}).Debugf("performJoinUsingServer")
 	respMakeJoin, err := r.federation.MakeJoin(
 		ctx,
 		serverName,
