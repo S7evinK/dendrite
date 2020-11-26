@@ -20,6 +20,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
+	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
+
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi/auth/authtypes"
 	"github.com/matrix-org/dendrite/clientapi/httputil"
@@ -173,6 +179,7 @@ func SendInvite(
 ) util.JSONResponse {
 	body, evTime, _, reqErr := extractRequestData(req, roomID, rsAPI)
 	if reqErr != nil {
+		logrus.Debugf("SendInvite failed to extractRequestData: %+v", *reqErr)
 		return *reqErr
 	}
 
@@ -300,23 +307,23 @@ func loadProfile(
 func extractRequestData(req *http.Request, roomID string, rsAPI api.RoomserverInternalAPI) (
 	body *threepid.MembershipRequest, evTime time.Time, roomVer gomatrixserverlib.RoomVersion, resErr *util.JSONResponse,
 ) {
-	verReq := api.QueryRoomVersionForRoomRequest{RoomID: roomID}
-	verRes := api.QueryRoomVersionForRoomResponse{}
-	if err := rsAPI.QueryRoomVersionForRoom(req.Context(), &verReq, &verRes); err != nil {
+	verReq := roomProto.RoomVersionForRoomRequest{RoomID: roomID}
+	verRes, err := rsAPI.QueryRoomVersionForRoomGRPC(req.Context(), &verReq)
+	if err != nil {
 		resErr = &util.JSONResponse{
 			Code: http.StatusBadRequest,
 			JSON: jsonerror.UnsupportedRoomVersion(err.Error()),
 		}
 		return
 	}
-	roomVer = verRes.RoomVersion
+	roomVer = helper.ToMatrixRoomVersion(verRes.RoomVersion)
 
 	if reqErr := httputil.UnmarshalJSONRequest(req, &body); reqErr != nil {
 		resErr = reqErr
 		return
 	}
 
-	evTime, err := httputil.ParseTSParam(req)
+	evTime, err = httputil.ParseTSParam(req)
 	if err != nil {
 		resErr = &util.JSONResponse{
 			Code: http.StatusBadRequest,

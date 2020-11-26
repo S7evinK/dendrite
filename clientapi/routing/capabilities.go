@@ -17,6 +17,8 @@ package routing
 import (
 	"net/http"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	roomserverAPI "github.com/matrix-org/dendrite/roomserver/api"
 
@@ -28,13 +30,9 @@ import (
 func GetCapabilities(
 	req *http.Request, rsAPI roomserverAPI.RoomserverInternalAPI,
 ) util.JSONResponse {
-	roomVersionsQueryReq := roomserverAPI.QueryRoomVersionCapabilitiesRequest{}
-	roomVersionsQueryRes := roomserverAPI.QueryRoomVersionCapabilitiesResponse{}
-	if err := rsAPI.QueryRoomVersionCapabilities(
-		req.Context(),
-		&roomVersionsQueryReq,
-		&roomVersionsQueryRes,
-	); err != nil {
+	roomVersionsQueryReq := roomProto.RoomVersionCapabilitiesRequest{}
+	roomVersionsQueryRes, err := rsAPI.QueryRoomVersionCapabilitiesGRPC(req.Context(), &roomVersionsQueryReq)
+	if err != nil {
 		util.GetLogger(req.Context()).WithError(err).Error("queryAPI.QueryRoomVersionCapabilities failed")
 		return jsonerror.InternalServerError()
 	}

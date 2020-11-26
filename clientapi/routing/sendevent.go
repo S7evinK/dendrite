@@ -18,6 +18,10 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
+
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/httputil"
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	"github.com/matrix-org/dendrite/internal/config"
@@ -52,9 +56,9 @@ func SendEvent(
 	rsAPI api.RoomserverInternalAPI,
 	txnCache *transactions.Cache,
 ) util.JSONResponse {
-	verReq := api.QueryRoomVersionForRoomRequest{RoomID: roomID}
-	verRes := api.QueryRoomVersionForRoomResponse{}
-	if err := rsAPI.QueryRoomVersionForRoom(req.Context(), &verReq, &verRes); err != nil {
+	verReq := roomProto.RoomVersionForRoomRequest{RoomID: roomID}
+	verRes, err := rsAPI.QueryRoomVersionForRoomGRPC(req.Context(), &verReq)
+	if err != nil {
 		return util.JSONResponse{
 			Code: http.StatusBadRequest,
 			JSON: jsonerror.UnsupportedRoomVersion(err.Error()),
@@ -88,13 +92,14 @@ func SendEvent(
 		}
 	}
 
+	roomVersion := helper.ToMatrixRoomVersion(verRes.RoomVersion)
 	// pass the new event to the roomserver and receive the correct event ID
 	// event ID in case of duplicate transaction is discarded
 	if err := api.SendEvents(
 		req.Context(), rsAPI,
 		api.KindNew,
 		[]*gomatrixserverlib.HeaderedEvent{
-			e.Headered(verRes.RoomVersion),
+			e.Headered(roomVersion),
 		},
 		cfg.Matrix.ServerName,
 		txnAndSessionID,

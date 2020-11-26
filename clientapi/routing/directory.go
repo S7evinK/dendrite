@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"net/http"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/httputil"
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	federationSenderAPI "github.com/matrix-org/dendrite/federationsender/api"
@@ -244,10 +246,9 @@ func GetVisibility(
 	req *http.Request, rsAPI roomserverAPI.RoomserverInternalAPI,
 	roomID string,
 ) util.JSONResponse {
-	var res roomserverAPI.QueryPublishedRoomsResponse
-	err := rsAPI.QueryPublishedRooms(req.Context(), &roomserverAPI.QueryPublishedRoomsRequest{
+	res, err := rsAPI.QueryPublishedRoomsGRPC(req.Context(), &roomProto.PublishedRoomsRequest{
 		RoomID: roomID,
-	}, &res)
+	})
 	if err != nil {
 		util.GetLogger(req.Context()).WithError(err).Error("QueryPublishedRooms failed")
 		return jsonerror.InternalServerError()

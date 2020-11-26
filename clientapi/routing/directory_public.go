@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/api"
 	"github.com/matrix-org/dendrite/clientapi/httputil"
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
@@ -233,8 +235,7 @@ func refreshPublicRoomCache(
 		extraRooms = extRoomsProvider.Rooms()
 	}
 
-	var queryRes roomserverAPI.QueryPublishedRoomsResponse
-	err := rsAPI.QueryPublishedRooms(ctx, &roomserverAPI.QueryPublishedRoomsRequest{}, &queryRes)
+	queryRes, err := rsAPI.QueryPublishedRoomsGRPC(ctx, &roomProto.PublishedRoomsRequest{})
 	if err != nil {
 		util.GetLogger(ctx).WithError(err).Error("QueryPublishedRooms failed")
 		return publicRoomsCache

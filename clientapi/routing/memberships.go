@@ -18,6 +18,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/roomserver/api"
@@ -95,11 +97,10 @@ func GetJoinedRooms(
 	device *userapi.Device,
 	rsAPI api.RoomserverInternalAPI,
 ) util.JSONResponse {
-	var res api.QueryRoomsForUserResponse
-	err := rsAPI.QueryRoomsForUser(req.Context(), &api.QueryRoomsForUserRequest{
+	res, err := rsAPI.QueryRoomsForUserGRPC(req.Context(), &roomProto.RoomsForUserRequest{
 		UserID:         device.UserID,
 		WantMembership: "join",
-	}, &res)
+	})
 	if err != nil {
 		util.GetLogger(req.Context()).WithError(err).Error("QueryRoomsForUser failed")
 		return jsonerror.InternalServerError()

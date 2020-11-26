@@ -19,6 +19,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
+
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi/auth/authtypes"
 	"github.com/matrix-org/dendrite/clientapi/httputil"
@@ -139,11 +143,10 @@ func SetAvatarURL(
 		return jsonerror.InternalServerError()
 	}
 
-	var res api.QueryRoomsForUserResponse
-	err = rsAPI.QueryRoomsForUser(req.Context(), &api.QueryRoomsForUserRequest{
+	res, err := rsAPI.QueryRoomsForUserGRPC(req.Context(), &roomProto.RoomsForUserRequest{
 		UserID:         device.UserID,
 		WantMembership: "join",
-	}, &res)
+	})
 	if err != nil {
 		util.GetLogger(req.Context()).WithError(err).Error("QueryRoomsForUser failed")
 		return jsonerror.InternalServerError()
@@ -257,11 +260,10 @@ func SetDisplayName(
 		return jsonerror.InternalServerError()
 	}
 
-	var res api.QueryRoomsForUserResponse
-	err = rsAPI.QueryRoomsForUser(req.Context(), &api.QueryRoomsForUserRequest{
+	res, err := rsAPI.QueryRoomsForUserGRPC(req.Context(), &roomProto.RoomsForUserRequest{
 		UserID:         device.UserID,
 		WantMembership: "join",
-	}, &res)
+	})
 	if err != nil {
 		util.GetLogger(req.Context()).WithError(err).Error("QueryRoomsForUser failed")
 		return jsonerror.InternalServerError()
@@ -350,9 +352,9 @@ func buildMembershipEvents(
 	evs := []*gomatrixserverlib.HeaderedEvent{}
 
 	for _, roomID := range roomIDs {
-		verReq := api.QueryRoomVersionForRoomRequest{RoomID: roomID}
-		verRes := api.QueryRoomVersionForRoomResponse{}
-		if err := rsAPI.QueryRoomVersionForRoom(ctx, &verReq, &verRes); err != nil {
+		verReq := roomProto.RoomVersionForRoomRequest{RoomID: roomID}
+		verRes, err := rsAPI.QueryRoomVersionForRoomGRPC(ctx, &verReq)
+		if err != nil {
 			return nil, err
 		}
 
@@ -379,7 +381,8 @@ func buildMembershipEvents(
 			return nil, err
 		}
 
-		evs = append(evs, event.Headered(verRes.RoomVersion))
+		roomVersion := helper.ToMatrixRoomVersion(verRes.RoomVersion)
+		evs = append(evs, event.Headered(roomVersion))
 	}
 
 	return evs, nil
