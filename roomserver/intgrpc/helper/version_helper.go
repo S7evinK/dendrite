@@ -16,5 +16,5 @@ func ToProtoRoomVersion(version gomatrixserverlib.RoomVersion) proto.RoomVersion
 }
 
 func ToMatrixRoomVersion(v proto.RoomVersion) gomatrixserverlib.RoomVersion {
-	return gomatrixserverlib.RoomVersion(v.String())
+	return gomatrixserverlib.RoomVersion(strconv.Itoa(int(v.Number())))
 }

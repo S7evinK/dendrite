@@ -4,6 +4,7 @@ import (
 	"context"
 
 	fsAPI "github.com/matrix-org/dendrite/federationsender/api"
+	"github.com/matrix-org/dendrite/roomserver/proto"
 )
 
 // RoomserverInputAPI is used to write events to the room server.
@@ -48,11 +49,10 @@ type RoomserverInternalAPI interface {
 		res *PerformPublishResponse,
 	)
 
-	QueryPublishedRooms(
+	QueryPublishedRoomsGRPC(
 		ctx context.Context,
-		req *QueryPublishedRoomsRequest,
-		res *QueryPublishedRoomsResponse,
-	) error
+		req *proto.PublishedRoomsRequest,
+	) (*proto.PublishedRoomsResponse, error)
 
 	// Query the latest events and state for a room from the room server.
 	QueryLatestEventsAndState(
@@ -130,15 +130,15 @@ type RoomserverInternalAPI interface {
 	// the response.
 	QueryCurrentState(ctx context.Context, req *QueryCurrentStateRequest, res *QueryCurrentStateResponse) error
 	// QueryRoomsForUser retrieves a list of room IDs matching the given query.
-	QueryRoomsForUser(ctx context.Context, req *QueryRoomsForUserRequest, res *QueryRoomsForUserResponse) error
+	QueryRoomsForUserGRPC(ctx context.Context, req *proto.RoomsForUserRequest) (*proto.RoomsForUserResponse, error)
 	// QueryBulkStateContent does a bulk query for state event content in the given rooms.
 	QueryBulkStateContent(ctx context.Context, req *QueryBulkStateContentRequest, res *QueryBulkStateContentResponse) error
 	// QuerySharedUsers returns a list of users who share at least 1 room in common with the given user.
-	QuerySharedUsers(ctx context.Context, req *QuerySharedUsersRequest, res *QuerySharedUsersResponse) error
+	QuerySharedUsersGRPC(ctx context.Context, req *proto.SharedUsersRequest) (*proto.SharedUsersResponse, error)
 	// QueryKnownUsers returns a list of users that we know about from our joined rooms.
 	QueryKnownUsers(ctx context.Context, req *QueryKnownUsersRequest, res *QueryKnownUsersResponse) error
 	// QueryServerBannedFromRoom returns whether a server is banned from a room by server ACLs.
-	QueryServerBannedFromRoom(ctx context.Context, req *QueryServerBannedFromRoomRequest, res *QueryServerBannedFromRoomResponse) error
+	QueryServerBannedFromRoomGRPC(ctx context.Context, req *proto.ServerBannedFromRoomRequest) (*proto.ServerBannedFromRoomResponse, error)
 
 	// Query a given amount (or less) of events prior to a given set of events.
 	PerformBackfill(
@@ -151,18 +151,16 @@ type RoomserverInternalAPI interface {
 	PerformForget(ctx context.Context, req *PerformForgetRequest, resp *PerformForgetResponse) error
 
 	// Asks for the default room version as preferred by the server.
-	QueryRoomVersionCapabilities(
+	QueryRoomVersionCapabilitiesGRPC(
 		ctx context.Context,
-		request *QueryRoomVersionCapabilitiesRequest,
-		response *QueryRoomVersionCapabilitiesResponse,
-	) error
+		request *proto.RoomVersionCapabilitiesRequest,
+	) (*proto.RoomVersionCapabilitiesResponse, error)
 
 	// Asks for the room version for a given room.
-	QueryRoomVersionForRoom(
+	QueryRoomVersionForRoomGRPC(
 		ctx context.Context,
-		request *QueryRoomVersionForRoomRequest,
-		response *QueryRoomVersionForRoomResponse,
-	) error
+		request *proto.RoomVersionForRoomRequest,
+	) (*proto.RoomVersionForRoomResponse, error)
 
 	// Set a room alias
 	SetRoomAlias(

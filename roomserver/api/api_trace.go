@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	fsAPI "github.com/matrix-org/dendrite/federationsender/api"
+	"github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/util"
 )
 
@@ -72,16 +73,6 @@ func (t *RoomserverInternalAPITrace) PerformPublish(
 ) {
 	t.Impl.PerformPublish(ctx, req, res)
 	util.GetLogger(ctx).Infof("PerformPublish req=%+v res=%+v", js(req), js(res))
-}
-
-func (t *RoomserverInternalAPITrace) QueryPublishedRooms(
-	ctx context.Context,
-	req *QueryPublishedRoomsRequest,
-	res *QueryPublishedRoomsResponse,
-) error {
-	err := t.Impl.QueryPublishedRooms(ctx, req, res)
-	util.GetLogger(ctx).WithError(err).Infof("QueryPublishedRooms req=%+v res=%+v", js(req), js(res))
-	return err
 }
 
 func (t *RoomserverInternalAPITrace) QueryLatestEventsAndState(
@@ -204,26 +195,6 @@ func (t *RoomserverInternalAPITrace) PerformForget(
 	return err
 }
 
-func (t *RoomserverInternalAPITrace) QueryRoomVersionCapabilities(
-	ctx context.Context,
-	req *QueryRoomVersionCapabilitiesRequest,
-	res *QueryRoomVersionCapabilitiesResponse,
-) error {
-	err := t.Impl.QueryRoomVersionCapabilities(ctx, req, res)
-	util.GetLogger(ctx).WithError(err).Infof("QueryRoomVersionCapabilities req=%+v res=%+v", js(req), js(res))
-	return err
-}
-
-func (t *RoomserverInternalAPITrace) QueryRoomVersionForRoom(
-	ctx context.Context,
-	req *QueryRoomVersionForRoomRequest,
-	res *QueryRoomVersionForRoomResponse,
-) error {
-	err := t.Impl.QueryRoomVersionForRoom(ctx, req, res)
-	util.GetLogger(ctx).WithError(err).Infof("QueryRoomVersionForRoom req=%+v res=%+v", js(req), js(res))
-	return err
-}
-
 func (t *RoomserverInternalAPITrace) SetRoomAlias(
 	ctx context.Context,
 	req *SetRoomAliasRequest,
@@ -280,24 +251,10 @@ func (t *RoomserverInternalAPITrace) QueryCurrentState(ctx context.Context, req 
 	return err
 }
 
-// QueryRoomsForUser retrieves a list of room IDs matching the given query.
-func (t *RoomserverInternalAPITrace) QueryRoomsForUser(ctx context.Context, req *QueryRoomsForUserRequest, res *QueryRoomsForUserResponse) error {
-	err := t.Impl.QueryRoomsForUser(ctx, req, res)
-	util.GetLogger(ctx).WithError(err).Infof("QueryRoomsForUser req=%+v res=%+v", js(req), js(res))
-	return err
-}
-
 // QueryBulkStateContent does a bulk query for state event content in the given rooms.
 func (t *RoomserverInternalAPITrace) QueryBulkStateContent(ctx context.Context, req *QueryBulkStateContentRequest, res *QueryBulkStateContentResponse) error {
 	err := t.Impl.QueryBulkStateContent(ctx, req, res)
 	util.GetLogger(ctx).WithError(err).Infof("QueryBulkStateContent req=%+v res=%+v", js(req), js(res))
-	return err
-}
-
-// QuerySharedUsers returns a list of users who share at least 1 room in common with the given user.
-func (t *RoomserverInternalAPITrace) QuerySharedUsers(ctx context.Context, req *QuerySharedUsersRequest, res *QuerySharedUsersResponse) error {
-	err := t.Impl.QuerySharedUsers(ctx, req, res)
-	util.GetLogger(ctx).WithError(err).Infof("QuerySharedUsers req=%+v res=%+v", js(req), js(res))
 	return err
 }
 
@@ -308,11 +265,21 @@ func (t *RoomserverInternalAPITrace) QueryKnownUsers(ctx context.Context, req *Q
 	return err
 }
 
-// QueryServerBannedFromRoom returns whether a server is banned from a room by server ACLs.
-func (t *RoomserverInternalAPITrace) QueryServerBannedFromRoom(ctx context.Context, req *QueryServerBannedFromRoomRequest, res *QueryServerBannedFromRoomResponse) error {
-	err := t.Impl.QueryServerBannedFromRoom(ctx, req, res)
-	util.GetLogger(ctx).WithError(err).Infof("QueryServerBannedFromRoom req=%+v res=%+v", js(req), js(res))
-	return err
+func (t *RoomserverInternalAPITrace) QueryServerBannedFromRoomGRPC(ctx context.Context, req *proto.ServerBannedFromRoomRequest) (*proto.ServerBannedFromRoomResponse, error) {
+	return t.Impl.QueryServerBannedFromRoomGRPC(ctx, req)
+}
+
+// QuerySharedUsers returns a list of users who share at least 1 room in common with the given user.
+func (t *RoomserverInternalAPITrace) QuerySharedUsersGRPC(ctx context.Context, req *proto.SharedUsersRequest) (*proto.SharedUsersResponse, error) {
+	return t.Impl.QuerySharedUsersGRPC(ctx, req)
+}
+
+func (t *RoomserverInternalAPITrace) QueryRoomVersionForRoomGRPC(ctx context.Context, req *proto.RoomVersionForRoomRequest) (*proto.RoomVersionForRoomResponse, error) {
+	return t.Impl.QueryRoomVersionForRoomGRPC(ctx, req)
+}
+
+func (t *RoomserverInternalAPITrace) QueryRoomVersionCapabilitiesGRPC(ctx context.Context, req *proto.RoomVersionCapabilitiesRequest) (*proto.RoomVersionCapabilitiesResponse, error) {
+	return t.Impl.QueryRoomVersionCapabilitiesGRPC(ctx, req)
 }
 
 func js(thing interface{}) string {

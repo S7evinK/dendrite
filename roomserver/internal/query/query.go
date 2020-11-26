@@ -24,6 +24,8 @@ import (
 	"github.com/matrix-org/dendrite/roomserver/acls"
 	"github.com/matrix-org/dendrite/roomserver/api"
 	"github.com/matrix-org/dendrite/roomserver/internal/helpers"
+	"github.com/matrix-org/dendrite/roomserver/intgrpc"
+	"github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/dendrite/roomserver/state"
 	"github.com/matrix-org/dendrite/roomserver/storage"
 	"github.com/matrix-org/dendrite/roomserver/types"
@@ -37,6 +39,7 @@ type Queryer struct {
 	DB         storage.Database
 	Cache      caching.RoomServerCaches
 	ServerACLs *acls.ServerACLs
+	GrpcClient *intgrpc.RoomServiceClient
 }
 
 // QueryLatestEventsAndState implements api.RoomserverInternalAPI
@@ -715,4 +718,29 @@ func (r *Queryer) QueryServerBannedFromRoom(ctx context.Context, req *api.QueryS
 	}
 	res.Banned = r.ServerACLs.IsServerBannedFromRoom(req.ServerName, req.RoomID)
 	return nil
+}
+
+func (r *Queryer) QueryServerBannedFromRoomGRPC(ctx context.Context, req *proto.ServerBannedFromRoomRequest) (*proto.ServerBannedFromRoomResponse, error) {
+	return r.GrpcClient.QueryServerBannedFromRoom(ctx, req)
+}
+
+func (r *Queryer) QueryPublishedRoomsGRPC(ctx context.Context, req *proto.PublishedRoomsRequest) (*proto.PublishedRoomsResponse, error) {
+	return r.GrpcClient.QueryPublishedRooms(ctx, req)
+}
+
+func (r *Queryer) QueryRoomVersionCapabilitiesGRPC(ctx context.Context, req *proto.RoomVersionCapabilitiesRequest) (*proto.RoomVersionCapabilitiesResponse, error) {
+	return r.GrpcClient.QueryRoomVersionCapabilities(ctx, req)
+}
+
+func (r *Queryer) QueryRoomVersionForRoomGRPC(ctx context.Context, req *proto.RoomVersionForRoomRequest) (*proto.RoomVersionForRoomResponse, error) {
+	return r.GrpcClient.QueryRoomVersionForRoom(ctx, req)
+}
+
+func (r *Queryer) QueryRoomsForUserGRPC(ctx context.Context, req *proto.RoomsForUserRequest) (*proto.RoomsForUserResponse, error) {
+	return r.GrpcClient.QueryRoomsForUser(ctx, req)
+}
+
+func (r *Queryer) QuerySharedUsersGRPC(ctx context.Context, req *proto.SharedUsersRequest) (*proto.SharedUsersResponse, error) {
+	logrus.Debug("queryer: QuerySharedUsersGRPC")
+	return r.GrpcClient.QuerySharedUsers(ctx, req)
 }

@@ -3,20 +3,56 @@ package intgrpc
 import (
 	"context"
 	"errors"
+	"net"
 
 	"github.com/matrix-org/dendrite/internal/caching"
+	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/roomserver/acls"
 	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
 	"github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/dendrite/roomserver/storage"
 	"github.com/matrix-org/dendrite/roomserver/version"
 	"github.com/matrix-org/gomatrixserverlib"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 type RoomServiceServer struct {
 	DB         storage.Database
 	Cache      caching.RoomServerCaches
 	ServerACLs *acls.ServerACLs
+}
+
+func NewRoomServiceServer(cfg *config.RoomServer, cache caching.RoomServerCaches, acl *acls.ServerACLs) *RoomServiceServer {
+	db, err := storage.Open(&cfg.Database, cache)
+	if err != nil {
+		logrus.WithError(err).Panicf("failed to connect to room server db")
+	}
+	return &RoomServiceServer{
+		DB:         db,
+		Cache:      cache,
+		ServerACLs: acl,
+	}
+}
+
+// Listen starts a standalone grpc server
+func (rs *RoomServiceServer) Listen(addr string) {
+	logrus.Debugf("starting gRPC RoomServiceServer on %v", addr)
+	l, err := net.Listen("tcp", addr)
+	if err != nil {
+		logrus.WithError(err).Fatal("Error listening")
+	}
+
+	s := grpc.NewServer()
+	proto.RegisterRoomServiceServer(s, rs)
+	if err := s.Serve(l); err != nil {
+		logrus.WithError(err).Fatal("error serving")
+	}
+}
+
+// Attach attaches this service to an existing grpc server
+func (rs *RoomServiceServer) Attach(server *grpc.Server) {
+	proto.RegisterRoomServiceServer(server, rs)
 }
 
 // ErrNoACLs is returned if a room does not have any ACLs.

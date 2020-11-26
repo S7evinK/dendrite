@@ -12,6 +12,7 @@ import (
 	"github.com/matrix-org/dendrite/roomserver/internal/input"
 	"github.com/matrix-org/dendrite/roomserver/internal/perform"
 	"github.com/matrix-org/dendrite/roomserver/internal/query"
+	"github.com/matrix-org/dendrite/roomserver/intgrpc"
 	"github.com/matrix-org/dendrite/roomserver/storage"
 	"github.com/matrix-org/gomatrixserverlib"
 )
@@ -42,8 +43,9 @@ func NewRoomserverAPI(
 	cfg *config.RoomServer, roomserverDB storage.Database, producer sarama.SyncProducer,
 	outputRoomEventTopic string, caches caching.RoomServerCaches,
 	keyRing gomatrixserverlib.JSONVerifier, perspectiveServerNames []gomatrixserverlib.ServerName,
+	grpcClient *intgrpc.RoomServiceClient, serverACLs *acls.ServerACLs,
 ) *RoomserverInternalAPI {
-	serverACLs := acls.NewServerACLs(roomserverDB)
+	//serverACLs = acls.NewServerACLs(roomserverDB)
 	a := &RoomserverInternalAPI{
 		DB:                     roomserverDB,
 		Cfg:                    cfg,
@@ -55,6 +57,7 @@ func NewRoomserverAPI(
 			DB:         roomserverDB,
 			Cache:      caches,
 			ServerACLs: serverACLs,
+			GrpcClient: grpcClient,
 		},
 		Inputer: &input.Inputer{
 			DB:                   roomserverDB,

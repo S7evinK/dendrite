@@ -10,6 +10,8 @@ import (
 	"github.com/matrix-org/dendrite/internal/caching"
 	"github.com/matrix-org/dendrite/internal/httputil"
 	"github.com/matrix-org/dendrite/roomserver/api"
+	"github.com/matrix-org/dendrite/roomserver/intgrpc"
+	"github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/opentracing/opentracing-go"
 )
 
@@ -44,21 +46,16 @@ const (
 	RoomserverQueryServerAllowedToSeeEventPath = "/roomserver/queryServerAllowedToSeeEvent"
 	RoomserverQueryMissingEventsPath           = "/roomserver/queryMissingEvents"
 	RoomserverQueryStateAndAuthChainPath       = "/roomserver/queryStateAndAuthChain"
-	RoomserverQueryRoomVersionCapabilitiesPath = "/roomserver/queryRoomVersionCapabilities"
-	RoomserverQueryRoomVersionForRoomPath      = "/roomserver/queryRoomVersionForRoom"
-	RoomserverQueryPublishedRoomsPath          = "/roomserver/queryPublishedRooms"
 	RoomserverQueryCurrentStatePath            = "/roomserver/queryCurrentState"
-	RoomserverQueryRoomsForUserPath            = "/roomserver/queryRoomsForUser"
 	RoomserverQueryBulkStateContentPath        = "/roomserver/queryBulkStateContent"
-	RoomserverQuerySharedUsersPath             = "/roomserver/querySharedUsers"
 	RoomserverQueryKnownUsersPath              = "/roomserver/queryKnownUsers"
-	RoomserverQueryServerBannedFromRoomPath    = "/roomserver/queryServerBannedFromRoom"
 )
 
 type httpRoomserverInternalAPI struct {
 	roomserverURL string
 	httpClient    *http.Client
 	cache         caching.RoomVersionCache
+	grpcClient    *intgrpc.RoomServiceClient
 }
 
 // NewRoomserverClient creates a RoomserverInputAPI implemented by talking to a HTTP POST API.
@@ -290,18 +287,6 @@ func (h *httpRoomserverInternalAPI) QueryEventsByID(
 	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
 }
 
-func (h *httpRoomserverInternalAPI) QueryPublishedRooms(
-	ctx context.Context,
-	request *api.QueryPublishedRoomsRequest,
-	response *api.QueryPublishedRoomsResponse,
-) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "QueryPublishedRooms")
-	defer span.Finish()
-
-	apiURL := h.roomserverURL + RoomserverQueryPublishedRoomsPath
-	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
-}
-
 // QueryMembershipForUser implements RoomserverQueryAPI
 func (h *httpRoomserverInternalAPI) QueryMembershipForUser(
 	ctx context.Context,
@@ -393,41 +378,6 @@ func (h *httpRoomserverInternalAPI) PerformBackfill(
 	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
 }
 
-// QueryRoomVersionCapabilities implements RoomServerQueryAPI
-func (h *httpRoomserverInternalAPI) QueryRoomVersionCapabilities(
-	ctx context.Context,
-	request *api.QueryRoomVersionCapabilitiesRequest,
-	response *api.QueryRoomVersionCapabilitiesResponse,
-) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "QueryRoomVersionCapabilities")
-	defer span.Finish()
-
-	apiURL := h.roomserverURL + RoomserverQueryRoomVersionCapabilitiesPath
-	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
-}
-
-// QueryRoomVersionForRoom implements RoomServerQueryAPI
-func (h *httpRoomserverInternalAPI) QueryRoomVersionForRoom(
-	ctx context.Context,
-	request *api.QueryRoomVersionForRoomRequest,
-	response *api.QueryRoomVersionForRoomResponse,
-) error {
-	if roomVersion, ok := h.cache.GetRoomVersion(request.RoomID); ok {
-		response.RoomVersion = roomVersion
-		return nil
-	}
-
-	span, ctx := opentracing.StartSpanFromContext(ctx, "QueryRoomVersionForRoom")
-	defer span.Finish()
-
-	apiURL := h.roomserverURL + RoomserverQueryRoomVersionForRoomPath
-	err := httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
-	if err == nil {
-		h.cache.StoreRoomVersion(request.RoomID, response.RoomVersion)
-	}
-	return err
-}
-
 func (h *httpRoomserverInternalAPI) QueryCurrentState(
 	ctx context.Context,
 	request *api.QueryCurrentStateRequest,
@@ -437,18 +387,6 @@ func (h *httpRoomserverInternalAPI) QueryCurrentState(
 	defer span.Finish()
 
 	apiURL := h.roomserverURL + RoomserverQueryCurrentStatePath
-	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
-}
-
-func (h *httpRoomserverInternalAPI) QueryRoomsForUser(
-	ctx context.Context,
-	request *api.QueryRoomsForUserRequest,
-	response *api.QueryRoomsForUserResponse,
-) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "QueryRoomsForUser")
-	defer span.Finish()
-
-	apiURL := h.roomserverURL + RoomserverQueryRoomsForUserPath
 	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
 }
 
@@ -464,16 +402,6 @@ func (h *httpRoomserverInternalAPI) QueryBulkStateContent(
 	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
 }
 
-func (h *httpRoomserverInternalAPI) QuerySharedUsers(
-	ctx context.Context, req *api.QuerySharedUsersRequest, res *api.QuerySharedUsersResponse,
-) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "QuerySharedUsers")
-	defer span.Finish()
-
-	apiURL := h.roomserverURL + RoomserverQuerySharedUsersPath
-	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, req, res)
-}
-
 func (h *httpRoomserverInternalAPI) QueryKnownUsers(
 	ctx context.Context, req *api.QueryKnownUsersRequest, res *api.QueryKnownUsersResponse,
 ) error {
@@ -484,14 +412,29 @@ func (h *httpRoomserverInternalAPI) QueryKnownUsers(
 	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, req, res)
 }
 
-func (h *httpRoomserverInternalAPI) QueryServerBannedFromRoom(
-	ctx context.Context, req *api.QueryServerBannedFromRoomRequest, res *api.QueryServerBannedFromRoomResponse,
-) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "QueryServerBannedFromRoom")
-	defer span.Finish()
+func (h *httpRoomserverInternalAPI) QueryServerBannedFromRoomGRPC(ctx context.Context, req *proto.ServerBannedFromRoomRequest) (*proto.ServerBannedFromRoomResponse, error) {
+	return h.grpcClient.QueryServerBannedFromRoom(ctx, req)
+}
 
-	apiURL := h.roomserverURL + RoomserverQueryServerBannedFromRoomPath
-	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, req, res)
+// QuerySharedUsersGRPC returns a list of users who share at least 1 room in common with the given user.
+func (h *httpRoomserverInternalAPI) QuerySharedUsersGRPC(ctx context.Context, req *proto.SharedUsersRequest) (*proto.SharedUsersResponse, error) {
+	return h.grpcClient.QuerySharedUsers(ctx, req)
+}
+
+func (h *httpRoomserverInternalAPI) QueryRoomsForUserGRPC(ctx context.Context, req *proto.RoomsForUserRequest) (*proto.RoomsForUserResponse, error) {
+	return h.grpcClient.QueryRoomsForUser(ctx, req)
+}
+
+func (h *httpRoomserverInternalAPI) QueryPublishedRoomsGRPC(ctx context.Context, req *proto.PublishedRoomsRequest) (*proto.PublishedRoomsResponse, error) {
+	return h.grpcClient.QueryPublishedRooms(ctx, req)
+}
+
+func (h *httpRoomserverInternalAPI) QueryRoomVersionForRoomGRPC(ctx context.Context, req *proto.RoomVersionForRoomRequest) (*proto.RoomVersionForRoomResponse, error) {
+	return h.grpcClient.QueryRoomVersionForRoom(ctx, req)
+}
+
+func (h *httpRoomserverInternalAPI) QueryRoomVersionCapabilitiesGRPC(ctx context.Context, req *proto.RoomVersionCapabilitiesRequest) (*proto.RoomVersionCapabilitiesResponse, error) {
+	return h.grpcClient.QueryRoomVersionCapabilities(ctx, req)
 }
 
 func (h *httpRoomserverInternalAPI) PerformForget(ctx context.Context, req *api.PerformForgetRequest, res *api.PerformForgetResponse) error {

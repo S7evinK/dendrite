@@ -35,7 +35,9 @@ message RoomsForUserResponse {
     repeated string RoomIDs = 1;
 }
 
-message PublishedRoomsRequest {}
+message PublishedRoomsRequest {
+    string RoomID = 1;
+}
 
 message PublishedRoomsResponse {
     repeated string RoomIDs = 1;

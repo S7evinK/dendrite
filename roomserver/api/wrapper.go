@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/gomatrixserverlib"
 	"github.com/matrix-org/util"
 )
@@ -157,13 +158,13 @@ func GetStateEvent(ctx context.Context, rsAPI RoomserverInternalAPI, roomID stri
 
 // IsServerBannedFromRoom returns whether the server is banned from a room by server ACLs.
 func IsServerBannedFromRoom(ctx context.Context, rsAPI RoomserverInternalAPI, roomID string, serverName gomatrixserverlib.ServerName) bool {
-	req := &QueryServerBannedFromRoomRequest{
-		ServerName: serverName,
+	req := &proto.ServerBannedFromRoomRequest{
+		ServerName: string(serverName),
 		RoomID:     roomID,
 	}
-	res := &QueryServerBannedFromRoomResponse{}
-	if err := rsAPI.QueryServerBannedFromRoom(ctx, req, res); err != nil {
-		util.GetLogger(ctx).WithError(err).Error("Failed to QueryServerBannedFromRoom")
+	res, err := rsAPI.QueryServerBannedFromRoomGRPC(ctx, req)
+	if err != nil {
+		util.GetLogger(ctx).WithError(err).Error("grpc: Failed to QueryServerBannedFromRoom")
 		return true
 	}
 	return res.Banned

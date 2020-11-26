@@ -16,7 +16,9 @@ package roomserver
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/matrix-org/dendrite/roomserver/acls"
 	"github.com/matrix-org/dendrite/roomserver/api"
+	"github.com/matrix-org/dendrite/roomserver/intgrpc"
 	"github.com/matrix-org/dendrite/roomserver/inthttp"
 	"github.com/matrix-org/gomatrixserverlib"
 
@@ -39,7 +41,8 @@ func AddInternalRoutes(router *mux.Router, intAPI api.RoomserverInternalAPI) {
 func NewInternalAPI(
 	base *setup.BaseDendrite,
 	keyRing gomatrixserverlib.JSONVerifier,
-) api.RoomserverInternalAPI {
+	grpcClient *intgrpc.RoomServiceClient,
+) (api.RoomserverInternalAPI, *acls.ServerACLs) {
 	cfg := &base.Cfg.RoomServer
 
 	_, producer := kafka.SetupConsumerProducer(&cfg.Matrix.Kafka)
@@ -54,8 +57,10 @@ func NewInternalAPI(
 		logrus.WithError(err).Panicf("failed to connect to room server db")
 	}
 
+	acl := acls.NewServerACLs(roomserverDB)
+
 	return internal.NewRoomserverAPI(
 		cfg, roomserverDB, producer, string(cfg.Matrix.Kafka.TopicFor(config.TopicOutputRoomEvent)),
-		base.Caches, keyRing, perspectiveServerNames,
-	)
+		base.Caches, keyRing, perspectiveServerNames, grpcClient, acl,
+	), acl
 }
