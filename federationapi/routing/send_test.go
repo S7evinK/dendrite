@@ -8,7 +8,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
+
 	"github.com/matrix-org/dendrite/eduserver/proto"
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
 
 	fsAPI "github.com/matrix-org/dendrite/federationsender/api"
 	"github.com/matrix-org/dendrite/internal/test"
@@ -77,6 +80,29 @@ type testRoomserverAPI struct {
 	queryStateAfterEvents      func(*api.QueryStateAfterEventsRequest) api.QueryStateAfterEventsResponse
 	queryEventsByID            func(req *api.QueryEventsByIDRequest) api.QueryEventsByIDResponse
 	queryLatestEventsAndState  func(*api.QueryLatestEventsAndStateRequest) api.QueryLatestEventsAndStateResponse
+}
+
+func (t *testRoomserverAPI) QueryPublishedRoomsGRPC(ctx context.Context, req *roomProto.PublishedRoomsRequest) (*roomProto.PublishedRoomsResponse, error) {
+	panic("implement me")
+}
+
+func (t *testRoomserverAPI) QueryRoomsForUserGRPC(ctx context.Context, req *roomProto.RoomsForUserRequest) (*roomProto.RoomsForUserResponse, error) {
+	panic("implement me")
+}
+
+func (t *testRoomserverAPI) QuerySharedUsersGRPC(ctx context.Context, req *roomProto.SharedUsersRequest) (*roomProto.SharedUsersResponse, error) {
+	panic("implement me")
+}
+
+func (t *testRoomserverAPI) QueryRoomVersionCapabilitiesGRPC(ctx context.Context, request *roomProto.RoomVersionCapabilitiesRequest) (*roomProto.RoomVersionCapabilitiesResponse, error) {
+	panic("implement me")
+}
+
+func (t *testRoomserverAPI) QueryRoomVersionForRoomGRPC(ctx context.Context, request *roomProto.RoomVersionForRoomRequest) (*roomProto.RoomVersionForRoomResponse, error) {
+
+	return &roomProto.RoomVersionForRoomResponse{
+		RoomVersion: helper.ToProtoRoomVersion(testRoomVersion),
+	}, nil
 }
 
 func (t *testRoomserverAPI) PerformForget(ctx context.Context, req *api.PerformForgetRequest, resp *api.PerformForgetResponse) error {
@@ -346,6 +372,10 @@ func (t *testRoomserverAPI) QueryKnownUsers(ctx context.Context, req *api.QueryK
 
 func (t *testRoomserverAPI) QueryServerBannedFromRoom(ctx context.Context, req *api.QueryServerBannedFromRoomRequest, res *api.QueryServerBannedFromRoomResponse) error {
 	return nil
+}
+
+func (t *testRoomserverAPI) QueryServerBannedFromRoomGRPC(ctx context.Context, req *roomProto.ServerBannedFromRoomRequest) (*roomProto.ServerBannedFromRoomResponse, error) {
+	return &roomProto.ServerBannedFromRoomResponse{}, nil
 }
 
 type txnFedClient struct {

@@ -16,6 +16,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/internal/eventutil"
@@ -127,17 +130,18 @@ func SendLeave(
 	keys gomatrixserverlib.JSONVerifier,
 	roomID, eventID string,
 ) util.JSONResponse {
-	verReq := api.QueryRoomVersionForRoomRequest{RoomID: roomID}
-	verRes := api.QueryRoomVersionForRoomResponse{}
-	if err := rsAPI.QueryRoomVersionForRoom(httpReq.Context(), &verReq, &verRes); err != nil {
+	verReq := roomProto.RoomVersionForRoomRequest{RoomID: roomID}
+	verRes, err := rsAPI.QueryRoomVersionForRoomGRPC(httpReq.Context(), &verReq)
+	if err != nil {
 		return util.JSONResponse{
 			Code: http.StatusBadRequest,
 			JSON: jsonerror.UnsupportedRoomVersion(err.Error()),
 		}
 	}
+	roomVersion := helper.ToMatrixRoomVersion(verRes.RoomVersion)
 
 	// Decode the event JSON from the request.
-	event, err := gomatrixserverlib.NewEventFromUntrustedJSON(request.Content(), verRes.RoomVersion)
+	event, err := gomatrixserverlib.NewEventFromUntrustedJSON(request.Content(), roomVersion)
 	switch err.(type) {
 	case gomatrixserverlib.BadJSONError:
 		return util.JSONResponse{
@@ -258,7 +262,7 @@ func SendLeave(
 		httpReq.Context(), rsAPI,
 		api.KindNew,
 		[]*gomatrixserverlib.HeaderedEvent{
-			event.Headered(verRes.RoomVersion),
+			event.Headered(roomVersion),
 		},
 		cfg.Matrix.ServerName,
 		nil,

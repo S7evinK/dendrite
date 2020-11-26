@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/httputil"
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	roomserverAPI "github.com/matrix-org/dendrite/roomserver/api"
@@ -57,8 +59,7 @@ func publicRooms(
 		return nil, err
 	}
 
-	var queryRes roomserverAPI.QueryPublishedRoomsResponse
-	err = rsAPI.QueryPublishedRooms(ctx, &roomserverAPI.QueryPublishedRoomsRequest{}, &queryRes)
+	queryRes, err := rsAPI.QueryPublishedRoomsGRPC(ctx, &roomProto.PublishedRoomsRequest{})
 	if err != nil {
 		util.GetLogger(ctx).WithError(err).Error("QueryPublishedRooms failed")
 		return nil, err

@@ -23,6 +23,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/eduserver/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -143,15 +146,17 @@ func (t *txnReq) processTransaction(ctx context.Context) (*gomatrixserverlib.Res
 			// failure in the PDU results
 			continue
 		}
-		verReq := api.QueryRoomVersionForRoomRequest{RoomID: header.RoomID}
-		verRes := api.QueryRoomVersionForRoomResponse{}
-		if err := t.rsAPI.QueryRoomVersionForRoom(ctx, &verReq, &verRes); err != nil {
+
+		verReq := roomProto.RoomVersionForRoomRequest{RoomID: header.RoomID}
+		verRes, err := t.rsAPI.QueryRoomVersionForRoomGRPC(ctx, &verReq)
+		if err != nil {
 			util.GetLogger(ctx).WithError(err).Warn("Transaction: Failed to query room version for room", verReq.RoomID)
 			// We don't know the event ID at this point so we can't return the
 			// failure in the PDU results
 			continue
 		}
-		event, err := gomatrixserverlib.NewEventFromUntrustedJSON(pdu, verRes.RoomVersion)
+		roomVersion := helper.ToMatrixRoomVersion(verRes.RoomVersion)
+		event, err := gomatrixserverlib.NewEventFromUntrustedJSON(pdu, roomVersion)
 		if err != nil {
 			if _, ok := err.(gomatrixserverlib.BadJSONError); ok {
 				// Room version 6 states that homeservers should strictly enforce canonical JSON
@@ -182,7 +187,7 @@ func (t *txnReq) processTransaction(ctx context.Context) (*gomatrixserverlib.Res
 			}
 			continue
 		}
-		pdus = append(pdus, event.Headered(verRes.RoomVersion))
+		pdus = append(pdus, event.Headered(roomVersion))
 	}
 
 	// Process the events.
