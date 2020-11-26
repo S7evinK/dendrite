@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/gorilla/mux"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/internal/hooks"
@@ -494,6 +496,14 @@ type testRoomserverAPI struct {
 	roomserver.RoomserverInternalAPITrace
 	userToJoinedRooms map[string][]string
 	events            map[string]*gomatrixserverlib.HeaderedEvent
+}
+
+func (r *testRoomserverAPI) QueryPublishedRoomsGRPC(ctx context.Context, req *roomProto.PublishedRoomsRequest) (*roomProto.PublishedRoomsResponse, error) {
+	panic("implement me")
+}
+
+func (r *testRoomserverAPI) QueryRoomsForUserGRPC(ctx context.Context, req *roomProto.RoomsForUserRequest) (*roomProto.RoomsForUserResponse, error) {
+	panic("implement me")
 }
 
 func (r *testRoomserverAPI) QueryEventsByID(ctx context.Context, req *roomserver.QueryEventsByIDRequest, res *roomserver.QueryEventsByIDResponse) error {
