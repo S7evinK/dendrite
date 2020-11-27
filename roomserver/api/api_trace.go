@@ -135,16 +135,6 @@ func (t *RoomserverInternalAPITrace) QueryMembershipsForRoom(
 	return err
 }
 
-func (t *RoomserverInternalAPITrace) QueryServerJoinedToRoom(
-	ctx context.Context,
-	req *QueryServerJoinedToRoomRequest,
-	res *QueryServerJoinedToRoomResponse,
-) error {
-	err := t.Impl.QueryServerJoinedToRoom(ctx, req, res)
-	util.GetLogger(ctx).WithError(err).Infof("QueryServerJoinedToRoom req=%+v res=%+v", js(req), js(res))
-	return err
-}
-
 func (t *RoomserverInternalAPITrace) QueryMissingEvents(
 	ctx context.Context,
 	req *QueryMissingEventsRequest,
@@ -274,6 +264,10 @@ func (t *RoomserverInternalAPITrace) QueryRoomVersionCapabilitiesGRPC(ctx contex
 
 func (t *RoomserverInternalAPITrace) QueryServerAllowedToSeeEventGRPC(ctx context.Context, req *proto.ServerAllowedToSeeEventRequest) (*proto.ServerAllowedToSeeEventResponse, error) {
 	return t.Impl.QueryServerAllowedToSeeEventGRPC(ctx, req)
+}
+
+func (t *RoomserverInternalAPITrace) QueryServerJoinedToRoomGRPC(ctx context.Context, req *proto.ServerJoinedToRoomRequest) (*proto.ServerJoinedToRoomResponse, error) {
+	return t.Impl.QueryServerJoinedToRoomGRPC(ctx, req)
 }
 
 func js(thing interface{}) string {

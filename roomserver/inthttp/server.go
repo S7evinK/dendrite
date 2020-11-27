@@ -168,20 +168,6 @@ func AddRoutes(r api.RoomserverInternalAPI, internalAPIMux *mux.Router) {
 		}),
 	)
 	internalAPIMux.Handle(
-		RoomserverQueryServerJoinedToRoomPath,
-		httputil.MakeInternalAPI("queryServerJoinedToRoom", func(req *http.Request) util.JSONResponse {
-			var request api.QueryServerJoinedToRoomRequest
-			var response api.QueryServerJoinedToRoomResponse
-			if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-				return util.ErrorResponse(err)
-			}
-			if err := r.QueryServerJoinedToRoom(req.Context(), &request, &response); err != nil {
-				return util.ErrorResponse(err)
-			}
-			return util.JSONResponse{Code: http.StatusOK, JSON: &response}
-		}),
-	)
-	internalAPIMux.Handle(
 		RoomserverQueryMissingEventsPath,
 		httputil.MakeInternalAPI("queryMissingEvents", func(req *http.Request) util.JSONResponse {
 			var request api.QueryMissingEventsRequest

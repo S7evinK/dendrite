@@ -66,3 +66,14 @@ message ServerAllowedToSeeEventRequest {
 message ServerAllowedToSeeEventResponse {
     bool AllowedToSeeEvent = 1;
 }
+
+message ServerJoinedToRoomRequest {
+    string ServerName = 1;
+    string RoomID = 2;
+}
+
+message ServerJoinedToRoomResponse {
+    bool RoomExists = 1;
+    bool IsInRoom = 2;
+    repeated string ServerNames = 3;
+}

@@ -243,3 +243,51 @@ func (rs *RoomServiceServer) QueryServerAllowedToSeeEvent(
 
 	return res, nil
 }
+
+// QueryServerJoinedToRoom checks if we think we're still in a room.
+func (rs *RoomServiceServer) QueryServerJoinedToRoom(
+	ctx context.Context, req *proto.ServerJoinedToRoomRequest,
+) (*proto.ServerJoinedToRoomResponse, error) {
+	res := &proto.ServerJoinedToRoomResponse{}
+	info, err := rs.DB.RoomInfo(ctx, req.RoomID)
+	if err != nil {
+		return res, status.Error(codes.Internal, fmt.Errorf("r.DB.RoomInfo: %w", err).Error())
+	}
+	if info == nil || info.IsStub {
+		return res, nil
+	}
+	res.RoomExists = true
+
+	eventNIDs, err := rs.DB.GetMembershipEventNIDsForRoom(ctx, info.RoomNID, true, false)
+	if err != nil {
+		return res, status.Error(codes.Internal, fmt.Errorf("r.DB.GetMembershipEventNIDsForRoom: %w", err).Error())
+	}
+	if len(eventNIDs) == 0 {
+		return res, nil
+	}
+
+	events, err := rs.DB.Events(ctx, eventNIDs)
+	if err != nil {
+		return res, status.Error(codes.Internal, fmt.Errorf("r.DB.Events: %w", err).Error())
+	}
+
+	servers := map[gomatrixserverlib.ServerName]struct{}{}
+	for _, e := range events {
+		if e.Type() == gomatrixserverlib.MRoomMember && e.StateKey() != nil {
+			_, serverName, err := gomatrixserverlib.SplitID('@', *e.StateKey())
+			if err != nil {
+				continue
+			}
+			servers[serverName] = struct{}{}
+			if serverName == gomatrixserverlib.ServerName(req.ServerName) {
+				res.IsInRoom = true
+			}
+		}
+	}
+
+	for server := range servers {
+		res.ServerNames = append(res.ServerNames, string(server))
+	}
+
+	return res, nil
+}

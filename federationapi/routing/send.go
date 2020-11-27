@@ -23,20 +23,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
-	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
-
-	"github.com/matrix-org/dendrite/eduserver/proto"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	eduserverAPI "github.com/matrix-org/dendrite/eduserver/api"
+	"github.com/matrix-org/dendrite/eduserver/proto"
 	"github.com/matrix-org/dendrite/internal/config"
 	keyapi "github.com/matrix-org/dendrite/keyserver/api"
 	"github.com/matrix-org/dendrite/roomserver/api"
+	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/gomatrixserverlib"
 	"github.com/matrix-org/util"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Send implements /_matrix/federation/v1/send/{txnID}
@@ -409,12 +407,16 @@ func (t *txnReq) processDeviceListUpdate(ctx context.Context, e gomatrixserverli
 
 func (t *txnReq) getServers(ctx context.Context, roomID string) []gomatrixserverlib.ServerName {
 	servers := []gomatrixserverlib.ServerName{t.Origin}
-	serverReq := &api.QueryServerJoinedToRoomRequest{
+	serverReq := &roomProto.ServerJoinedToRoomRequest{
 		RoomID: roomID,
 	}
-	serverRes := &api.QueryServerJoinedToRoomResponse{}
-	if err := t.rsAPI.QueryServerJoinedToRoom(ctx, serverReq, serverRes); err == nil {
-		servers = append(servers, serverRes.ServerNames...)
+	serverRes, err := t.rsAPI.QueryServerJoinedToRoomGRPC(ctx, serverReq)
+	if err == nil {
+		servers = make([]gomatrixserverlib.ServerName, len(serverRes.ServerNames)+1)
+		servers[0] = t.Origin
+		for x := range serverRes.ServerNames {
+			servers[x+1] = gomatrixserverlib.ServerName(serverRes.ServerNames[x])
+		}
 		util.GetLogger(ctx).Infof("Found %d server(s) to query for missing events in %q", len(servers), roomID)
 	}
 	return servers
@@ -862,12 +864,16 @@ func (t *txnReq) getMissingEvents(ctx context.Context, e *gomatrixserverlib.Even
 	}
 
 	servers := []gomatrixserverlib.ServerName{t.Origin}
-	serverReq := &api.QueryServerJoinedToRoomRequest{
+	serverReq := &roomProto.ServerJoinedToRoomRequest{
 		RoomID: e.RoomID(),
 	}
-	serverRes := &api.QueryServerJoinedToRoomResponse{}
-	if err = t.rsAPI.QueryServerJoinedToRoom(ctx, serverReq, serverRes); err == nil {
-		servers = append(servers, serverRes.ServerNames...)
+	serverRes, err := t.rsAPI.QueryServerJoinedToRoomGRPC(ctx, serverReq)
+	if err == nil {
+		servers = make([]gomatrixserverlib.ServerName, len(serverRes.ServerNames)+1)
+		servers[0] = t.Origin
+		for x := range serverRes.ServerNames {
+			servers[x+1] = gomatrixserverlib.ServerName(serverRes.ServerNames[x])
+		}
 		logger.Infof("Found %d server(s) to query for missing events", len(servers))
 	}
 

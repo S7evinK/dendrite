@@ -20,13 +20,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
-	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
-
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/internal/eventutil"
 	"github.com/matrix-org/dendrite/roomserver/api"
+	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
+	"github.com/matrix-org/dendrite/roomserver/proto"
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/gomatrixserverlib"
 	"github.com/matrix-org/util"
 )
@@ -84,12 +84,12 @@ func MakeJoin(
 	}
 
 	// Check if we think we are still joined to the room
-	inRoomReq := &api.QueryServerJoinedToRoomRequest{
-		ServerName: cfg.Matrix.ServerName,
+	inRoomReq := &proto.ServerJoinedToRoomRequest{
+		ServerName: string(cfg.Matrix.ServerName),
 		RoomID:     roomID,
 	}
-	inRoomRes := &api.QueryServerJoinedToRoomResponse{}
-	if err = rsAPI.QueryServerJoinedToRoom(httpReq.Context(), inRoomReq, inRoomRes); err != nil {
+	inRoomRes, err := rsAPI.QueryServerJoinedToRoomGRPC(httpReq.Context(), inRoomReq)
+	if err != nil {
 		util.GetLogger(httpReq.Context()).WithError(err).Error("rsAPI.QueryServerJoinedToRoom failed")
 		return jsonerror.InternalServerError()
 	}

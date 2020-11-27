@@ -97,11 +97,10 @@ type RoomserverInternalAPI interface {
 	) error
 
 	// Query if we think we're still in a room.
-	QueryServerJoinedToRoom(
+	QueryServerJoinedToRoomGRPC(
 		ctx context.Context,
-		request *QueryServerJoinedToRoomRequest,
-		response *QueryServerJoinedToRoomResponse,
-	) error
+		req *proto.ServerJoinedToRoomRequest,
+	) (*proto.ServerJoinedToRoomResponse, error)
 
 	// Query whether a server is allowed to see an event
 	QueryServerAllowedToSeeEventGRPC(

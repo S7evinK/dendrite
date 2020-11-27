@@ -722,6 +722,124 @@ func (x *ServerAllowedToSeeEventResponse) GetAllowedToSeeEvent() bool {
 	return false
 }
 
+type ServerJoinedToRoomRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ServerName string `protobuf:"bytes,1,opt,name=ServerName,proto3" json:"ServerName,omitempty"`
+	RoomID     string `protobuf:"bytes,2,opt,name=RoomID,proto3" json:"RoomID,omitempty"`
+}
+
+func (x *ServerJoinedToRoomRequest) Reset() {
+	*x = ServerJoinedToRoomRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_query_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ServerJoinedToRoomRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServerJoinedToRoomRequest) ProtoMessage() {}
+
+func (x *ServerJoinedToRoomRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_query_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServerJoinedToRoomRequest.ProtoReflect.Descriptor instead.
+func (*ServerJoinedToRoomRequest) Descriptor() ([]byte, []int) {
+	return file_query_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ServerJoinedToRoomRequest) GetServerName() string {
+	if x != nil {
+		return x.ServerName
+	}
+	return ""
+}
+
+func (x *ServerJoinedToRoomRequest) GetRoomID() string {
+	if x != nil {
+		return x.RoomID
+	}
+	return ""
+}
+
+type ServerJoinedToRoomResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	RoomExists  bool     `protobuf:"varint,1,opt,name=RoomExists,proto3" json:"RoomExists,omitempty"`
+	IsInRoom    bool     `protobuf:"varint,2,opt,name=IsInRoom,proto3" json:"IsInRoom,omitempty"`
+	ServerNames []string `protobuf:"bytes,3,rep,name=ServerNames,proto3" json:"ServerNames,omitempty"`
+}
+
+func (x *ServerJoinedToRoomResponse) Reset() {
+	*x = ServerJoinedToRoomResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_query_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ServerJoinedToRoomResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServerJoinedToRoomResponse) ProtoMessage() {}
+
+func (x *ServerJoinedToRoomResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_query_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServerJoinedToRoomResponse.ProtoReflect.Descriptor instead.
+func (*ServerJoinedToRoomResponse) Descriptor() ([]byte, []int) {
+	return file_query_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ServerJoinedToRoomResponse) GetRoomExists() bool {
+	if x != nil {
+		return x.RoomExists
+	}
+	return false
+}
+
+func (x *ServerJoinedToRoomResponse) GetIsInRoom() bool {
+	if x != nil {
+		return x.IsInRoom
+	}
+	return false
+}
+
+func (x *ServerJoinedToRoomResponse) GetServerNames() []string {
+	if x != nil {
+		return x.ServerNames
+	}
+	return nil
+}
+
 var File_query_proto protoreflect.FileDescriptor
 
 var file_query_proto_rawDesc = []byte{
@@ -810,8 +928,21 @@ var file_query_proto_rawDesc = []byte{
 	0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2c, 0x0a, 0x11,
 	0x41, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x54, 0x6f, 0x53, 0x65, 0x65, 0x45, 0x76, 0x65, 0x6e,
 	0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x11, 0x41, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64,
-	0x54, 0x6f, 0x53, 0x65, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x3b,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x54, 0x6f, 0x53, 0x65, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x22, 0x53, 0x0a, 0x19, 0x53, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x65, 0x64, 0x54, 0x6f, 0x52, 0x6f, 0x6f, 0x6d,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1e, 0x0a, 0x0a, 0x53, 0x65, 0x72, 0x76, 0x65,
+	0x72, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x53, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x52, 0x6f, 0x6f, 0x6d, 0x49,
+	0x44, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x52, 0x6f, 0x6f, 0x6d, 0x49, 0x44, 0x22,
+	0x7a, 0x0a, 0x1a, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x65, 0x64, 0x54,
+	0x6f, 0x52, 0x6f, 0x6f, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1e, 0x0a,
+	0x0a, 0x52, 0x6f, 0x6f, 0x6d, 0x45, 0x78, 0x69, 0x73, 0x74, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x08, 0x52, 0x0a, 0x52, 0x6f, 0x6f, 0x6d, 0x45, 0x78, 0x69, 0x73, 0x74, 0x73, 0x12, 0x1a, 0x0a,
+	0x08, 0x49, 0x73, 0x49, 0x6e, 0x52, 0x6f, 0x6f, 0x6d, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x08, 0x49, 0x73, 0x49, 0x6e, 0x52, 0x6f, 0x6f, 0x6d, 0x12, 0x20, 0x0a, 0x0b, 0x53, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0b,
+	0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x73, 0x42, 0x09, 0x5a, 0x07, 0x2e,
+	0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -826,7 +957,7 @@ func file_query_proto_rawDescGZIP() []byte {
 	return file_query_proto_rawDescData
 }
 
-var file_query_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_query_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_query_proto_goTypes = []interface{}{
 	(*ServerBannedFromRoomRequest)(nil),     // 0: query.ServerBannedFromRoomRequest
 	(*ServerBannedFromRoomResponse)(nil),    // 1: query.ServerBannedFromRoomResponse
@@ -842,15 +973,17 @@ var file_query_proto_goTypes = []interface{}{
 	(*RoomVersionCapabilitiesResponse)(nil), // 11: query.RoomVersionCapabilitiesResponse
 	(*ServerAllowedToSeeEventRequest)(nil),  // 12: query.ServerAllowedToSeeEventRequest
 	(*ServerAllowedToSeeEventResponse)(nil), // 13: query.ServerAllowedToSeeEventResponse
-	nil,                                     // 14: query.SharedUsersResponse.UserIDsToCountEntry
-	nil,                                     // 15: query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
-	(RoomVersion)(0),                        // 16: common.RoomVersion
+	(*ServerJoinedToRoomRequest)(nil),       // 14: query.ServerJoinedToRoomRequest
+	(*ServerJoinedToRoomResponse)(nil),      // 15: query.ServerJoinedToRoomResponse
+	nil,                                     // 16: query.SharedUsersResponse.UserIDsToCountEntry
+	nil,                                     // 17: query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
+	(RoomVersion)(0),                        // 18: common.RoomVersion
 }
 var file_query_proto_depIdxs = []int32{
-	14, // 0: query.SharedUsersResponse.UserIDsToCount:type_name -> query.SharedUsersResponse.UserIDsToCountEntry
-	16, // 1: query.RoomVersionForRoomResponse.RoomVersion:type_name -> common.RoomVersion
-	16, // 2: query.RoomVersionCapabilitiesResponse.DefaultRoomVersion:type_name -> common.RoomVersion
-	15, // 3: query.RoomVersionCapabilitiesResponse.AvailableRoomVersions:type_name -> query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
+	16, // 0: query.SharedUsersResponse.UserIDsToCount:type_name -> query.SharedUsersResponse.UserIDsToCountEntry
+	18, // 1: query.RoomVersionForRoomResponse.RoomVersion:type_name -> common.RoomVersion
+	18, // 2: query.RoomVersionCapabilitiesResponse.DefaultRoomVersion:type_name -> common.RoomVersion
+	17, // 3: query.RoomVersionCapabilitiesResponse.AvailableRoomVersions:type_name -> query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
 	4,  // [4:4] is the sub-list for method output_type
 	4,  // [4:4] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
@@ -1033,6 +1166,30 @@ func file_query_proto_init() {
 				return nil
 			}
 		}
+		file_query_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ServerJoinedToRoomRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_query_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ServerJoinedToRoomResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1040,7 +1197,7 @@ func file_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_query_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

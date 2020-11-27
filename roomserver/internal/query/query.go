@@ -748,3 +748,7 @@ func (r *Queryer) QuerySharedUsersGRPC(ctx context.Context, req *proto.SharedUse
 func (r *Queryer) QueryServerAllowedToSeeEventGRPC(ctx context.Context, req *proto.ServerAllowedToSeeEventRequest) (*proto.ServerAllowedToSeeEventResponse, error) {
 	return r.GrpcClient.QueryServerAllowedToSeeEvent(ctx, req)
 }
+
+func (r *Queryer) QueryServerJoinedToRoomGRPC(ctx context.Context, req *proto.ServerJoinedToRoomRequest) (*proto.ServerJoinedToRoomResponse, error) {
+	return r.GrpcClient.QueryServerJoinedToRoomGRPC(ctx, req)
+}
