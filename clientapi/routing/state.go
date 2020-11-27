@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"net/http"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	"github.com/matrix-org/dendrite/roomserver/api"
 	userapi "github.com/matrix-org/dendrite/userapi/api"
@@ -81,14 +83,15 @@ func OnIncomingStateRequest(ctx context.Context, device *userapi.Device, rsAPI a
 	// return any state. If the user was in the room previously but is no
 	// longer then we will return the state at the time that the user left.
 	// membershipRes will only be populated if the room is not world-readable.
-	var membershipRes api.QueryMembershipForUserResponse
+	membershipRes := &roomProto.MembershipForUserResponse{}
 	if !worldReadable {
+		var err error
 		// The room isn't world-readable so try to work out based on the
 		// user's membership if we want the latest state or not.
-		err := rsAPI.QueryMembershipForUser(ctx, &api.QueryMembershipForUserRequest{
+		membershipRes, err = rsAPI.QueryMembershipForUserGRPC(ctx, &roomProto.MembershipForUserRequest{
 			RoomID: roomID,
 			UserID: device.UserID,
-		}, &membershipRes)
+		})
 		if err != nil {
 			util.GetLogger(ctx).WithError(err).Error("Failed to QueryMembershipForUser")
 			return jsonerror.InternalServerError()
@@ -222,14 +225,15 @@ func OnIncomingStateTypeRequest(
 	// return any state. If the user was in the room previously but is no
 	// longer then we will return the state at the time that the user left.
 	// membershipRes will only be populated if the room is not world-readable.
-	var membershipRes api.QueryMembershipForUserResponse
+	membershipRes := &roomProto.MembershipForUserResponse{}
 	if !worldReadable {
+		var err error
 		// The room isn't world-readable so try to work out based on the
 		// user's membership if we want the latest state or not.
-		err := rsAPI.QueryMembershipForUser(ctx, &api.QueryMembershipForUserRequest{
+		membershipRes, err = rsAPI.QueryMembershipForUserGRPC(ctx, &roomProto.MembershipForUserRequest{
 			RoomID: roomID,
 			UserID: device.UserID,
-		}, &membershipRes)
+		})
 		if err != nil {
 			util.GetLogger(ctx).WithError(err).Error("Failed to QueryMembershipForUser")
 			return jsonerror.InternalServerError()

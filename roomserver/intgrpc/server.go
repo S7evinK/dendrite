@@ -7,6 +7,8 @@ import (
 	"net"
 	"time"
 
+	"github.com/matrix-org/dendrite/roomserver/types"
+
 	"github.com/matrix-org/dendrite/internal/caching"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/roomserver/acls"
@@ -287,6 +289,50 @@ func (rs *RoomServiceServer) QueryServerJoinedToRoom(
 
 	for server := range servers {
 		res.ServerNames = append(res.ServerNames, string(server))
+	}
+
+	return res, nil
+}
+
+// Query the membership event for an user for a room.
+func (rs *RoomServiceServer) QueryMembershipForUser(
+	ctx context.Context, request *proto.MembershipForUserRequest,
+) (*proto.MembershipForUserResponse, error) {
+	res := &proto.MembershipForUserResponse{}
+	info, err := rs.DB.RoomInfo(ctx, request.RoomID)
+	if err != nil {
+		return res, status.Error(codes.Internal, err.Error())
+	}
+	if info == nil {
+		return res, status.Error(codes.Internal, fmt.Errorf("QueryMembershipForUser: unknown room %s", request.RoomID).Error())
+	}
+
+	membershipEventNID, stillInRoom, isRoomforgotten, err := rs.DB.GetMembership(ctx, info.RoomNID, request.UserID)
+	if err != nil {
+		return res, status.Error(codes.Internal, err.Error())
+	}
+
+	res.IsRoomForgotten = isRoomforgotten
+
+	if membershipEventNID == 0 {
+		res.HasBeenInRoom = false
+		return res, nil
+	}
+
+	res.IsInRoom = stillInRoom
+	res.HasBeenInRoom = true
+
+	evs, err := rs.DB.Events(ctx, []types.EventNID{membershipEventNID})
+	if err != nil {
+		return res, status.Error(codes.Internal, err.Error())
+	}
+	if len(evs) != 1 {
+		return res, status.Error(codes.Internal, fmt.Errorf("failed to load membership event for event NID %d", membershipEventNID).Error())
+	}
+
+	res.EventID = evs[0].EventID()
+	if res.Membership, err = evs[0].Membership(); err != nil {
+		return res, status.Error(codes.Internal, err.Error())
 	}
 
 	return res, nil

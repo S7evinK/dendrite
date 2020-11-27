@@ -68,3 +68,7 @@ func (r RoomServiceClient) QueryServerAllowedToSeeEvent(ctx context.Context, in 
 func (r RoomServiceClient) QueryServerJoinedToRoomGRPC(ctx context.Context, in *proto.ServerJoinedToRoomRequest) (*proto.ServerJoinedToRoomResponse, error) {
 	return r.client.QueryServerJoinedToRoom(ctx, in)
 }
+
+func (r RoomServiceClient) QueryMembershipForUserGRPC(ctx context.Context, in *proto.MembershipForUserRequest) (*proto.MembershipForUserResponse, error) {
+	return r.client.QueryMembershipForUser(ctx, in)
+}

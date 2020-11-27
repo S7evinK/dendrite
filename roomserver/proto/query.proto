@@ -77,3 +77,16 @@ message ServerJoinedToRoomResponse {
     bool IsInRoom = 2;
     repeated string ServerNames = 3;
 }
+
+message MembershipForUserRequest {
+    string RoomID = 1;
+    string UserID = 2;
+}
+
+message MembershipForUserResponse {
+    string EventID = 1;
+    bool HasBeenInRoom = 2;
+    bool IsInRoom = 3;
+    string Membership = 4;
+    bool IsRoomForgotten = 5;
+}

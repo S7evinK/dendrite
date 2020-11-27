@@ -83,11 +83,10 @@ type RoomserverInternalAPI interface {
 	) error
 
 	// Query the membership event for an user for a room.
-	QueryMembershipForUser(
+	QueryMembershipForUserGRPC(
 		ctx context.Context,
-		request *QueryMembershipForUserRequest,
-		response *QueryMembershipForUserResponse,
-	) error
+		req *proto.MembershipForUserRequest,
+	) (*proto.MembershipForUserResponse, error)
 
 	// Query a list of membership events for a room
 	QueryMembershipsForRoom(

@@ -73,7 +73,7 @@ var file_roomserver_proto_rawDesc = []byte{
 	0x0a, 0x10, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x12, 0x0a, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x1a, 0x0b,
 	0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x0f, 0x0a, 0x0d, 0x45,
-	0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xfe, 0x05, 0x0a,
+	0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xdb, 0x06, 0x0a,
 	0x0b, 0x52, 0x6f, 0x6f, 0x6d, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x64, 0x0a, 0x19,
 	0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x42, 0x61, 0x6e, 0x6e, 0x65,
 	0x64, 0x46, 0x72, 0x6f, 0x6d, 0x52, 0x6f, 0x6f, 0x6d, 0x12, 0x22, 0x2e, 0x71, 0x75, 0x65, 0x72,
@@ -121,8 +121,14 @@ var file_roomserver_proto_rawDesc = []byte{
 	0x2e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x65, 0x64, 0x54, 0x6f, 0x52,
 	0x6f, 0x6f, 0x6d, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x71, 0x75, 0x65,
 	0x72, 0x79, 0x2e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4a, 0x6f, 0x69, 0x6e, 0x65, 0x64, 0x54,
-	0x6f, 0x52, 0x6f, 0x6f, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x09, 0x5a,
-	0x07, 0x2e, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x52, 0x6f, 0x6f, 0x6d, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5b, 0x0a,
+	0x16, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70,
+	0x46, 0x6f, 0x72, 0x55, 0x73, 0x65, 0x72, 0x12, 0x1f, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e,
+	0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x46, 0x6f, 0x72, 0x55, 0x73, 0x65,
+	0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79,
+	0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x46, 0x6f, 0x72, 0x55, 0x73,
+	0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x3b,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -148,14 +154,16 @@ var file_roomserver_proto_goTypes = []interface{}{
 	(*RoomVersionCapabilitiesRequest)(nil),  // 6: query.RoomVersionCapabilitiesRequest
 	(*ServerAllowedToSeeEventRequest)(nil),  // 7: query.ServerAllowedToSeeEventRequest
 	(*ServerJoinedToRoomRequest)(nil),       // 8: query.ServerJoinedToRoomRequest
-	(*ServerBannedFromRoomResponse)(nil),    // 9: query.ServerBannedFromRoomResponse
-	(*SharedUsersResponse)(nil),             // 10: query.SharedUsersResponse
-	(*RoomsForUserResponse)(nil),            // 11: query.RoomsForUserResponse
-	(*PublishedRoomsResponse)(nil),          // 12: query.PublishedRoomsResponse
-	(*RoomVersionForRoomResponse)(nil),      // 13: query.RoomVersionForRoomResponse
-	(*RoomVersionCapabilitiesResponse)(nil), // 14: query.RoomVersionCapabilitiesResponse
-	(*ServerAllowedToSeeEventResponse)(nil), // 15: query.ServerAllowedToSeeEventResponse
-	(*ServerJoinedToRoomResponse)(nil),      // 16: query.ServerJoinedToRoomResponse
+	(*MembershipForUserRequest)(nil),        // 9: query.MembershipForUserRequest
+	(*ServerBannedFromRoomResponse)(nil),    // 10: query.ServerBannedFromRoomResponse
+	(*SharedUsersResponse)(nil),             // 11: query.SharedUsersResponse
+	(*RoomsForUserResponse)(nil),            // 12: query.RoomsForUserResponse
+	(*PublishedRoomsResponse)(nil),          // 13: query.PublishedRoomsResponse
+	(*RoomVersionForRoomResponse)(nil),      // 14: query.RoomVersionForRoomResponse
+	(*RoomVersionCapabilitiesResponse)(nil), // 15: query.RoomVersionCapabilitiesResponse
+	(*ServerAllowedToSeeEventResponse)(nil), // 16: query.ServerAllowedToSeeEventResponse
+	(*ServerJoinedToRoomResponse)(nil),      // 17: query.ServerJoinedToRoomResponse
+	(*MembershipForUserResponse)(nil),       // 18: query.MembershipForUserResponse
 }
 var file_roomserver_proto_depIdxs = []int32{
 	1,  // 0: roomserver.RoomService.QueryServerBannedFromRoom:input_type -> query.ServerBannedFromRoomRequest
@@ -166,16 +174,18 @@ var file_roomserver_proto_depIdxs = []int32{
 	6,  // 5: roomserver.RoomService.QueryRoomVersionCapabilities:input_type -> query.RoomVersionCapabilitiesRequest
 	7,  // 6: roomserver.RoomService.QueryServerAllowedToSeeEvent:input_type -> query.ServerAllowedToSeeEventRequest
 	8,  // 7: roomserver.RoomService.QueryServerJoinedToRoom:input_type -> query.ServerJoinedToRoomRequest
-	9,  // 8: roomserver.RoomService.QueryServerBannedFromRoom:output_type -> query.ServerBannedFromRoomResponse
-	10, // 9: roomserver.RoomService.QuerySharedUsers:output_type -> query.SharedUsersResponse
-	11, // 10: roomserver.RoomService.QueryRoomsForUser:output_type -> query.RoomsForUserResponse
-	12, // 11: roomserver.RoomService.QueryPublishedRooms:output_type -> query.PublishedRoomsResponse
-	13, // 12: roomserver.RoomService.QueryRoomVersionForRoom:output_type -> query.RoomVersionForRoomResponse
-	14, // 13: roomserver.RoomService.QueryRoomVersionCapabilities:output_type -> query.RoomVersionCapabilitiesResponse
-	15, // 14: roomserver.RoomService.QueryServerAllowedToSeeEvent:output_type -> query.ServerAllowedToSeeEventResponse
-	16, // 15: roomserver.RoomService.QueryServerJoinedToRoom:output_type -> query.ServerJoinedToRoomResponse
-	8,  // [8:16] is the sub-list for method output_type
-	0,  // [0:8] is the sub-list for method input_type
+	9,  // 8: roomserver.RoomService.QueryMembershipForUser:input_type -> query.MembershipForUserRequest
+	10, // 9: roomserver.RoomService.QueryServerBannedFromRoom:output_type -> query.ServerBannedFromRoomResponse
+	11, // 10: roomserver.RoomService.QuerySharedUsers:output_type -> query.SharedUsersResponse
+	12, // 11: roomserver.RoomService.QueryRoomsForUser:output_type -> query.RoomsForUserResponse
+	13, // 12: roomserver.RoomService.QueryPublishedRooms:output_type -> query.PublishedRoomsResponse
+	14, // 13: roomserver.RoomService.QueryRoomVersionForRoom:output_type -> query.RoomVersionForRoomResponse
+	15, // 14: roomserver.RoomService.QueryRoomVersionCapabilities:output_type -> query.RoomVersionCapabilitiesResponse
+	16, // 15: roomserver.RoomService.QueryServerAllowedToSeeEvent:output_type -> query.ServerAllowedToSeeEventResponse
+	17, // 16: roomserver.RoomService.QueryServerJoinedToRoom:output_type -> query.ServerJoinedToRoomResponse
+	18, // 17: roomserver.RoomService.QueryMembershipForUser:output_type -> query.MembershipForUserResponse
+	9,  // [9:18] is the sub-list for method output_type
+	0,  // [0:9] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -241,6 +251,7 @@ type RoomServiceClient interface {
 	QueryRoomVersionCapabilities(ctx context.Context, in *RoomVersionCapabilitiesRequest, opts ...grpc.CallOption) (*RoomVersionCapabilitiesResponse, error)
 	QueryServerAllowedToSeeEvent(ctx context.Context, in *ServerAllowedToSeeEventRequest, opts ...grpc.CallOption) (*ServerAllowedToSeeEventResponse, error)
 	QueryServerJoinedToRoom(ctx context.Context, in *ServerJoinedToRoomRequest, opts ...grpc.CallOption) (*ServerJoinedToRoomResponse, error)
+	QueryMembershipForUser(ctx context.Context, in *MembershipForUserRequest, opts ...grpc.CallOption) (*MembershipForUserResponse, error)
 }
 
 type roomServiceClient struct {
@@ -323,6 +334,15 @@ func (c *roomServiceClient) QueryServerJoinedToRoom(ctx context.Context, in *Ser
 	return out, nil
 }
 
+func (c *roomServiceClient) QueryMembershipForUser(ctx context.Context, in *MembershipForUserRequest, opts ...grpc.CallOption) (*MembershipForUserResponse, error) {
+	out := new(MembershipForUserResponse)
+	err := c.cc.Invoke(ctx, "/roomserver.RoomService/QueryMembershipForUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoomServiceServer is the server API for RoomService service.
 type RoomServiceServer interface {
 	QueryServerBannedFromRoom(context.Context, *ServerBannedFromRoomRequest) (*ServerBannedFromRoomResponse, error)
@@ -333,6 +353,7 @@ type RoomServiceServer interface {
 	QueryRoomVersionCapabilities(context.Context, *RoomVersionCapabilitiesRequest) (*RoomVersionCapabilitiesResponse, error)
 	QueryServerAllowedToSeeEvent(context.Context, *ServerAllowedToSeeEventRequest) (*ServerAllowedToSeeEventResponse, error)
 	QueryServerJoinedToRoom(context.Context, *ServerJoinedToRoomRequest) (*ServerJoinedToRoomResponse, error)
+	QueryMembershipForUser(context.Context, *MembershipForUserRequest) (*MembershipForUserResponse, error)
 }
 
 // UnimplementedRoomServiceServer can be embedded to have forward compatible implementations.
@@ -362,6 +383,9 @@ func (*UnimplementedRoomServiceServer) QueryServerAllowedToSeeEvent(context.Cont
 }
 func (*UnimplementedRoomServiceServer) QueryServerJoinedToRoom(context.Context, *ServerJoinedToRoomRequest) (*ServerJoinedToRoomResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryServerJoinedToRoom not implemented")
+}
+func (*UnimplementedRoomServiceServer) QueryMembershipForUser(context.Context, *MembershipForUserRequest) (*MembershipForUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryMembershipForUser not implemented")
 }
 
 func RegisterRoomServiceServer(s *grpc.Server, srv RoomServiceServer) {
@@ -512,6 +536,24 @@ func _RoomService_QueryServerJoinedToRoom_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RoomService_QueryMembershipForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MembershipForUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoomServiceServer).QueryMembershipForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/roomserver.RoomService/QueryMembershipForUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoomServiceServer).QueryMembershipForUser(ctx, req.(*MembershipForUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _RoomService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "roomserver.RoomService",
 	HandlerType: (*RoomServiceServer)(nil),
@@ -547,6 +589,10 @@ var _RoomService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryServerJoinedToRoom",
 			Handler:    _RoomService_QueryServerJoinedToRoom_Handler,
+		},
+		{
+			MethodName: "QueryMembershipForUser",
+			Handler:    _RoomService_QueryMembershipForUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

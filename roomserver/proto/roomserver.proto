@@ -16,4 +16,5 @@ service RoomService {
     rpc QueryRoomVersionCapabilities (query.RoomVersionCapabilitiesRequest) returns (query.RoomVersionCapabilitiesResponse);
     rpc QueryServerAllowedToSeeEvent (query.ServerAllowedToSeeEventRequest) returns (query.ServerAllowedToSeeEventResponse);
     rpc QueryServerJoinedToRoom (query.ServerJoinedToRoomRequest) returns (query.ServerJoinedToRoomResponse);
+    rpc QueryMembershipForUser (query.MembershipForUserRequest) returns (query.MembershipForUserResponse);
 }

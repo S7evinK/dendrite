@@ -840,6 +840,140 @@ func (x *ServerJoinedToRoomResponse) GetServerNames() []string {
 	return nil
 }
 
+type MembershipForUserRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	RoomID string `protobuf:"bytes,1,opt,name=RoomID,proto3" json:"RoomID,omitempty"`
+	UserID string `protobuf:"bytes,2,opt,name=UserID,proto3" json:"UserID,omitempty"`
+}
+
+func (x *MembershipForUserRequest) Reset() {
+	*x = MembershipForUserRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_query_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MembershipForUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MembershipForUserRequest) ProtoMessage() {}
+
+func (x *MembershipForUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_query_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MembershipForUserRequest.ProtoReflect.Descriptor instead.
+func (*MembershipForUserRequest) Descriptor() ([]byte, []int) {
+	return file_query_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *MembershipForUserRequest) GetRoomID() string {
+	if x != nil {
+		return x.RoomID
+	}
+	return ""
+}
+
+func (x *MembershipForUserRequest) GetUserID() string {
+	if x != nil {
+		return x.UserID
+	}
+	return ""
+}
+
+type MembershipForUserResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	EventID         string `protobuf:"bytes,1,opt,name=EventID,proto3" json:"EventID,omitempty"`
+	HasBeenInRoom   bool   `protobuf:"varint,2,opt,name=HasBeenInRoom,proto3" json:"HasBeenInRoom,omitempty"`
+	IsInRoom        bool   `protobuf:"varint,3,opt,name=IsInRoom,proto3" json:"IsInRoom,omitempty"`
+	Membership      string `protobuf:"bytes,4,opt,name=Membership,proto3" json:"Membership,omitempty"`
+	IsRoomForgotten bool   `protobuf:"varint,5,opt,name=IsRoomForgotten,proto3" json:"IsRoomForgotten,omitempty"`
+}
+
+func (x *MembershipForUserResponse) Reset() {
+	*x = MembershipForUserResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_query_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MembershipForUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MembershipForUserResponse) ProtoMessage() {}
+
+func (x *MembershipForUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_query_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MembershipForUserResponse.ProtoReflect.Descriptor instead.
+func (*MembershipForUserResponse) Descriptor() ([]byte, []int) {
+	return file_query_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *MembershipForUserResponse) GetEventID() string {
+	if x != nil {
+		return x.EventID
+	}
+	return ""
+}
+
+func (x *MembershipForUserResponse) GetHasBeenInRoom() bool {
+	if x != nil {
+		return x.HasBeenInRoom
+	}
+	return false
+}
+
+func (x *MembershipForUserResponse) GetIsInRoom() bool {
+	if x != nil {
+		return x.IsInRoom
+	}
+	return false
+}
+
+func (x *MembershipForUserResponse) GetMembership() string {
+	if x != nil {
+		return x.Membership
+	}
+	return ""
+}
+
+func (x *MembershipForUserResponse) GetIsRoomForgotten() bool {
+	if x != nil {
+		return x.IsRoomForgotten
+	}
+	return false
+}
+
 var File_query_proto protoreflect.FileDescriptor
 
 var file_query_proto_rawDesc = []byte{
@@ -941,7 +1075,24 @@ var file_query_proto_rawDesc = []byte{
 	0x08, 0x49, 0x73, 0x49, 0x6e, 0x52, 0x6f, 0x6f, 0x6d, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52,
 	0x08, 0x49, 0x73, 0x49, 0x6e, 0x52, 0x6f, 0x6f, 0x6d, 0x12, 0x20, 0x0a, 0x0b, 0x53, 0x65, 0x72,
 	0x76, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0b,
-	0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x73, 0x42, 0x09, 0x5a, 0x07, 0x2e,
+	0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x73, 0x22, 0x4a, 0x0a, 0x18, 0x4d,
+	0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x46, 0x6f, 0x72, 0x55, 0x73, 0x65, 0x72,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x52, 0x6f, 0x6f, 0x6d, 0x49,
+	0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x52, 0x6f, 0x6f, 0x6d, 0x49, 0x44, 0x12,
+	0x16, 0x0a, 0x06, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x06, 0x55, 0x73, 0x65, 0x72, 0x49, 0x44, 0x22, 0xc1, 0x01, 0x0a, 0x19, 0x4d, 0x65, 0x6d, 0x62,
+	0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x46, 0x6f, 0x72, 0x55, 0x73, 0x65, 0x72, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x49, 0x44,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x49, 0x44, 0x12,
+	0x24, 0x0a, 0x0d, 0x48, 0x61, 0x73, 0x42, 0x65, 0x65, 0x6e, 0x49, 0x6e, 0x52, 0x6f, 0x6f, 0x6d,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0d, 0x48, 0x61, 0x73, 0x42, 0x65, 0x65, 0x6e, 0x49,
+	0x6e, 0x52, 0x6f, 0x6f, 0x6d, 0x12, 0x1a, 0x0a, 0x08, 0x49, 0x73, 0x49, 0x6e, 0x52, 0x6f, 0x6f,
+	0x6d, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x49, 0x73, 0x49, 0x6e, 0x52, 0x6f, 0x6f,
+	0x6d, 0x12, 0x1e, 0x0a, 0x0a, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x68, 0x69, 0x70, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x68, 0x69,
+	0x70, 0x12, 0x28, 0x0a, 0x0f, 0x49, 0x73, 0x52, 0x6f, 0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x67, 0x6f,
+	0x74, 0x74, 0x65, 0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0f, 0x49, 0x73, 0x52, 0x6f,
+	0x6f, 0x6d, 0x46, 0x6f, 0x72, 0x67, 0x6f, 0x74, 0x74, 0x65, 0x6e, 0x42, 0x09, 0x5a, 0x07, 0x2e,
 	0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
@@ -957,7 +1108,7 @@ func file_query_proto_rawDescGZIP() []byte {
 	return file_query_proto_rawDescData
 }
 
-var file_query_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_query_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_query_proto_goTypes = []interface{}{
 	(*ServerBannedFromRoomRequest)(nil),     // 0: query.ServerBannedFromRoomRequest
 	(*ServerBannedFromRoomResponse)(nil),    // 1: query.ServerBannedFromRoomResponse
@@ -975,15 +1126,17 @@ var file_query_proto_goTypes = []interface{}{
 	(*ServerAllowedToSeeEventResponse)(nil), // 13: query.ServerAllowedToSeeEventResponse
 	(*ServerJoinedToRoomRequest)(nil),       // 14: query.ServerJoinedToRoomRequest
 	(*ServerJoinedToRoomResponse)(nil),      // 15: query.ServerJoinedToRoomResponse
-	nil,                                     // 16: query.SharedUsersResponse.UserIDsToCountEntry
-	nil,                                     // 17: query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
-	(RoomVersion)(0),                        // 18: common.RoomVersion
+	(*MembershipForUserRequest)(nil),        // 16: query.MembershipForUserRequest
+	(*MembershipForUserResponse)(nil),       // 17: query.MembershipForUserResponse
+	nil,                                     // 18: query.SharedUsersResponse.UserIDsToCountEntry
+	nil,                                     // 19: query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
+	(RoomVersion)(0),                        // 20: common.RoomVersion
 }
 var file_query_proto_depIdxs = []int32{
-	16, // 0: query.SharedUsersResponse.UserIDsToCount:type_name -> query.SharedUsersResponse.UserIDsToCountEntry
-	18, // 1: query.RoomVersionForRoomResponse.RoomVersion:type_name -> common.RoomVersion
-	18, // 2: query.RoomVersionCapabilitiesResponse.DefaultRoomVersion:type_name -> common.RoomVersion
-	17, // 3: query.RoomVersionCapabilitiesResponse.AvailableRoomVersions:type_name -> query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
+	18, // 0: query.SharedUsersResponse.UserIDsToCount:type_name -> query.SharedUsersResponse.UserIDsToCountEntry
+	20, // 1: query.RoomVersionForRoomResponse.RoomVersion:type_name -> common.RoomVersion
+	20, // 2: query.RoomVersionCapabilitiesResponse.DefaultRoomVersion:type_name -> common.RoomVersion
+	19, // 3: query.RoomVersionCapabilitiesResponse.AvailableRoomVersions:type_name -> query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
 	4,  // [4:4] is the sub-list for method output_type
 	4,  // [4:4] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
@@ -1190,6 +1343,30 @@ func file_query_proto_init() {
 				return nil
 			}
 		}
+		file_query_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MembershipForUserRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_query_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MembershipForUserResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1197,7 +1374,7 @@ func file_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_query_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

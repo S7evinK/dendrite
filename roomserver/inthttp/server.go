@@ -140,20 +140,6 @@ func AddRoutes(r api.RoomserverInternalAPI, internalAPIMux *mux.Router) {
 		}),
 	)
 	internalAPIMux.Handle(
-		RoomserverQueryMembershipForUserPath,
-		httputil.MakeInternalAPI("QueryMembershipForUser", func(req *http.Request) util.JSONResponse {
-			var request api.QueryMembershipForUserRequest
-			var response api.QueryMembershipForUserResponse
-			if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-				return util.ErrorResponse(err)
-			}
-			if err := r.QueryMembershipForUser(req.Context(), &request, &response); err != nil {
-				return util.ErrorResponse(err)
-			}
-			return util.JSONResponse{Code: http.StatusOK, JSON: &response}
-		}),
-	)
-	internalAPIMux.Handle(
 		RoomserverQueryMembershipsForRoomPath,
 		httputil.MakeInternalAPI("queryMembershipsForRoom", func(req *http.Request) util.JSONResponse {
 			var request api.QueryMembershipsForRoomRequest

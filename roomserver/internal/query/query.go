@@ -752,3 +752,7 @@ func (r *Queryer) QueryServerAllowedToSeeEventGRPC(ctx context.Context, req *pro
 func (r *Queryer) QueryServerJoinedToRoomGRPC(ctx context.Context, req *proto.ServerJoinedToRoomRequest) (*proto.ServerJoinedToRoomResponse, error) {
 	return r.GrpcClient.QueryServerJoinedToRoomGRPC(ctx, req)
 }
+
+func (r *Queryer) QueryMembershipForUserGRPC(ctx context.Context, req *proto.MembershipForUserRequest) (*proto.MembershipForUserResponse, error) {
+	return r.GrpcClient.QueryMembershipForUserGRPC(ctx, req)
+}

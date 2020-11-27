@@ -21,6 +21,8 @@ import (
 	"sort"
 	"strconv"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/roomserver/api"
@@ -197,12 +199,13 @@ func OnIncomingMessagesRequest(
 }
 
 func checkIsRoomForgotten(ctx context.Context, roomID, userID string, rsAPI api.RoomserverInternalAPI) (bool, error) {
-	req := api.QueryMembershipForUserRequest{
+	req := &roomProto.MembershipForUserRequest{
 		RoomID: roomID,
 		UserID: userID,
 	}
-	resp := api.QueryMembershipForUserResponse{}
-	if err := rsAPI.QueryMembershipForUser(ctx, &req, &resp); err != nil {
+	var err error
+	resp := &roomProto.MembershipForUserResponse{}
+	if resp, err = rsAPI.QueryMembershipForUserGRPC(ctx, req); err != nil {
 		return false, err
 	}
 

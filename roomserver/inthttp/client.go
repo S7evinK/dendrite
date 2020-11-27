@@ -40,7 +40,6 @@ const (
 	RoomserverQueryStateAfterEventsPath      = "/roomserver/queryStateAfterEvents"
 	RoomserverQueryMissingAuthPrevEventsPath = "/roomserver/queryMissingAuthPrevEvents"
 	RoomserverQueryEventsByIDPath            = "/roomserver/queryEventsByID"
-	RoomserverQueryMembershipForUserPath     = "/roomserver/queryMembershipForUser"
 	RoomserverQueryMembershipsForRoomPath    = "/roomserver/queryMembershipsForRoom"
 	RoomserverQueryMissingEventsPath         = "/roomserver/queryMissingEvents"
 	RoomserverQueryStateAndAuthChainPath     = "/roomserver/queryStateAndAuthChain"
@@ -287,19 +286,6 @@ func (h *httpRoomserverInternalAPI) QueryEventsByID(
 	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
 }
 
-// QueryMembershipForUser implements RoomserverQueryAPI
-func (h *httpRoomserverInternalAPI) QueryMembershipForUser(
-	ctx context.Context,
-	request *api.QueryMembershipForUserRequest,
-	response *api.QueryMembershipForUserResponse,
-) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "QueryMembershipForUser")
-	defer span.Finish()
-
-	apiURL := h.roomserverURL + RoomserverQueryMembershipForUserPath
-	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
-}
-
 // QueryMembershipsForRoom implements RoomserverQueryAPI
 func (h *httpRoomserverInternalAPI) QueryMembershipsForRoom(
 	ctx context.Context,
@@ -417,6 +403,10 @@ func (h *httpRoomserverInternalAPI) QueryServerAllowedToSeeEventGRPC(ctx context
 
 func (h *httpRoomserverInternalAPI) QueryServerJoinedToRoomGRPC(ctx context.Context, req *proto.ServerJoinedToRoomRequest) (*proto.ServerJoinedToRoomResponse, error) {
 	return h.grpcClient.QueryServerJoinedToRoomGRPC(ctx, req)
+}
+
+func (h *httpRoomserverInternalAPI) QueryMembershipForUserGRPC(ctx context.Context, req *proto.MembershipForUserRequest) (*proto.MembershipForUserResponse, error) {
+	return h.grpcClient.QueryMembershipForUserGRPC(ctx, req)
 }
 
 func (h *httpRoomserverInternalAPI) PerformForget(ctx context.Context, req *api.PerformForgetRequest, res *api.PerformForgetResponse) error {

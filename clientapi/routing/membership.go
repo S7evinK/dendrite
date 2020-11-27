@@ -118,11 +118,10 @@ func SendKick(
 		return *errRes
 	}
 
-	var queryRes roomserverAPI.QueryMembershipForUserResponse
-	err := rsAPI.QueryMembershipForUser(req.Context(), &roomserverAPI.QueryMembershipForUserRequest{
+	queryRes, err := rsAPI.QueryMembershipForUserGRPC(req.Context(), &roomProto.MembershipForUserRequest{
 		RoomID: roomID,
 		UserID: body.UserID,
-	}, &queryRes)
+	})
 	if err != nil {
 		return util.ErrorResponse(err)
 	}
@@ -153,11 +152,10 @@ func SendUnban(
 		}
 	}
 
-	var queryRes roomserverAPI.QueryMembershipForUserResponse
-	err := rsAPI.QueryMembershipForUser(req.Context(), &roomserverAPI.QueryMembershipForUserRequest{
+	queryRes, err := rsAPI.QueryMembershipForUserGRPC(req.Context(), &roomProto.MembershipForUserRequest{
 		RoomID: roomID,
 		UserID: body.UserID,
-	}, &queryRes)
+	})
 	if err != nil {
 		return util.ErrorResponse(err)
 	}
@@ -421,12 +419,11 @@ func SendForget(
 ) util.JSONResponse {
 	ctx := req.Context()
 	logger := util.GetLogger(ctx).WithField("roomID", roomID).WithField("userID", device.UserID)
-	var membershipRes api.QueryMembershipForUserResponse
-	membershipReq := api.QueryMembershipForUserRequest{
+	membershipReq := roomProto.MembershipForUserRequest{
 		RoomID: roomID,
 		UserID: device.UserID,
 	}
-	err := rsAPI.QueryMembershipForUser(ctx, &membershipReq, &membershipRes)
+	membershipRes, err := rsAPI.QueryMembershipForUserGRPC(req.Context(), &membershipReq)
 	if err != nil {
 		logger.WithError(err).Error("QueryMembershipForUser: could not query membership for user")
 		return jsonerror.InternalServerError()

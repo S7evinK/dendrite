@@ -24,6 +24,8 @@ import (
 	"net/http"
 	"time"
 
+	roomProto "github.com/matrix-org/dendrite/roomserver/proto"
+
 	"github.com/matrix-org/dendrite/clientapi/jsonerror"
 	fs "github.com/matrix-org/dendrite/federationsender/api"
 	"github.com/matrix-org/dendrite/internal/hooks"
@@ -426,11 +428,10 @@ func getEventIfVisible(ctx context.Context, rsAPI roomserver.RoomserverInternalA
 	// Allow events if the member is in the room
 	// TODO: This does not honour history_visibility
 	// TODO: This does not honour m.room.create content
-	var queryMembershipRes roomserver.QueryMembershipForUserResponse
-	err = rsAPI.QueryMembershipForUser(ctx, &roomserver.QueryMembershipForUserRequest{
+	queryMembershipRes, err := rsAPI.QueryMembershipForUserGRPC(ctx, &roomProto.MembershipForUserRequest{
 		RoomID: event.RoomID(),
 		UserID: userID,
-	}, &queryMembershipRes)
+	})
 	if err != nil {
 		util.GetLogger(ctx).WithError(err).Error("getEventIfVisible: failed to QueryMembershipForUser")
 		return nil, false
