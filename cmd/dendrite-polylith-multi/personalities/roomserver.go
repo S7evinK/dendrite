@@ -18,6 +18,7 @@ import (
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/internal/setup"
 	"github.com/matrix-org/dendrite/roomserver"
+	"github.com/matrix-org/dendrite/roomserver/intgrpc"
 )
 
 func RoomServer(base *setup.BaseDendrite, cfg *config.Dendrite) {
@@ -25,8 +26,15 @@ func RoomServer(base *setup.BaseDendrite, cfg *config.Dendrite) {
 	keyRing := serverKeyAPI.KeyRing()
 
 	fsAPI := base.FederationSenderHTTPClient()
-	rsAPI := roomserver.NewInternalAPI(base, keyRing)
+
+	client := intgrpc.NewRoomServerServiceGRPCClient(base.Cfg.RoomServer.InternalAPI.GRPCConnect)
+
+	rsAPI, acls := roomserver.NewInternalAPI(base, keyRing, &client)
 	rsAPI.SetFederationSenderAPI(fsAPI)
+
+	sp := intgrpc.NewRoomServiceServer(&base.Cfg.RoomServer, base.Caches, acls)
+	go sp.Listen(base.Cfg.RoomServer.InternalAPI.GRPCListen)
+
 	roomserver.AddInternalRoutes(base.InternalAPIMux, rsAPI)
 
 	base.SetupAndServeHTTP(
