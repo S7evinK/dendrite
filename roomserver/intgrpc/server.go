@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/matrix-org/dendrite/internal/caching"
 	"github.com/matrix-org/dendrite/internal/config"
@@ -55,16 +56,16 @@ func (rs *RoomServiceServer) Listen(addr string) {
 
 // TODO: create useful interceptor; just for debugging
 func (rs *RoomServiceServer) Interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-	logrus.WithField("method", info.FullMethod).Debugf("gRPC Server Interceptor: data: %+v", req)
+	start := time.Now()
+	defer func(t time.Time) {
+		logrus.WithFields(logrus.Fields{
+			"duration": time.Since(t),
+			"method":   info.FullMethod,
+			"response": resp,
+			"request":  req,
+		}).Debugf("RoomServiceServer Interceptor")
+	}(start)
 	resp, err = handler(ctx, req)
-	switch v := resp.(type) {
-	case *proto.ServerBannedFromRoomResponse:
-		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response banned: %+v", v.Banned)
-	case *proto.SharedUsersResponse:
-		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response sharedUsers: %+v", v.UserIDsToCount)
-	default:
-		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response: %T -> %+v -> %#v", v, v, v)
-	}
 	return
 }
 

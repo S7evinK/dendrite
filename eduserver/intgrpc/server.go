@@ -62,7 +62,7 @@ func (e *EduServiceServer) Listen(addr string) {
 		logrus.WithError(err).Fatal("Error listening")
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(e.Interceptor))
 	proto.RegisterEduServiceServer(s, e)
 	if err := s.Serve(l); err != nil {
 		logrus.WithError(err).Fatal("error serving")
@@ -72,6 +72,21 @@ func (e *EduServiceServer) Listen(addr string) {
 // Attach attaches this service to an existing grpc server
 func (e *EduServiceServer) Attach(server *grpc.Server) {
 	proto.RegisterEduServiceServer(server, e)
+}
+
+// TODO: create useful interceptor; just for debugging
+func (e *EduServiceServer) Interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	start := time.Now()
+	defer func(t time.Time) {
+		logrus.WithFields(logrus.Fields{
+			"duration": time.Since(t),
+			"method":   info.FullMethod,
+			"response": resp,
+			"request":  req,
+		}).Debugf("EduServiceServer Interceptor")
+	}(start)
+	resp, err = handler(ctx, req)
+	return
 }
 
 func (e *EduServiceServer) SendReceiptEvent(
