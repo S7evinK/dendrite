@@ -64,6 +64,7 @@ func NewRoomserverClient(
 	roomserverURL string,
 	httpClient *http.Client,
 	cache caching.RoomVersionCache,
+	grpcClient *intgrpc.RoomServiceClient,
 ) (api.RoomserverInternalAPI, error) {
 	if httpClient == nil {
 		return nil, errors.New("NewRoomserverInternalAPIHTTP: httpClient is <nil>")
@@ -72,6 +73,7 @@ func NewRoomserverClient(
 		roomserverURL: roomserverURL,
 		httpClient:    httpClient,
 		cache:         cache,
+		grpcClient:    grpcClient,
 	}, nil
 }
 

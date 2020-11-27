@@ -2,6 +2,7 @@ package intgrpc
 
 import (
 	"context"
+	"time"
 
 	"github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/sirupsen/logrus"
@@ -13,12 +14,27 @@ type RoomServiceClient struct {
 }
 
 func NewRoomServerServiceGRPCClient(addr string) RoomServiceClient {
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(clientInterceptor))
 	if err != nil {
 		logrus.WithError(err).Fatalf("unable to dial: %+v", err)
 	}
 	c := proto.NewRoomServiceClient(conn)
 	return RoomServiceClient{client: c}
+}
+
+func clientInterceptor(
+	ctx context.Context,
+	method string,
+	req interface{},
+	reply interface{},
+	cc *grpc.ClientConn,
+	invoker grpc.UnaryInvoker,
+	opts ...grpc.CallOption,
+) error {
+	start := time.Now()
+	err := invoker(ctx, method, req, reply, cc, opts...)
+	logrus.Debugf("clientInterceptor: method=%s; Duration=%s; Error=%v", method, time.Since(start), err)
+	return err
 }
 
 func (r RoomServiceClient) QueryServerBannedFromRoom(ctx context.Context, in *proto.ServerBannedFromRoomRequest) (*proto.ServerBannedFromRoomResponse, error) {

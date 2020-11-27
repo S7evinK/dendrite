@@ -23,6 +23,8 @@ import (
 	"net/url"
 	"time"
 
+	intgrpc2 "github.com/matrix-org/dendrite/roomserver/intgrpc"
+
 	"github.com/matrix-org/dendrite/eduserver/intgrpc"
 
 	"github.com/matrix-org/dendrite/internal/caching"
@@ -179,7 +181,8 @@ func (b *BaseDendrite) AppserviceHTTPClient() appserviceAPI.AppServiceQueryAPI {
 
 // RoomserverHTTPClient returns RoomserverInternalAPI for hitting the roomserver over HTTP.
 func (b *BaseDendrite) RoomserverHTTPClient() roomserverAPI.RoomserverInternalAPI {
-	rsAPI, err := rsinthttp.NewRoomserverClient(b.Cfg.RoomServerURL(), b.apiHttpClient, b.Caches)
+	grpcClient := intgrpc2.NewRoomServerServiceGRPCClient(b.Cfg.RoomServer.InternalAPI.GRPCConnect)
+	rsAPI, err := rsinthttp.NewRoomserverClient(b.Cfg.RoomServerURL(), b.apiHttpClient, b.Caches, &grpcClient)
 	if err != nil {
 		logrus.WithError(err).Panic("RoomserverHTTPClient failed", b.apiHttpClient)
 	}
