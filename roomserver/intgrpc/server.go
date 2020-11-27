@@ -10,6 +10,7 @@ import (
 	"github.com/matrix-org/dendrite/internal/caching"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/roomserver/acls"
+	"github.com/matrix-org/dendrite/roomserver/internal/helpers"
 	"github.com/matrix-org/dendrite/roomserver/intgrpc/helper"
 	"github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/dendrite/roomserver/storage"
@@ -200,6 +201,44 @@ func (rs *RoomServiceServer) QueryRoomVersionCapabilities(
 		} else {
 			res.AvailableRoomVersions[string(v)] = "unstable"
 		}
+	}
+
+	return res, nil
+}
+
+// QueryServerAllowedToSeeEvent checks to see if a server is allowed to see a specific event.
+func (rs *RoomServiceServer) QueryServerAllowedToSeeEvent(
+	ctx context.Context,
+	req *proto.ServerAllowedToSeeEventRequest,
+) (*proto.ServerAllowedToSeeEventResponse, error) {
+	res := &proto.ServerAllowedToSeeEventResponse{}
+	events, err := rs.DB.EventsFromIDs(ctx, []string{req.EventID})
+	if err != nil {
+		return res, status.Error(codes.Internal, err.Error())
+	}
+	if len(events) == 0 {
+		res.AllowedToSeeEvent = false // event doesn't exist so not allowed to see
+		return res, nil
+	}
+	roomID := events[0].RoomID()
+	isServerInRoom, err := helpers.IsServerCurrentlyInRoom(
+		ctx, rs.DB, gomatrixserverlib.ServerName(req.ServerName), roomID,
+	)
+	if err != nil {
+		return res, status.Error(codes.Internal, err.Error())
+	}
+	info, err := rs.DB.RoomInfo(ctx, roomID)
+	if err != nil {
+		return res, status.Error(codes.Internal, err.Error())
+	}
+	if info == nil {
+		return res, status.Error(codes.Internal, fmt.Errorf("QueryServerAllowedToSeeEvent: no room info for room %s", roomID).Error())
+	}
+
+	if res.AllowedToSeeEvent, err = helpers.CheckServerAllowedToSeeEvent(
+		ctx, rs.DB, *info, req.EventID, gomatrixserverlib.ServerName(req.ServerName), isServerInRoom,
+	); err != nil {
+		return res, status.Error(status.Code(err), err.Error())
 	}
 
 	return res, nil

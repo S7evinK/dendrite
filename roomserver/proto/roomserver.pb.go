@@ -73,7 +73,7 @@ var file_roomserver_proto_rawDesc = []byte{
 	0x0a, 0x10, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x12, 0x0a, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x1a, 0x0b,
 	0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x0f, 0x0a, 0x0d, 0x45,
-	0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xaf, 0x04, 0x0a,
+	0x6d, 0x70, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x9e, 0x05, 0x0a,
 	0x0b, 0x52, 0x6f, 0x6f, 0x6d, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x64, 0x0a, 0x19,
 	0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x42, 0x61, 0x6e, 0x6e, 0x65,
 	0x64, 0x46, 0x72, 0x6f, 0x6d, 0x52, 0x6f, 0x6f, 0x6d, 0x12, 0x22, 0x2e, 0x71, 0x75, 0x65, 0x72,
@@ -108,9 +108,15 @@ var file_roomserver_proto_rawDesc = []byte{
 	0x69, 0x6f, 0x6e, 0x43, 0x61, 0x70, 0x61, 0x62, 0x69, 0x6c, 0x69, 0x74, 0x69, 0x65, 0x73, 0x52,
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x26, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x52,
 	0x6f, 0x6f, 0x6d, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x43, 0x61, 0x70, 0x61, 0x62, 0x69,
-	0x6c, 0x69, 0x74, 0x69, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x09,
-	0x5a, 0x07, 0x2e, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x33,
+	0x6c, 0x69, 0x74, 0x69, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x6d,
+	0x0a, 0x1c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x41, 0x6c, 0x6c,
+	0x6f, 0x77, 0x65, 0x64, 0x54, 0x6f, 0x53, 0x65, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x12, 0x25,
+	0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x41, 0x6c, 0x6c,
+	0x6f, 0x77, 0x65, 0x64, 0x54, 0x6f, 0x53, 0x65, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x26, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x53, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x41, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x54, 0x6f, 0x53, 0x65, 0x65,
+	0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x09, 0x5a,
+	0x07, 0x2e, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -134,12 +140,14 @@ var file_roomserver_proto_goTypes = []interface{}{
 	(*PublishedRoomsRequest)(nil),           // 4: query.PublishedRoomsRequest
 	(*RoomVersionForRoomRequest)(nil),       // 5: query.RoomVersionForRoomRequest
 	(*RoomVersionCapabilitiesRequest)(nil),  // 6: query.RoomVersionCapabilitiesRequest
-	(*ServerBannedFromRoomResponse)(nil),    // 7: query.ServerBannedFromRoomResponse
-	(*SharedUsersResponse)(nil),             // 8: query.SharedUsersResponse
-	(*RoomsForUserResponse)(nil),            // 9: query.RoomsForUserResponse
-	(*PublishedRoomsResponse)(nil),          // 10: query.PublishedRoomsResponse
-	(*RoomVersionForRoomResponse)(nil),      // 11: query.RoomVersionForRoomResponse
-	(*RoomVersionCapabilitiesResponse)(nil), // 12: query.RoomVersionCapabilitiesResponse
+	(*ServerAllowedToSeeEventRequest)(nil),  // 7: query.ServerAllowedToSeeEventRequest
+	(*ServerBannedFromRoomResponse)(nil),    // 8: query.ServerBannedFromRoomResponse
+	(*SharedUsersResponse)(nil),             // 9: query.SharedUsersResponse
+	(*RoomsForUserResponse)(nil),            // 10: query.RoomsForUserResponse
+	(*PublishedRoomsResponse)(nil),          // 11: query.PublishedRoomsResponse
+	(*RoomVersionForRoomResponse)(nil),      // 12: query.RoomVersionForRoomResponse
+	(*RoomVersionCapabilitiesResponse)(nil), // 13: query.RoomVersionCapabilitiesResponse
+	(*ServerAllowedToSeeEventResponse)(nil), // 14: query.ServerAllowedToSeeEventResponse
 }
 var file_roomserver_proto_depIdxs = []int32{
 	1,  // 0: roomserver.RoomService.QueryServerBannedFromRoom:input_type -> query.ServerBannedFromRoomRequest
@@ -148,14 +156,16 @@ var file_roomserver_proto_depIdxs = []int32{
 	4,  // 3: roomserver.RoomService.QueryPublishedRooms:input_type -> query.PublishedRoomsRequest
 	5,  // 4: roomserver.RoomService.QueryRoomVersionForRoom:input_type -> query.RoomVersionForRoomRequest
 	6,  // 5: roomserver.RoomService.QueryRoomVersionCapabilities:input_type -> query.RoomVersionCapabilitiesRequest
-	7,  // 6: roomserver.RoomService.QueryServerBannedFromRoom:output_type -> query.ServerBannedFromRoomResponse
-	8,  // 7: roomserver.RoomService.QuerySharedUsers:output_type -> query.SharedUsersResponse
-	9,  // 8: roomserver.RoomService.QueryRoomsForUser:output_type -> query.RoomsForUserResponse
-	10, // 9: roomserver.RoomService.QueryPublishedRooms:output_type -> query.PublishedRoomsResponse
-	11, // 10: roomserver.RoomService.QueryRoomVersionForRoom:output_type -> query.RoomVersionForRoomResponse
-	12, // 11: roomserver.RoomService.QueryRoomVersionCapabilities:output_type -> query.RoomVersionCapabilitiesResponse
-	6,  // [6:12] is the sub-list for method output_type
-	0,  // [0:6] is the sub-list for method input_type
+	7,  // 6: roomserver.RoomService.QueryServerAllowedToSeeEvent:input_type -> query.ServerAllowedToSeeEventRequest
+	8,  // 7: roomserver.RoomService.QueryServerBannedFromRoom:output_type -> query.ServerBannedFromRoomResponse
+	9,  // 8: roomserver.RoomService.QuerySharedUsers:output_type -> query.SharedUsersResponse
+	10, // 9: roomserver.RoomService.QueryRoomsForUser:output_type -> query.RoomsForUserResponse
+	11, // 10: roomserver.RoomService.QueryPublishedRooms:output_type -> query.PublishedRoomsResponse
+	12, // 11: roomserver.RoomService.QueryRoomVersionForRoom:output_type -> query.RoomVersionForRoomResponse
+	13, // 12: roomserver.RoomService.QueryRoomVersionCapabilities:output_type -> query.RoomVersionCapabilitiesResponse
+	14, // 13: roomserver.RoomService.QueryServerAllowedToSeeEvent:output_type -> query.ServerAllowedToSeeEventResponse
+	7,  // [7:14] is the sub-list for method output_type
+	0,  // [0:7] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -219,6 +229,7 @@ type RoomServiceClient interface {
 	QueryPublishedRooms(ctx context.Context, in *PublishedRoomsRequest, opts ...grpc.CallOption) (*PublishedRoomsResponse, error)
 	QueryRoomVersionForRoom(ctx context.Context, in *RoomVersionForRoomRequest, opts ...grpc.CallOption) (*RoomVersionForRoomResponse, error)
 	QueryRoomVersionCapabilities(ctx context.Context, in *RoomVersionCapabilitiesRequest, opts ...grpc.CallOption) (*RoomVersionCapabilitiesResponse, error)
+	QueryServerAllowedToSeeEvent(ctx context.Context, in *ServerAllowedToSeeEventRequest, opts ...grpc.CallOption) (*ServerAllowedToSeeEventResponse, error)
 }
 
 type roomServiceClient struct {
@@ -283,6 +294,15 @@ func (c *roomServiceClient) QueryRoomVersionCapabilities(ctx context.Context, in
 	return out, nil
 }
 
+func (c *roomServiceClient) QueryServerAllowedToSeeEvent(ctx context.Context, in *ServerAllowedToSeeEventRequest, opts ...grpc.CallOption) (*ServerAllowedToSeeEventResponse, error) {
+	out := new(ServerAllowedToSeeEventResponse)
+	err := c.cc.Invoke(ctx, "/roomserver.RoomService/QueryServerAllowedToSeeEvent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoomServiceServer is the server API for RoomService service.
 type RoomServiceServer interface {
 	QueryServerBannedFromRoom(context.Context, *ServerBannedFromRoomRequest) (*ServerBannedFromRoomResponse, error)
@@ -291,6 +311,7 @@ type RoomServiceServer interface {
 	QueryPublishedRooms(context.Context, *PublishedRoomsRequest) (*PublishedRoomsResponse, error)
 	QueryRoomVersionForRoom(context.Context, *RoomVersionForRoomRequest) (*RoomVersionForRoomResponse, error)
 	QueryRoomVersionCapabilities(context.Context, *RoomVersionCapabilitiesRequest) (*RoomVersionCapabilitiesResponse, error)
+	QueryServerAllowedToSeeEvent(context.Context, *ServerAllowedToSeeEventRequest) (*ServerAllowedToSeeEventResponse, error)
 }
 
 // UnimplementedRoomServiceServer can be embedded to have forward compatible implementations.
@@ -314,6 +335,9 @@ func (*UnimplementedRoomServiceServer) QueryRoomVersionForRoom(context.Context, 
 }
 func (*UnimplementedRoomServiceServer) QueryRoomVersionCapabilities(context.Context, *RoomVersionCapabilitiesRequest) (*RoomVersionCapabilitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryRoomVersionCapabilities not implemented")
+}
+func (*UnimplementedRoomServiceServer) QueryServerAllowedToSeeEvent(context.Context, *ServerAllowedToSeeEventRequest) (*ServerAllowedToSeeEventResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryServerAllowedToSeeEvent not implemented")
 }
 
 func RegisterRoomServiceServer(s *grpc.Server, srv RoomServiceServer) {
@@ -428,6 +452,24 @@ func _RoomService_QueryRoomVersionCapabilities_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RoomService_QueryServerAllowedToSeeEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ServerAllowedToSeeEventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoomServiceServer).QueryServerAllowedToSeeEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/roomserver.RoomService/QueryServerAllowedToSeeEvent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoomServiceServer).QueryServerAllowedToSeeEvent(ctx, req.(*ServerAllowedToSeeEventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _RoomService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "roomserver.RoomService",
 	HandlerType: (*RoomServiceServer)(nil),
@@ -455,6 +497,10 @@ var _RoomService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryRoomVersionCapabilities",
 			Handler:    _RoomService_QueryRoomVersionCapabilities_Handler,
+		},
+		{
+			MethodName: "QueryServerAllowedToSeeEvent",
+			Handler:    _RoomService_QueryServerAllowedToSeeEvent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

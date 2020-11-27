@@ -744,3 +744,7 @@ func (r *Queryer) QuerySharedUsersGRPC(ctx context.Context, req *proto.SharedUse
 	logrus.Debug("queryer: QuerySharedUsersGRPC")
 	return r.GrpcClient.QuerySharedUsers(ctx, req)
 }
+
+func (r *Queryer) QueryServerAllowedToSeeEventGRPC(ctx context.Context, req *proto.ServerAllowedToSeeEventRequest) (*proto.ServerAllowedToSeeEventResponse, error) {
+	return r.GrpcClient.QueryServerAllowedToSeeEvent(ctx, req)
+}

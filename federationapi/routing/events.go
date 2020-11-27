@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/matrix-org/dendrite/roomserver/api"
+	"github.com/matrix-org/dendrite/roomserver/proto"
 	"github.com/matrix-org/gomatrixserverlib"
 	"github.com/matrix-org/util"
 )
@@ -59,14 +60,12 @@ func allowedToSeeEvent(
 	rsAPI api.RoomserverInternalAPI,
 	eventID string,
 ) *util.JSONResponse {
-	var authResponse api.QueryServerAllowedToSeeEventResponse
-	err := rsAPI.QueryServerAllowedToSeeEvent(
+	authResponse, err := rsAPI.QueryServerAllowedToSeeEventGRPC(
 		ctx,
-		&api.QueryServerAllowedToSeeEventRequest{
+		&proto.ServerAllowedToSeeEventRequest{
 			EventID:    eventID,
-			ServerName: origin,
+			ServerName: string(origin),
 		},
-		&authResponse,
 	)
 	if err != nil {
 		resErr := util.ErrorResponse(err)

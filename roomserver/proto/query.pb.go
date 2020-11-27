@@ -620,6 +620,108 @@ func (x *RoomVersionCapabilitiesResponse) GetAvailableRoomVersions() map[string]
 	return nil
 }
 
+type ServerAllowedToSeeEventRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	EventID    string `protobuf:"bytes,1,opt,name=EventID,proto3" json:"EventID,omitempty"`
+	ServerName string `protobuf:"bytes,2,opt,name=ServerName,proto3" json:"ServerName,omitempty"`
+}
+
+func (x *ServerAllowedToSeeEventRequest) Reset() {
+	*x = ServerAllowedToSeeEventRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_query_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ServerAllowedToSeeEventRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServerAllowedToSeeEventRequest) ProtoMessage() {}
+
+func (x *ServerAllowedToSeeEventRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_query_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServerAllowedToSeeEventRequest.ProtoReflect.Descriptor instead.
+func (*ServerAllowedToSeeEventRequest) Descriptor() ([]byte, []int) {
+	return file_query_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ServerAllowedToSeeEventRequest) GetEventID() string {
+	if x != nil {
+		return x.EventID
+	}
+	return ""
+}
+
+func (x *ServerAllowedToSeeEventRequest) GetServerName() string {
+	if x != nil {
+		return x.ServerName
+	}
+	return ""
+}
+
+type ServerAllowedToSeeEventResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	AllowedToSeeEvent bool `protobuf:"varint,1,opt,name=AllowedToSeeEvent,proto3" json:"AllowedToSeeEvent,omitempty"`
+}
+
+func (x *ServerAllowedToSeeEventResponse) Reset() {
+	*x = ServerAllowedToSeeEventResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_query_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ServerAllowedToSeeEventResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServerAllowedToSeeEventResponse) ProtoMessage() {}
+
+func (x *ServerAllowedToSeeEventResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_query_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServerAllowedToSeeEventResponse.ProtoReflect.Descriptor instead.
+func (*ServerAllowedToSeeEventResponse) Descriptor() ([]byte, []int) {
+	return file_query_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ServerAllowedToSeeEventResponse) GetAllowedToSeeEvent() bool {
+	if x != nil {
+		return x.AllowedToSeeEvent
+	}
+	return false
+}
+
 var File_query_proto protoreflect.FileDescriptor
 
 var file_query_proto_rawDesc = []byte{
@@ -697,8 +799,19 @@ var file_query_proto_rawDesc = []byte{
 	0x52, 0x6f, 0x6f, 0x6d, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x45, 0x6e, 0x74, 0x72,
 	0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
 	0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x42, 0x09, 0x5a,
-	0x07, 0x2e, 0x3b, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x5a, 0x0a,
+	0x1e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x41, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x54, 0x6f,
+	0x53, 0x65, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x18, 0x0a, 0x07, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x07, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x49, 0x44, 0x12, 0x1e, 0x0a, 0x0a, 0x53, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x53,
+	0x65, 0x72, 0x76, 0x65, 0x72, 0x4e, 0x61, 0x6d, 0x65, 0x22, 0x4f, 0x0a, 0x1f, 0x53, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x41, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x54, 0x6f, 0x53, 0x65, 0x65, 0x45,
+	0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2c, 0x0a, 0x11,
+	0x41, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64, 0x54, 0x6f, 0x53, 0x65, 0x65, 0x45, 0x76, 0x65, 0x6e,
+	0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x11, 0x41, 0x6c, 0x6c, 0x6f, 0x77, 0x65, 0x64,
+	0x54, 0x6f, 0x53, 0x65, 0x65, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x3b,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -713,7 +826,7 @@ func file_query_proto_rawDescGZIP() []byte {
 	return file_query_proto_rawDescData
 }
 
-var file_query_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_query_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_query_proto_goTypes = []interface{}{
 	(*ServerBannedFromRoomRequest)(nil),     // 0: query.ServerBannedFromRoomRequest
 	(*ServerBannedFromRoomResponse)(nil),    // 1: query.ServerBannedFromRoomResponse
@@ -727,15 +840,17 @@ var file_query_proto_goTypes = []interface{}{
 	(*RoomVersionForRoomResponse)(nil),      // 9: query.RoomVersionForRoomResponse
 	(*RoomVersionCapabilitiesRequest)(nil),  // 10: query.RoomVersionCapabilitiesRequest
 	(*RoomVersionCapabilitiesResponse)(nil), // 11: query.RoomVersionCapabilitiesResponse
-	nil,                                     // 12: query.SharedUsersResponse.UserIDsToCountEntry
-	nil,                                     // 13: query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
-	(RoomVersion)(0),                        // 14: common.RoomVersion
+	(*ServerAllowedToSeeEventRequest)(nil),  // 12: query.ServerAllowedToSeeEventRequest
+	(*ServerAllowedToSeeEventResponse)(nil), // 13: query.ServerAllowedToSeeEventResponse
+	nil,                                     // 14: query.SharedUsersResponse.UserIDsToCountEntry
+	nil,                                     // 15: query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
+	(RoomVersion)(0),                        // 16: common.RoomVersion
 }
 var file_query_proto_depIdxs = []int32{
-	12, // 0: query.SharedUsersResponse.UserIDsToCount:type_name -> query.SharedUsersResponse.UserIDsToCountEntry
-	14, // 1: query.RoomVersionForRoomResponse.RoomVersion:type_name -> common.RoomVersion
-	14, // 2: query.RoomVersionCapabilitiesResponse.DefaultRoomVersion:type_name -> common.RoomVersion
-	13, // 3: query.RoomVersionCapabilitiesResponse.AvailableRoomVersions:type_name -> query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
+	14, // 0: query.SharedUsersResponse.UserIDsToCount:type_name -> query.SharedUsersResponse.UserIDsToCountEntry
+	16, // 1: query.RoomVersionForRoomResponse.RoomVersion:type_name -> common.RoomVersion
+	16, // 2: query.RoomVersionCapabilitiesResponse.DefaultRoomVersion:type_name -> common.RoomVersion
+	15, // 3: query.RoomVersionCapabilitiesResponse.AvailableRoomVersions:type_name -> query.RoomVersionCapabilitiesResponse.AvailableRoomVersionsEntry
 	4,  // [4:4] is the sub-list for method output_type
 	4,  // [4:4] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
@@ -894,6 +1009,30 @@ func file_query_proto_init() {
 				return nil
 			}
 		}
+		file_query_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ServerAllowedToSeeEventRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_query_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ServerAllowedToSeeEventResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -901,7 +1040,7 @@ func file_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_query_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

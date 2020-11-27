@@ -57,3 +57,12 @@ message RoomVersionCapabilitiesResponse {
     common.RoomVersion DefaultRoomVersion = 1;
     map<string,string> AvailableRoomVersions = 2; // Must be manually handled!
 }
+
+message ServerAllowedToSeeEventRequest {
+    string EventID = 1;
+    string ServerName = 2;
+}
+
+message ServerAllowedToSeeEventResponse {
+    bool AllowedToSeeEvent = 1;
+}

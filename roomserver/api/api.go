@@ -104,11 +104,10 @@ type RoomserverInternalAPI interface {
 	) error
 
 	// Query whether a server is allowed to see an event
-	QueryServerAllowedToSeeEvent(
+	QueryServerAllowedToSeeEventGRPC(
 		ctx context.Context,
-		request *QueryServerAllowedToSeeEventRequest,
-		response *QueryServerAllowedToSeeEventResponse,
-	) error
+		req *proto.ServerAllowedToSeeEventRequest,
+	) (*proto.ServerAllowedToSeeEventResponse, error)
 
 	// Query missing events for a room from roomserver
 	QueryMissingEvents(

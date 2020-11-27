@@ -36,19 +36,18 @@ const (
 	RoomserverPerformForgetPath   = "/roomserver/performForget"
 
 	// Query operations
-	RoomserverQueryLatestEventsAndStatePath    = "/roomserver/queryLatestEventsAndState"
-	RoomserverQueryStateAfterEventsPath        = "/roomserver/queryStateAfterEvents"
-	RoomserverQueryMissingAuthPrevEventsPath   = "/roomserver/queryMissingAuthPrevEvents"
-	RoomserverQueryEventsByIDPath              = "/roomserver/queryEventsByID"
-	RoomserverQueryMembershipForUserPath       = "/roomserver/queryMembershipForUser"
-	RoomserverQueryMembershipsForRoomPath      = "/roomserver/queryMembershipsForRoom"
-	RoomserverQueryServerJoinedToRoomPath      = "/roomserver/queryServerJoinedToRoomPath"
-	RoomserverQueryServerAllowedToSeeEventPath = "/roomserver/queryServerAllowedToSeeEvent"
-	RoomserverQueryMissingEventsPath           = "/roomserver/queryMissingEvents"
-	RoomserverQueryStateAndAuthChainPath       = "/roomserver/queryStateAndAuthChain"
-	RoomserverQueryCurrentStatePath            = "/roomserver/queryCurrentState"
-	RoomserverQueryBulkStateContentPath        = "/roomserver/queryBulkStateContent"
-	RoomserverQueryKnownUsersPath              = "/roomserver/queryKnownUsers"
+	RoomserverQueryLatestEventsAndStatePath  = "/roomserver/queryLatestEventsAndState"
+	RoomserverQueryStateAfterEventsPath      = "/roomserver/queryStateAfterEvents"
+	RoomserverQueryMissingAuthPrevEventsPath = "/roomserver/queryMissingAuthPrevEvents"
+	RoomserverQueryEventsByIDPath            = "/roomserver/queryEventsByID"
+	RoomserverQueryMembershipForUserPath     = "/roomserver/queryMembershipForUser"
+	RoomserverQueryMembershipsForRoomPath    = "/roomserver/queryMembershipsForRoom"
+	RoomserverQueryServerJoinedToRoomPath    = "/roomserver/queryServerJoinedToRoomPath"
+	RoomserverQueryMissingEventsPath         = "/roomserver/queryMissingEvents"
+	RoomserverQueryStateAndAuthChainPath     = "/roomserver/queryStateAndAuthChain"
+	RoomserverQueryCurrentStatePath          = "/roomserver/queryCurrentState"
+	RoomserverQueryBulkStateContentPath      = "/roomserver/queryBulkStateContent"
+	RoomserverQueryKnownUsersPath            = "/roomserver/queryKnownUsers"
 )
 
 type httpRoomserverInternalAPI struct {
@@ -328,19 +327,6 @@ func (h *httpRoomserverInternalAPI) QueryServerJoinedToRoom(
 	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
 }
 
-// QueryServerAllowedToSeeEvent implements RoomserverQueryAPI
-func (h *httpRoomserverInternalAPI) QueryServerAllowedToSeeEvent(
-	ctx context.Context,
-	request *api.QueryServerAllowedToSeeEventRequest,
-	response *api.QueryServerAllowedToSeeEventResponse,
-) (err error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "QueryServerAllowedToSeeEvent")
-	defer span.Finish()
-
-	apiURL := h.roomserverURL + RoomserverQueryServerAllowedToSeeEventPath
-	return httputil.PostJSON(ctx, span, h.httpClient, apiURL, request, response)
-}
-
 // QueryMissingEvents implements RoomServerQueryAPI
 func (h *httpRoomserverInternalAPI) QueryMissingEvents(
 	ctx context.Context,
@@ -437,6 +423,10 @@ func (h *httpRoomserverInternalAPI) QueryRoomVersionForRoomGRPC(ctx context.Cont
 
 func (h *httpRoomserverInternalAPI) QueryRoomVersionCapabilitiesGRPC(ctx context.Context, req *proto.RoomVersionCapabilitiesRequest) (*proto.RoomVersionCapabilitiesResponse, error) {
 	return h.grpcClient.QueryRoomVersionCapabilities(ctx, req)
+}
+
+func (h *httpRoomserverInternalAPI) QueryServerAllowedToSeeEventGRPC(ctx context.Context, req *proto.ServerAllowedToSeeEventRequest) (*proto.ServerAllowedToSeeEventResponse, error) {
+	return h.grpcClient.QueryServerAllowedToSeeEvent(ctx, req)
 }
 
 func (h *httpRoomserverInternalAPI) PerformForget(ctx context.Context, req *api.PerformForgetRequest, res *api.PerformForgetResponse) error {
