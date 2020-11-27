@@ -15,22 +15,27 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"net"
 	"os"
+
+	"github.com/matrix-org/dendrite/roomserver/proto"
+
+	"github.com/matrix-org/dendrite/roomserver/acls"
 
 	"google.golang.org/grpc"
 
 	"github.com/matrix-org/dendrite/appservice"
 	"github.com/matrix-org/dendrite/eduserver/cache"
-	"github.com/matrix-org/dendrite/eduserver/intgrpc"
+	eduProto "github.com/matrix-org/dendrite/eduserver/intgrpc"
 	"github.com/matrix-org/dendrite/federationsender"
 	"github.com/matrix-org/dendrite/internal/config"
 	"github.com/matrix-org/dendrite/internal/mscs"
 	"github.com/matrix-org/dendrite/internal/setup"
 	"github.com/matrix-org/dendrite/keyserver"
 	"github.com/matrix-org/dendrite/roomserver"
-	"github.com/matrix-org/dendrite/roomserver/api"
+	roomProto "github.com/matrix-org/dendrite/roomserver/intgrpc"
 	"github.com/matrix-org/dendrite/signingkeyserver"
 	"github.com/matrix-org/dendrite/userapi"
 	"github.com/sirupsen/logrus"
@@ -86,20 +91,15 @@ func main() {
 	}
 	keyRing := skAPI.KeyRing()
 
-	rsImpl := roomserver.NewInternalAPI(
-		base, keyRing,
-	)
+	// TODO: solve sytest issues; just for testing!
+	addr, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	rsClient := roomProto.NewRoomServerServiceGRPCClient(addr.Addr().String())
+	acl := &acls.ServerACLs{}
+	rsAPI, acl := roomserver.NewInternalAPI(base, keyRing, &rsClient)
 	// call functions directly on the impl unless running in HTTP mode
-	rsAPI := rsImpl
-	if base.UseHTTPAPIs {
-		roomserver.AddInternalRoutes(base.InternalAPIMux, rsImpl)
-		rsAPI = base.RoomserverHTTPClient()
-	}
-	if traceInternal {
-		rsAPI = &api.RoomserverInternalAPITrace{
-			Impl: rsAPI,
-		}
-	}
 
 	fsAPI := federationsender.NewInternalAPI(
 		base, federation, rsAPI, keyRing,
@@ -110,13 +110,11 @@ func main() {
 	}
 	// The underlying roomserver implementation needs to be able to call the fedsender.
 	// This is different to rsAPI which can be the http client which doesn't need this dependency
-	rsImpl.SetFederationSenderAPI(fsAPI)
+	rsAPI.SetFederationSenderAPI(fsAPI)
 
 	keyAPI := keyserver.NewInternalAPI(&base.Cfg.KeyServer, fsAPI)
 	userAPI := userapi.NewInternalAPI(accountDB, &cfg.UserAPI, cfg.Derived.ApplicationServices, keyAPI)
 	keyAPI.SetUserAPI(userAPI)
-
-	eduInputAPI := intgrpc.NewEDUServiceGRPC(&base.Cfg.EDUServer, cache.New(), userAPI)
 
 	asAPI := appservice.NewInternalAPI(base, userAPI, rsAPI)
 	if base.UseHTTPAPIs {
@@ -124,15 +122,13 @@ func main() {
 		asAPI = base.AppserviceHTTPClient()
 	}
 
-	// TODO: solve sytest issues; just for testing!
-	addr, err := net.Listen("tcp", "localhost:0")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
+	// TODO: Easier setup?
 	// create gRPC Server and attach services
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor))
+	eduInputAPI := eduProto.NewEDUServiceGRPC(&base.Cfg.EDUServer, cache.New(), userAPI)
 	eduInputAPI.Attach(s)
+	rsp := roomProto.NewRoomServiceServer(&base.Cfg.RoomServer, base.Caches, acl)
+	rsp.Attach(s)
 
 	// start gRPC Server
 	go func() {
@@ -142,7 +138,7 @@ func main() {
 		}
 	}()
 	// create eduAPI gRPC Client
-	eduInputAPIClient := intgrpc.NewEDUServiceGRPCClient(addr.Addr().String())
+	eduInputAPIClient := eduProto.NewEDUServiceGRPCClient(addr.Addr().String())
 
 	monolith := setup.Monolith{
 		Config:    base.Cfg,
@@ -193,4 +189,19 @@ func main() {
 
 	// We want to block forever to let the HTTP and HTTPS handler serve the APIs
 	select {}
+}
+
+// TODO: create useful interceptor; just for debugging
+func interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	logrus.WithField("method", info.FullMethod).Debugf("gRPC Server Interceptor: data: %+v", req)
+	resp, err = handler(ctx, req)
+	switch v := resp.(type) {
+	case *proto.ServerBannedFromRoomResponse:
+		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response banned: %+v", v.Banned)
+	case *proto.SharedUsersResponse:
+		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response sharedUsers: %+v", v.UserIDsToCount)
+	default:
+		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response: %T -> %+v -> %#v", v, v, v)
+	}
+	return
 }
