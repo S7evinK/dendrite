@@ -3,6 +3,7 @@ package intgrpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net"
 
 	"github.com/matrix-org/dendrite/internal/caching"
@@ -15,6 +16,8 @@ import (
 	"github.com/matrix-org/gomatrixserverlib"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type RoomServiceServer struct {
@@ -43,11 +46,26 @@ func (rs *RoomServiceServer) Listen(addr string) {
 		logrus.WithError(err).Fatal("Error listening")
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.UnaryInterceptor(rs.Interceptor))
 	proto.RegisterRoomServiceServer(s, rs)
 	if err := s.Serve(l); err != nil {
 		logrus.WithError(err).Fatal("error serving")
 	}
+}
+
+// TODO: create useful interceptor; just for debugging
+func (rs *RoomServiceServer) Interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	logrus.WithField("method", info.FullMethod).Debugf("gRPC Server Interceptor: data: %+v", req)
+	resp, err = handler(ctx, req)
+	switch v := resp.(type) {
+	case *proto.ServerBannedFromRoomResponse:
+		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response banned: %+v", v.Banned)
+	case *proto.SharedUsersResponse:
+		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response sharedUsers: %+v", v.UserIDsToCount)
+	default:
+		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response: %T -> %+v -> %#v", v, v, v)
+	}
+	return
 }
 
 // Attach attaches this service to an existing grpc server
@@ -67,7 +85,7 @@ func (rs *RoomServiceServer) QueryServerBannedFromRoom(
 ) (*proto.ServerBannedFromRoomResponse, error) {
 	res := &proto.ServerBannedFromRoomResponse{}
 	if rs.ServerACLs == nil {
-		return res, ErrNoACLs
+		return res, status.Error(codes.Internal, ErrNoACLs.Error())
 	}
 	res.Banned = rs.ServerACLs.IsServerBannedFromRoom(gomatrixserverlib.ServerName(req.ServerName), req.RoomID)
 	return res, nil
@@ -80,7 +98,7 @@ func (rs *RoomServiceServer) QuerySharedUsers(
 	res := &proto.SharedUsersResponse{}
 	roomIDs, err := rs.DB.GetRoomsByMembership(ctx, req.UserID, "join")
 	if err != nil {
-		return res, err
+		return res, status.Error(codes.Internal, fmt.Errorf("GetRoomsByMembership failed: %w", err).Error())
 	}
 
 	roomIDs = append(roomIDs, req.IncludeRoomIDs...)
@@ -102,7 +120,7 @@ func (rs *RoomServiceServer) QuerySharedUsers(
 
 	users, err := rs.DB.JoinedUsersSetInRooms(ctx, roomIDs)
 	if err != nil {
-		return res, err
+		return res, status.Error(codes.Internal, fmt.Errorf("JoinedUsersSetInRooms failed: %w", err).Error())
 	}
 
 	// TODO: Replace JoinedUsersSetInRooms map[string]int with map[string]int64
@@ -121,7 +139,7 @@ func (rs *RoomServiceServer) QueryRoomsForUser(
 	res := &proto.RoomsForUserResponse{}
 	roomIDs, err := rs.DB.GetRoomsByMembership(ctx, req.UserID, req.WantMembership)
 	if err != nil {
-		return res, err
+		return res, status.Error(codes.Internal, fmt.Errorf("GetRoomsByMembership failed: %w", err).Error())
 	}
 	res.RoomIDs = roomIDs
 	return res, nil
@@ -135,7 +153,7 @@ func (rs *RoomServiceServer) QueryPublishedRooms(
 	res := &proto.PublishedRoomsResponse{}
 	rooms, err := rs.DB.GetPublishedRooms(ctx)
 	if err != nil {
-		return res, err
+		return res, status.Error(codes.Internal, fmt.Errorf("GetPublishedRooms failed: %w", err).Error())
 	}
 	res.RoomIDs = rooms
 	return res, nil
@@ -155,10 +173,10 @@ func (rs *RoomServiceServer) QueryRoomVersionForRoom(
 
 	info, err := rs.DB.RoomInfo(ctx, req.RoomID)
 	if err != nil {
-		return res, err
+		return res, status.Error(codes.Internal, fmt.Errorf("RoomInfo failed: %w", err).Error())
 	}
 	if info == nil {
-		return res, ErrMissingRoomInfo
+		return res, status.Error(codes.Internal, ErrMissingRoomInfo.Error())
 	}
 	res.RoomVersion = helper.ToProtoRoomVersion(info.RoomVersion)
 	rs.Cache.StoreRoomVersion(req.RoomID, info.RoomVersion)

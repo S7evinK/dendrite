@@ -6,6 +6,9 @@ import (
 	"net"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"google.golang.org/grpc"
 
 	userapi "github.com/matrix-org/dendrite/userapi/api"
@@ -91,7 +94,7 @@ func (e *EduServiceServer) SendReceiptEvent(
 	}).Debug("received grpc event for receipts")
 	js, err := json.Marshal(output)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "unable to marshal json: %w", err)
 	}
 	m := &sarama.ProducerMessage{
 		Topic: e.OutputReceiptEventTopic,
@@ -99,7 +102,10 @@ func (e *EduServiceServer) SendReceiptEvent(
 		Value: sarama.ByteEncoder(js),
 	}
 	_, _, err = e.Producer.SendMessage(m)
-	return &proto.EmptyResponse{}, err
+	if err != nil {
+		return &proto.EmptyResponse{}, status.Errorf(codes.Internal, "%w", err)
+	}
+	return &proto.EmptyResponse{}, nil
 }
 
 func (e *EduServiceServer) SendTypingEvent(
@@ -172,7 +178,7 @@ func (e *EduServiceServer) SendToDevice(ctx context.Context, ise *proto.SendToDe
 			UserID: ise.UserID,
 		}, &res)
 		if err != nil {
-			return nil, err
+			return nil, status.Errorf(codes.Internal, "QueryDevices failed: %w", err)
 		}
 		for _, dev := range res.Devices {
 			devices = append(devices, dev.ID)
@@ -200,7 +206,7 @@ func (e *EduServiceServer) SendToDevice(ctx context.Context, ise *proto.SendToDe
 		eventJSON, err := json.Marshal(ote)
 		if err != nil {
 			logrus.WithError(err).Error("sendToDevice failed json.Marshal")
-			return &proto.EmptyResponse{}, err
+			return &proto.EmptyResponse{}, status.Errorf(codes.Internal, "failed to marshal json: %w", err)
 		}
 
 		m := &sarama.ProducerMessage{
@@ -212,7 +218,7 @@ func (e *EduServiceServer) SendToDevice(ctx context.Context, ise *proto.SendToDe
 		_, _, err = e.Producer.SendMessage(m)
 		if err != nil {
 			logrus.WithError(err).Error("sendToDevice failed t.Producer.SendMessage")
-			return &proto.EmptyResponse{}, err
+			return &proto.EmptyResponse{}, status.Errorf(codes.Internal, "sendToDevice failed t.Producer.SendMessage: %w", err)
 		}
 	}
 	return &proto.EmptyResponse{}, nil

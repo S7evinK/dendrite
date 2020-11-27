@@ -15,16 +15,9 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"net"
 	"os"
-
-	"github.com/matrix-org/dendrite/roomserver/proto"
-
-	"github.com/matrix-org/dendrite/roomserver/acls"
-
-	"google.golang.org/grpc"
 
 	"github.com/matrix-org/dendrite/appservice"
 	"github.com/matrix-org/dendrite/eduserver/cache"
@@ -35,10 +28,12 @@ import (
 	"github.com/matrix-org/dendrite/internal/setup"
 	"github.com/matrix-org/dendrite/keyserver"
 	"github.com/matrix-org/dendrite/roomserver"
+	"github.com/matrix-org/dendrite/roomserver/acls"
 	roomProto "github.com/matrix-org/dendrite/roomserver/intgrpc"
 	"github.com/matrix-org/dendrite/signingkeyserver"
 	"github.com/matrix-org/dendrite/userapi"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -124,10 +119,10 @@ func main() {
 
 	// TODO: Easier setup?
 	// create gRPC Server and attach services
-	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor))
 	eduInputAPI := eduProto.NewEDUServiceGRPC(&base.Cfg.EDUServer, cache.New(), userAPI)
-	eduInputAPI.Attach(s)
 	rsp := roomProto.NewRoomServiceServer(&base.Cfg.RoomServer, base.Caches, acl)
+	s := grpc.NewServer(grpc.UnaryInterceptor(rsp.Interceptor))
+	eduInputAPI.Attach(s)
 	rsp.Attach(s)
 
 	// start gRPC Server
@@ -189,19 +184,4 @@ func main() {
 
 	// We want to block forever to let the HTTP and HTTPS handler serve the APIs
 	select {}
-}
-
-// TODO: create useful interceptor; just for debugging
-func interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-	logrus.WithField("method", info.FullMethod).Debugf("gRPC Server Interceptor: data: %+v", req)
-	resp, err = handler(ctx, req)
-	switch v := resp.(type) {
-	case *proto.ServerBannedFromRoomResponse:
-		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response banned: %+v", v.Banned)
-	case *proto.SharedUsersResponse:
-		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response sharedUsers: %+v", v.UserIDsToCount)
-	default:
-		logrus.WithField("method", info.FullMethod).WithField("error", err).Debugf("response: %T -> %+v -> %#v", v, v, v)
-	}
-	return
 }
