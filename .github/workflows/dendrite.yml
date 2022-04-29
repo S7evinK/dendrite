@@ -111,7 +111,7 @@ jobs:
           key: ${{ runner.os }}-go${{ matrix.go }}-test-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go${{ matrix.go }}-test-
-      - run: go test -p 1 ./...
+      - run: go test ./...
         env:
           POSTGRES_HOST: localhost
           POSTGRES_USER: postgres
@@ -250,6 +250,7 @@ jobs:
       env:
         POSTGRES: ${{ matrix.postgres && 1}}
         API: ${{ matrix.api && 1 }}
+        SYTEST_BRANCH: ${{ github.head_ref }}
     steps:
       - uses: actions/checkout@v2
       - name: Run Sytest
