@@ -5,7 +5,7 @@ group "default" {
 target "platforms" {
     dockerfile = "Dockerfile"
     #platforms = ["linux/amd64", "linux/386" ]
-    platforms = ["linux/amd64", "linux/arm64", "linux/arm", "linux/arm/v7"]
+    platforms = ["linux/amd64", "linux/arm", "linux/arm/v7"]
 }
 
 target "monolith" {

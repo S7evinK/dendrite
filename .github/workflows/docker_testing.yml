@@ -17,7 +17,7 @@ env:
 
 jobs:
   monolith:
-    name: Monolith image
+    name: Build docker image
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
