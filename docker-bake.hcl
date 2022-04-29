@@ -11,13 +11,13 @@ target "platforms" {
 target "monolith" {
     inherits = ["platforms"]
     target = "image-monolith"
-    tags = [ "ghcr.io/S7evinK/dendrite-monolith:latest" ]
+    tags = [ "ghcr.io/s7evink/dendrite-monolith:latest" ]
 }
 
 target "polylith" {
     inherits = ["platforms"]
     target = "image-polylith"
-    tags = [ "ghcr.io/S7evinK/dendrite-polylith:latest" ]
+    tags = [ "ghcr.io/s7evink/dendrite-polylith:latest" ]
 }
 
 target "binary" {
