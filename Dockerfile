@@ -1,9 +1,7 @@
 #syntax=docker/dockerfile:1.2
 
 # base installs required dependencies and runs go mod download to cache dependencies
-FROM docker.io/golang:1.18-alpine AS base
-RUN apk --update --no-cache add bash build-base
-
+FROM docker.io/golang:1.18 AS base
 WORKDIR /src
 COPY go.* .
 RUN go mod download
@@ -14,7 +12,15 @@ ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=target=. \
     --mount=type=cache,target=/root/.cache/go-build \
-    GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -o /out/ ./cmd/...
+    CGO_ENABLED=1 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -o /out/ ./cmd/...
+
+# contains the binaries
+FROM scratch AS binary
+COPY --from=build /out/dendrite-polylith-multi .
+COPY --from=build /out/create-account .
+COPY --from=build /out/generate-config .
+COPY --from=build /out/generate-keys .
+COPY --from=build /out/dendrite-monolith-server .
 
 # dendrite base image; mainly creates a user and switches to it
 FROM alpine:3.15 AS dendrite-base
