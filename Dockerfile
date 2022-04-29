@@ -1,7 +1,7 @@
 #syntax=docker/dockerfile:1.2
 
 # base installs required dependencies and runs go mod download to cache dependencies
-FROM --platform=${BUILDPLATFORM} docker.io/golang:1.18-alpine AS base
+FROM docker.io/golang:1.18-alpine AS base
 RUN apk --update --no-cache add bash build-base
 
 WORKDIR /src
@@ -9,7 +9,7 @@ COPY go.* .
 RUN go mod download
 
 # build creates all needed binaries
-FROM base AS build
+FROM --platform=$BUILDPLATFORM base AS build
 ARG TARGETOS
 ARG TARGETARCH
 RUN --mount=target=. \
@@ -66,4 +66,4 @@ EXPOSE 8008 8448
 CMD /usr/bin/generate-keys --server $SERVER_NAME --tls-cert server.crt --tls-key server.key --tls-authority-cert /ca/ca.crt --tls-authority-key /ca/ca.key && \
  /usr/bin/generate-config -server $SERVER_NAME --ci > dendrite.yaml && \
  cp /ca/ca.crt /usr/local/share/ca-certificates/ && update-ca-certificates && \
- /usr/bin/dendrite-monolith-server --tls-cert server.crt --tls-key server.key --config dendrite.yaml -api=${API:-0}
+ /usr/bin/dendrite-monolith-server --really-enable-open-registration --tls-cert server.crt --tls-key server.key --config dendrite.yaml -api=${API:-0}
