@@ -410,7 +410,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           load: true
-          file: ./build/scripts/Complement${{ matrix.postgres }}.Dockerfile
+          file: ./dendrite/build/scripts/Complement${{ matrix.postgres }}.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: dendrite/
