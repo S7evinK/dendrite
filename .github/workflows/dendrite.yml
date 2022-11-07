@@ -406,8 +406,8 @@ jobs:
       - name: Build initial Dendrite image
         uses: docker/build-push-action@v3
         with:
-          enableBuildKit: true
-          dockerfile: build/scripts/Complement${{ matrix.postgres }}.Dockerfile
+          load: true # --output=type=docker
+          file: build/scripts/Complement${{ matrix.postgres }}.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: dendrite/
