@@ -403,11 +403,18 @@ jobs:
             (wget -O - "https://github.com/matrix-org/complement/archive/$BRANCH_NAME.tar.gz" | tar -xz --strip-components=1 -C complement) && break
           done
 
-      # Build initial Dendrite image
-      - run: docker build -t complement-dendrite -f build/scripts/Complement${{ matrix.postgres }}.Dockerfile .
-        working-directory: dendrite
-        env:
-          DOCKER_BUILDKIT: 1
+      - name: Build initial Dendrite image
+        uses: docker/build-push-action@v3
+        with:
+          enableBuildKit: true
+          dockerfile: build/scripts/Complement${{ matrix.postgres }}.Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: dendrite/
+          platforms: ${{ env.PLATFORMS }}
+          push: false
+          tags: |
+            complement-dendrite
 
       # Run Complement
       - run: |

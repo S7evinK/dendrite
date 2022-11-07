@@ -57,6 +57,7 @@ jobs:
         id: docker_build_monolith
         uses: docker/build-push-action@v3
         with:
+          enableBuildKit: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
@@ -85,6 +86,7 @@ jobs:
         id: docker_build_monolith_release
         uses: docker/build-push-action@v3
         with:
+          enableBuildKit: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
@@ -137,6 +139,7 @@ jobs:
         id: docker_build_polylith
         uses: docker/build-push-action@v3
         with:
+          enableBuildKit: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
@@ -165,6 +168,7 @@ jobs:
         id: docker_build_polylith_release
         uses: docker/build-push-action@v3
         with:
+          enableBuildKit: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
@@ -216,6 +220,7 @@ jobs:
         id: docker_build_demo_pinecone
         uses: docker/build-push-action@v3
         with:
+          enableBuildKit: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
@@ -232,6 +237,7 @@ jobs:
         id: docker_build_demo_pinecone_release
         uses: docker/build-push-action@v3
         with:
+          enableBuildKit: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
@@ -283,6 +289,7 @@ jobs:
         id: docker_build_demo_yggdrasil
         uses: docker/build-push-action@v3
         with:
+          enableBuildKit: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
@@ -299,6 +306,7 @@ jobs:
         id: docker_build_demo_yggdrasil_release
         uses: docker/build-push-action@v3
         with:
+          enableBuildKit: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
