@@ -380,9 +380,7 @@ jobs:
           path: dendrite
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          driver: docker
+        uses: docker/setup-buildx-action@v2
 
       # Attempt to check out the same branch of Complement as the PR. If it
       # doesn't exist, fallback to main.
@@ -412,13 +410,12 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           file: build/scripts/Complement${{ matrix.postgres }}.Dockerfile
-          push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: dendrite/
           platforms: ${{ env.PLATFORMS }}
           tags: |
-            ghcr.io/${{ env.GHCR_NAMESPACE }}/complement-dendrite:latest
+            complement-dendrite:latest
 
       # Run Complement
       - run: |
