@@ -335,7 +335,7 @@ jobs:
   complement:
     name: "Complement (${{ matrix.label }})"
     timeout-minutes: 20
-    needs: initial-tests-done
+    #needs: initial-tests-done
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -406,7 +406,6 @@ jobs:
       - name: Build initial Dendrite image
         uses: docker/build-push-action@v3
         with:
-          load: true # --output=type=docker
           file: build/scripts/Complement${{ matrix.postgres }}.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -414,7 +413,7 @@ jobs:
           platforms: ${{ env.PLATFORMS }}
           push: false
           tags: |
-            complement-dendrite
+            complement-dendrite:latest
 
       # Run Complement
       - run: |
