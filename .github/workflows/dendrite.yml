@@ -292,7 +292,7 @@ jobs:
       volumes:
         - ${{ github.workspace }}:/src
         - /root/.cache/go-build:/root/.cache/go-build
-        - /root/.cache/go-mod:/go/pkg/mod
+        - /root/.cache/go-mod:/gopath/pkg/mod
       env:
         POSTGRES: ${{ matrix.postgres && 1}}
         API: ${{ matrix.api && 1 }}
@@ -304,7 +304,7 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            ~/go/pkg/mod
+            ~/.cache/go-mod
           key: ${{ runner.os }}-go-sytest-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-sytest-
