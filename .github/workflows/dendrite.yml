@@ -319,6 +319,9 @@ jobs:
       - name: Run Sytest
         run: /bootstrap.sh dendrite
         working-directory: /src
+      - run: |
+          ls -la /root/.cache/
+          ls -laR /gopath/
       - name: Summarise results.tap
         if: ${{ always() }}
         run: /sytest/scripts/tap_to_gha.pl /logs/results.tap
