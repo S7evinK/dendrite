@@ -136,7 +136,7 @@ jobs:
           path: |
             ~/.cache/go-build
             /go/pkg/mod
-             /var/cache/apt
+            /var/cache/apt/**.deb
           key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-
@@ -171,7 +171,7 @@ jobs:
           path: |
             ~/.cache/go-build
             /go/pkg/mod
-            /var/cache/apt
+            /var/cache/apt/**.deb
           key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-
@@ -391,7 +391,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           load: true
-          file: ./dendrite/build/scripts/Complement${{ matrix.postgres }}.Dockerfile
+          file: ./build/scripts/Complement${{ matrix.postgres }}.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: dendrite/

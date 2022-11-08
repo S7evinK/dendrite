@@ -3,24 +3,17 @@
 FROM golang:1.18-stretch as build
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install -y sqlite3
-WORKDIR /build
 
 RUN mkdir /dendrite
+
+WORKDIR /build
 
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    go build -o /dendrite ./cmd/generate-config
-RUN --mount=target=. \
-    --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    go build -o /dendrite ./cmd/generate-keys
-RUN --mount=target=. \
-    --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    go build -o /dendrite ./cmd/dendrite-monolith-server
+    go build -o /dendrite ./cmd/...
 
 WORKDIR /dendrite
 RUN ./generate-keys --private-key matrix_key.pem
