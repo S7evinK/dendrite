@@ -278,20 +278,20 @@ jobs:
 
           - label: SQLite Cgo
             cgo: 1
-          #
-          #- label: SQLite native, full HTTP APIs
-          #  api: full-http
-          #
-          #- label: SQLite Cgo, full HTTP APIs
-          #  api: full-http
-          #  cgo: 1
-          #
-          #- label: PostgreSQL
-          #  postgres: postgres
-          #
-          #- label: PostgreSQL, full HTTP APIs
-          #  postgres: postgres
-          #  api: full-http
+
+          - label: SQLite native, full HTTP APIs
+            api: full-http
+
+          - label: SQLite Cgo, full HTTP APIs
+            api: full-http
+            cgo: 1
+
+          - label: PostgreSQL
+            postgres: postgres
+
+          - label: PostgreSQL, full HTTP APIs
+            postgres: postgres
+            api: full-http
     container:
       image: matrixdotorg/sytest-dendrite:latest
       volumes:
@@ -309,7 +309,7 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            ~/.cache/go-mod
+            /gopath/pkg/mod
           key: ${{ runner.os }}-go-sytest-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-sytest-
@@ -353,6 +353,7 @@ jobs:
       matrix:
         include:
           - label: SQLite native
+            cgo: 0 # this is "needed" to correctly tag the image
 
           - label: SQLite Cgo
             cgo: 1
