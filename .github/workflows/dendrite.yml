@@ -313,6 +313,7 @@ jobs:
       matrix:
         include:
           - label: SQLite native
+            cgo: 0
 
           - label: SQLite Cgo
             cgo: 1
