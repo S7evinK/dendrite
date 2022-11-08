@@ -276,8 +276,8 @@ jobs:
         include:
           - label: SQLite native
 
-          #- label: SQLite Cgo
-          #  cgo: 1
+          - label: SQLite Cgo
+            cgo: 1
           #
           #- label: SQLite native, full HTTP APIs
           #  api: full-http
@@ -314,14 +314,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-sytest-
       - run: |
-          ls -la /root/.cache/
-          ls -laR /gopath/
+          ls -la /root/.cache/go-build
+          ls -la /gopath/pkg/mod
       - name: Run Sytest
         run: /bootstrap.sh dendrite
         working-directory: /src
       - run: |
-          ls -la /root/.cache/
-          ls -laR /gopath/
+          ls -la /root/.cache/go-build
+          ls -la /gopath/pkg/mod
       - name: Summarise results.tap
         if: ${{ always() }}
         run: /sytest/scripts/tap_to_gha.pl /logs/results.tap
@@ -354,22 +354,22 @@ jobs:
         include:
           - label: SQLite native
 
-          #- label: SQLite Cgo
-          #  cgo: 1
-          #
-          #- label: SQLite native, full HTTP APIs
-          #  api: full-http
-          #
-          #- label: SQLite Cgo, full HTTP APIs
-          #  api: full-http
-          #  cgo: 1
-          #
-          #- label: PostgreSQL
-          #  postgres: Postgres
-          #
-          #- label: PostgreSQL, full HTTP APIs
-          #  postgres: Postgres
-          #  api: full-http
+          - label: SQLite Cgo
+            cgo: 1
+
+          - label: SQLite native, full HTTP APIs
+            api: full-http
+
+          - label: SQLite Cgo, full HTTP APIs
+            api: full-http
+            cgo: 1
+
+          - label: PostgreSQL
+            postgres: Postgres
+
+          - label: PostgreSQL, full HTTP APIs
+            postgres: Postgres
+            api: full-http
     steps:
       # Env vars are set file a file given by $GITHUB_PATH. We need both Go 1.17 and GOPATH on env to run Complement.
       # See https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-system-path
@@ -427,7 +427,7 @@ jobs:
           context: dendrite/
           platforms: ${{ env.PLATFORMS }}
           tags: |
-            complement-dendrite:latest
+            complement-dendrite:${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
 
       # Run Complement
       - run: |
@@ -436,7 +436,7 @@ jobs:
         shell: bash
         name: Run Complement Tests
         env:
-          COMPLEMENT_BASE_IMAGE: complement-dendrite:latest
+          COMPLEMENT_BASE_IMAGE: complement-dendrite:${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
           API: ${{ matrix.api && 1 }}
           CGO_ENABLED: ${{ matrix.cgo && 1 }}
         working-directory: complement
