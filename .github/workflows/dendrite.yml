@@ -306,14 +306,13 @@ jobs:
   complement:
     name: "Complement (${{ matrix.label }})"
     timeout-minutes: 20
-    #needs: initial-tests-done
+    needs: initial-tests-done
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
           - label: SQLite native
-            cgo: 0 # this is "needed" to correctly tag the image
 
           - label: SQLite Cgo
             cgo: 1
@@ -338,29 +337,16 @@ jobs:
         run: |
           echo "$GOROOT_1_17_X64/bin" >> $GITHUB_PATH
           echo "~/go/bin" >> $GITHUB_PATH
-
       - name: "Install Complement Dependencies"
         # We don't need to install Go because it is included on the Ubuntu 20.04 image:
         # See https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md specifically GOROOT_1_17_X64
         run: |
           sudo apt-get update && sudo apt-get install -y libolm3 libolm-dev
           go get -v github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
-
       - name: Run actions/checkout@v3 for dendrite
         uses: actions/checkout@v3
         with:
           path: dendrite
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}-
 
       # Attempt to check out the same branch of Complement as the PR. If it
       # doesn't exist, fallback to main.
@@ -382,25 +368,13 @@ jobs:
             if [[ -z "$BRANCH_NAME" || $BRANCH_NAME =~ ^refs/pull/.* ]]; then
               continue
             fi
-
             (wget -O - "https://github.com/matrix-org/complement/archive/$BRANCH_NAME.tar.gz" | tar -xz --strip-components=1 -C complement) && break
           done
-
-      - name: Build initial Dendrite image
-        uses: docker/build-push-action@v3
-        with:
-          load: true
-          file: ./dendrite/build/scripts/Complement${{ matrix.postgres }}.Dockerfile
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          context: dendrite/
-          tags: |
-            complement-dendrite:${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
-
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      # Build initial Dendrite image
+      - run: docker build -t complement-dendrite:${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }} -f build/scripts/Complement${{ matrix.postgres }}.Dockerfile .
+        working-directory: dendrite
+        env:
+          DOCKER_BUILDKIT: 1
 
       # Run Complement
       - run: |
