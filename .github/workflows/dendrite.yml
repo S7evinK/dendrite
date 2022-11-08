@@ -63,7 +63,6 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.18
-          cache: true
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
 
@@ -263,7 +262,7 @@ jobs:
       image: matrixdotorg/sytest-dendrite:latest
       volumes:
         - ${{ github.workspace }}:/src
-        - /root/.cache/go-build:/root/.cache/go-build
+        - /root/.cache/go-build:/github/home/.cache/go-build
         - /root/.cache/go-mod:/gopath/pkg/mod
       env:
         POSTGRES: ${{ matrix.postgres && 1}}
@@ -275,20 +274,20 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            /root/.cache/go-build
+            ~/.cache/go-build
             /gopath/pkg/mod
           key: ${{ runner.os }}-go-sytest-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-sytest-
       - run: |
           go env
-          ls -la /root/.cache/go-build
+          ls -la ~/.cache/go-build
           ls -la /gopath/pkg/mod
       - name: Run Sytest
         run: /bootstrap.sh dendrite
         working-directory: /src
       - run: |
-          ls -la /root/.cache/go-build
+          ls -la ~/.cache/go-build
           ls -la /gopath/pkg/mod
       - name: Summarise results.tap
         if: ${{ always() }}
