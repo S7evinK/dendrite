@@ -142,7 +142,7 @@ jobs:
             key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-
       - name: Install dependencies x86
         if: ${{ matrix.goarch == '386' }}
-        run: sudo apt update && sudo apt-get install -y gcc-multilib
+        run: sudo apt update && sudo apt-get install -y gcc-multilib && go env
       - env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
@@ -176,7 +176,7 @@ jobs:
           restore-keys: |
             key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y gcc-mingw-w64-x86-64 # install required gcc
+        run: sudo apt update && sudo apt install -y gcc-mingw-w64-x86-64 && go env # install required gcc
       - env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
