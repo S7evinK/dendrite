@@ -5,6 +5,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install -y sqlite3
 WORKDIR /build
 
+RUN mkdir /dendrite
+
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
 RUN --mount=target=. \

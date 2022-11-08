@@ -22,6 +22,7 @@ RUN echo '\
     done \n\
     ' > run_postgres.sh && chmod +x run_postgres.sh
 
+RUN mkdir /dendrite
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
 RUN --mount=target=. \
