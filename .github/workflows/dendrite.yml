@@ -383,8 +383,8 @@ jobs:
         with:
           load: true
           file: ./dendrite/build/scripts/Complement${{ matrix.postgres }}.Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=build-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
+          cache-to: type=gha,mode=max,scope=build-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
           context: dendrite/
           tags: |
             complement-dendrite:${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
