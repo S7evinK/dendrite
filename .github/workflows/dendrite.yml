@@ -131,17 +131,18 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
-      - name: Install dependencies x86
-        if: ${{ matrix.goarch == '386' }}
-        run: sudo apt update && sudo apt-get install -y gcc-multilib
       - uses: actions/cache@v3
         with:
           path: |
             ~/.cache/go-build
             /go/pkg/mod
+             /var/cache/apt
           key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-
+      - name: Install dependencies x86
+        if: ${{ matrix.goarch == '386' }}
+        run: sudo apt update && sudo apt-get install -y gcc-multilib
       - env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
@@ -165,16 +166,17 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
-      - name: Install dependencies
-        run: sudo apt update && sudo apt install -y gcc-mingw-w64-x86-64 # install required gcc
       - uses: actions/cache@v3
         with:
           path: |
             ~/.cache/go-build
             /go/pkg/mod
+            /var/cache/apt
           key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             key: ${{ runner.os }}-go${{ matrix.go }}${{ matrix.goos }}-${{ matrix.goarch }}-
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y gcc-mingw-w64-x86-64 # install required gcc
       - env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
