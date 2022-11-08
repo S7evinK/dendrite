@@ -2,7 +2,8 @@
 
 FROM golang:1.18-stretch as build
 RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y postgresql
+    apt-get update && apt-get install -y postgresql \
+WORKDIR /build
 
 # No password when connecting over localhost
 RUN sed -i "s%127.0.0.1/32            md5%127.0.0.1/32            trust%g" /etc/postgresql/9.6/main/pg_hba.conf && \
