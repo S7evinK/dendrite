@@ -281,16 +281,9 @@ jobs:
           key: ${{ runner.os }}-go-sytest-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-sytest-
-      - run: |
-          go env
-          ls -la ~/.cache/go-build
-          ls -la /gopath/pkg/mod
       - name: Run Sytest
         run: /bootstrap.sh dendrite
         working-directory: /src
-      - run: |
-          ls -la ~/.cache/go-build
-          ls -la /gopath/pkg/mod
       - name: Summarise results.tap
         if: ${{ always() }}
         run: /sytest/scripts/tap_to_gha.pl /logs/results.tap
@@ -391,7 +384,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           load: true
-          file: ./build/scripts/Complement${{ matrix.postgres }}.Dockerfile
+          file: ./dendrite/build/scripts/Complement${{ matrix.postgres }}.Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: dendrite/
