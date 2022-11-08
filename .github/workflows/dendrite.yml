@@ -233,7 +233,7 @@ jobs:
   # run Sytest in different variations
   sytest:
     timeout-minutes: 20
-    #needs: initial-tests-done
+    needs: initial-tests-done
     name: "Sytest (${{ matrix.label }})"
     runs-on: ubuntu-latest
     strategy:
@@ -306,7 +306,7 @@ jobs:
   complement:
     name: "Complement (${{ matrix.label }})"
     timeout-minutes: 20
-    #needs: initial-tests-done
+    needs: initial-tests-done
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
