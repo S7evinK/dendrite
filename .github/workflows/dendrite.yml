@@ -282,13 +282,13 @@ jobs:
             ${{ runner.os }}-go-sytest-
       - run: |
           ls -la /root/.cache/go-build
-          ls -la /gopath/pkg/mod
+          ls -la /root/.cache/go-mod
       - name: Run Sytest
         run: /bootstrap.sh dendrite
         working-directory: /src
       - run: |
           ls -la /root/.cache/go-build
-          ls -la /gopath/pkg/mod
+          ls -la /root/.cache/go-mod
       - name: Summarise results.tap
         if: ${{ always() }}
         run: /sytest/scripts/tap_to_gha.pl /logs/results.tap
