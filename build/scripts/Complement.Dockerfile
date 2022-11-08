@@ -12,12 +12,25 @@ RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     go mod download
 
+
+RUN --mount=target=. \
+    --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    ls -lah /go/pkg/mod && \
+    ls -lah /root/.cache/go-build
+
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     go build -o /dendrite ./cmd/...
+
+RUN --mount=target=. \
+    --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    ls -lah /go/pkg/mod && \
+    ls -lah /root/.cache/go-build
 
 WORKDIR /dendrite
 RUN ./generate-keys --private-key matrix_key.pem
