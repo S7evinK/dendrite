@@ -76,6 +76,7 @@ jobs:
 
   # run go test with different go versions
   test:
+    if: ${{ false }} # disable for now
     timeout-minutes: 5
     name: Unit tests (Go ${{ matrix.go }})
     runs-on: ubuntu-latest
@@ -131,6 +132,7 @@ jobs:
 
   # build Dendrite for linux with different architectures and go versions
   build:
+    if: ${{ false }} # disable for now
     name: Build for Linux
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -166,6 +168,7 @@ jobs:
 
   # build for Windows 64-bit
   build_windows:
+    if: ${{ false }} # disable for now
     name: Build for Windows
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -211,6 +214,7 @@ jobs:
 
   # run database upgrade tests
   upgrade_test:
+    if: ${{ false }} # disable for now
     name: Upgrade tests
     timeout-minutes: 20
     needs: initial-tests-done
@@ -236,6 +240,7 @@ jobs:
 
   # run database upgrade tests, skipping over one version
   upgrade_test_direct:
+    if: ${{ false }} # disable for now
     name: Upgrade tests from HEAD-2
     timeout-minutes: 20
     needs: initial-tests-done
@@ -262,7 +267,7 @@ jobs:
   # run Sytest in different variations
   sytest:
     timeout-minutes: 20
-    needs: initial-tests-done
+    #needs: initial-tests-done
     name: "Sytest (${{ matrix.label }})"
     runs-on: ubuntu-latest
     strategy:
@@ -271,22 +276,22 @@ jobs:
         include:
           - label: SQLite native
 
-          - label: SQLite Cgo
-            cgo: 1
-
-          - label: SQLite native, full HTTP APIs
-            api: full-http
-
-          - label: SQLite Cgo, full HTTP APIs
-            api: full-http
-            cgo: 1
-
-          - label: PostgreSQL
-            postgres: postgres
-
-          - label: PostgreSQL, full HTTP APIs
-            postgres: postgres
-            api: full-http
+          #- label: SQLite Cgo
+          #  cgo: 1
+          #
+          #- label: SQLite native, full HTTP APIs
+          #  api: full-http
+          #
+          #- label: SQLite Cgo, full HTTP APIs
+          #  api: full-http
+          #  cgo: 1
+          #
+          #- label: PostgreSQL
+          #  postgres: postgres
+          #
+          #- label: PostgreSQL, full HTTP APIs
+          #  postgres: postgres
+          #  api: full-http
     container:
       image: matrixdotorg/sytest-dendrite:latest
       volumes:
@@ -308,6 +313,9 @@ jobs:
           key: ${{ runner.os }}-go-sytest-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-sytest-
+      - run: |
+          ls -la /root/.cache/
+          ls -laR /gopath/
       - name: Run Sytest
         run: /bootstrap.sh dendrite
         working-directory: /src
@@ -335,7 +343,7 @@ jobs:
   complement:
     name: "Complement (${{ matrix.label }})"
     timeout-minutes: 20
-    needs: initial-tests-done
+    #needs: initial-tests-done
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -343,22 +351,22 @@ jobs:
         include:
           - label: SQLite native
 
-          - label: SQLite Cgo
-            cgo: 1
-
-          - label: SQLite native, full HTTP APIs
-            api: full-http
-
-          - label: SQLite Cgo, full HTTP APIs
-            api: full-http
-            cgo: 1
-
-          - label: PostgreSQL
-            postgres: Postgres
-
-          - label: PostgreSQL, full HTTP APIs
-            postgres: Postgres
-            api: full-http
+          #- label: SQLite Cgo
+          #  cgo: 1
+          #
+          #- label: SQLite native, full HTTP APIs
+          #  api: full-http
+          #
+          #- label: SQLite Cgo, full HTTP APIs
+          #  api: full-http
+          #  cgo: 1
+          #
+          #- label: PostgreSQL
+          #  postgres: Postgres
+          #
+          #- label: PostgreSQL, full HTTP APIs
+          #  postgres: Postgres
+          #  api: full-http
     steps:
       # Env vars are set file a file given by $GITHUB_PATH. We need both Go 1.17 and GOPATH on env to run Complement.
       # See https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-system-path
