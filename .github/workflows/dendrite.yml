@@ -26,15 +26,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.18
-
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-wasm-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-wasm
+          cache: true
 
       - name: Install Node
         uses: actions/setup-node@v2
@@ -71,12 +63,12 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.18
+          cache: true
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
 
   # run go test with different go versions
   test:
-    if: ${{ false }} # disable for now
     timeout-minutes: 5
     name: Unit tests (Go ${{ matrix.go }})
     runs-on: ubuntu-latest
@@ -110,19 +102,12 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
+          cache: true
       - name: Set up gotestfmt
         uses: gotesttools/gotestfmt-action@v2
         with:
           # Optional: pass GITHUB_TOKEN to avoid rate limiting.
           token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go${{ matrix.go }}-test-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go${{ matrix.go }}-test-
       - run: go test -json -v ./... 2>&1 | gotestfmt
         env:
           POSTGRES_HOST: localhost
@@ -132,7 +117,6 @@ jobs:
 
   # build Dendrite for linux with different architectures and go versions
   build:
-    if: ${{ false }} # disable for now
     name: Build for Linux
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -148,17 +132,10 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
+          cache: true
       - name: Install dependencies x86
         if: ${{ matrix.goarch == '386' }}
         run: sudo apt update && sudo apt-get install -y gcc-multilib
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go${{ matrix.go }}-${{ matrix.goarch }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go${{ matrix.go }}-${{ matrix.goarch }}-
       - env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
@@ -168,7 +145,6 @@ jobs:
 
   # build for Windows 64-bit
   build_windows:
-    if: ${{ false }} # disable for now
     name: Build for Windows
     timeout-minutes: 10
     runs-on: ubuntu-latest
@@ -183,16 +159,9 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
+          cache: true
       - name: Install dependencies
         run: sudo apt update && sudo apt install -y gcc-mingw-w64-x86-64 # install required gcc
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go${{ matrix.go }}-${{ matrix.goos }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go${{ matrix.go }}-${{ matrix.goos }}
       - env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
@@ -214,7 +183,6 @@ jobs:
 
   # run database upgrade tests
   upgrade_test:
-    if: ${{ false }} # disable for now
     name: Upgrade tests
     timeout-minutes: 20
     needs: initial-tests-done
@@ -225,14 +193,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: "1.18"
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-upgrade-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-upgrade
+          cache: true
       - name: Build upgrade-tests
         run: go build ./cmd/dendrite-upgrade-tests
       - name: Test upgrade
@@ -240,7 +201,6 @@ jobs:
 
   # run database upgrade tests, skipping over one version
   upgrade_test_direct:
-    if: ${{ false }} # disable for now
     name: Upgrade tests from HEAD-2
     timeout-minutes: 20
     needs: initial-tests-done
@@ -251,14 +211,7 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: "1.18"
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-upgrade-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-upgrade
+          cache: true
       - name: Build upgrade-tests
         run: go build ./cmd/dendrite-upgrade-tests
       - name: Test upgrade
@@ -309,7 +262,7 @@ jobs:
         with:
           path: |
             ~/.cache/go-build
-            /gopath/pkg/mod
+            ~/.cache/go-mod
           key: ${{ runner.os }}-go-sytest-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-sytest-
