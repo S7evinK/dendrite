@@ -5,10 +5,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && apt-get install -y sqlite3
 WORKDIR /build
 
-# we will dump the binaries and config file to this location to ensure any local untracked files
-# that come from the COPY . . file don't contaminate the build
-RUN mkdir /dendrite
-
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
 RUN --mount=target=. \

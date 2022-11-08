@@ -1,8 +1,8 @@
 #syntax=docker/dockerfile:1.2
 
 FROM golang:1.18-stretch as build
-RUN apt-get update && apt-get install -y postgresql
-WORKDIR /build
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && apt-get install -y postgresql
 
 # No password when connecting over localhost
 RUN sed -i "s%127.0.0.1/32            md5%127.0.0.1/32            trust%g" /etc/postgresql/9.6/main/pg_hba.conf && \
@@ -21,10 +21,6 @@ RUN echo '\
     sleep 1; \n\
     done \n\
     ' > run_postgres.sh && chmod +x run_postgres.sh
-
-# we will dump the binaries and config file to this location to ensure any local untracked files
-# that come from the COPY . . file don't contaminate the build
-RUN mkdir /dendrite
 
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
