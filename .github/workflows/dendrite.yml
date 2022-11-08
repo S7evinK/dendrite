@@ -354,6 +354,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}-
+
       # Attempt to check out the same branch of Complement as the PR. If it
       # doesn't exist, fallback to main.
       - name: Checkout complement
@@ -383,11 +391,16 @@ jobs:
         with:
           load: true
           file: ./dendrite/build/scripts/Complement${{ matrix.postgres }}.Dockerfile
-          cache-from: type=gha,scope=build-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
-          cache-to: type=gha,mode=max,scope=build-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           context: dendrite/
           tags: |
             complement-dendrite:${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       # Run Complement
       - run: |

@@ -8,10 +8,6 @@ RUN mkdir /dendrite
 
 WORKDIR /build
 
-ADD go.* /build/
-RUN --mount=type=cache,target=/go/pkg/mod \
-    go mod download
-
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
 RUN --mount=target=. \
