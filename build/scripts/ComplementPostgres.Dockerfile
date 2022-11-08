@@ -24,6 +24,11 @@ RUN echo '\
     ' > run_postgres.sh && chmod +x run_postgres.sh
 
 RUN mkdir /dendrite
+
+RUN --mount=target=. \
+    --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
 RUN --mount=target=. \
