@@ -378,13 +378,21 @@ jobs:
             (wget -O - "https://github.com/matrix-org/complement/archive/$BRANCH_NAME.tar.gz" | tar -xz --strip-components=1 -C complement) && break
           done
 
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ matrix.postgres }}${{ matrix.api }}${{ matrix.cgo }}
+
       - name: Build initial Dendrite image
         uses: docker/build-push-action@v3
         with:
           load: true
           file: ./dendrite/build/scripts/Complement${{ matrix.postgres }}.Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
           context: dendrite/
           platforms: ${{ env.PLATFORMS }}
           tags: |
