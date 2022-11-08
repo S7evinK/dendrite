@@ -2,7 +2,7 @@
 
 FROM golang:1.18-stretch as build
 RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y postgresql \
+    apt-get update && apt-get install -y postgresql
 WORKDIR /build
 
 # No password when connecting over localhost
