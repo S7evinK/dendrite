@@ -276,19 +276,20 @@ jobs:
         with:
           path: |
             /root/.cache/go-build
-            /root/.cache/go-mod
+            /gopath/pkg/mod
           key: ${{ runner.os }}-go-sytest-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-sytest-
       - run: |
+          go env
           ls -la /root/.cache/go-build
-          ls -la /root/.cache/go-mod
+          ls -la /gopath/pkg/mod
       - name: Run Sytest
         run: /bootstrap.sh dendrite
         working-directory: /src
       - run: |
           ls -la /root/.cache/go-build
-          ls -la /root/.cache/go-mod
+          ls -la /gopath/pkg/mod
       - name: Summarise results.tap
         if: ${{ always() }}
         run: /sytest/scripts/tap_to_gha.pl /logs/results.tap
