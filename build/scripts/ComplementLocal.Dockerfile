@@ -9,8 +9,7 @@
 # Use these mounts to make use of this dockerfile:
 # COMPLEMENT_HOST_MOUNTS='/your/local/dendrite:/dendrite:ro;/your/go/path:/go:ro'
 FROM golang:1.18-stretch
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y sqlite3
+RUN apt-get update && apt-get install -y sqlite3
 
 ENV SERVER_NAME=localhost
 EXPOSE 8008 8448

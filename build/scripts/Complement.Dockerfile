@@ -1,19 +1,21 @@
 #syntax=docker/dockerfile:1.2
 
 FROM golang:1.18-stretch as build
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update && apt-get install -y sqlite3
-
-RUN mkdir /dendrite
-
+RUN apt-get update && apt-get install -y sqlite3
 WORKDIR /build
+
+# we will dump the binaries and config file to this location to ensure any local untracked files
+# that come from the COPY . . file don't contaminate the build
+RUN mkdir /dendrite
 
 # Utilise Docker caching when downloading dependencies, this stops us needlessly
 # downloading dependencies every time.
 RUN --mount=target=. \
     --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    go build -o /dendrite ./cmd/...
+    go build -o /dendrite ./cmd/generate-config && \
+    go build -o /dendrite ./cmd/generate-keys && \
+    go build -o /dendrite ./cmd/dendrite-monolith-server
 
 WORKDIR /dendrite
 RUN ./generate-keys --private-key matrix_key.pem
