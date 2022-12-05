@@ -51,9 +51,9 @@ jobs:
     outputs:
       matrix: |
         {
-          "chart": ${{ steps.list-changed.outputs.charts }}
+          "chart": ${{ env.CHARTS }}
         }
-      detected: ${{ steps.list-changed.outputs.detected }}
+      detected: ${{ env.DETECTED }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -80,7 +80,7 @@ jobs:
   install-charts:
     needs:
       - generate-install-matrix
-    if: needs.generate-install-matrix.outputs.detected == 'true'
+    if: env.DETECTED == 'true'
     name: Install charts
     strategy:
       matrix: ${{ fromJson(needs.generate-install-matrix.outputs.matrix) }}
