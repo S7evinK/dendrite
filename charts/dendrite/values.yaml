@@ -66,13 +66,21 @@ persistence:
     accessMode: ReadWriteOnce
     size: 1Gi
 
-# Configure global database settings
-# @default -- see values.yaml
+# -- Override general dendrite.database parameters.
+# @default -- See values.yaml
 database:
-  connection_string: file:dendrite?sslmode=disable
-  max_open_conns: 100
-  max_idle_conns: 2
-  conn_max_lifetime: -1
+  # -- Custom connection string
+  # @default -- file or derived from included postgresql deployment
+  connection_string: null
+  # -- Maximum open connections
+  # @default -- dendrite.database.max_open_conns
+  max_open_conns: null
+  # -- Maximum dile connections
+  # @default -- dendrite.database.max_idle_conns
+  max_idle_conns: null
+  # -- Maximum connection lifetime
+  # @default -- dendrite.database.conn_max_lifetime
+  conn_max_lifetime: null
 
 # -- Configure the key server.
 # For more information see [the sample dendrite configuration](https://github.com/matrix-org/dendrite/blob/main/dendrite-sample.polylith.yaml)
@@ -134,6 +142,21 @@ appserviceapi:
   ingress:
 
   args: "appservice"
+  # -- Override general dendrite.database parameters.
+  # @default -- See values.yaml
+  database:
+    # -- Custom connection string
+    # @default -- file or derived from included postgresql deployment
+    connection_string: null
+    # -- Maximum open connections
+    # @default -- dendrite.database.max_open_conns
+    max_open_conns: null
+    # -- Maximum dile connections
+    # @default -- dendrite.database.max_idle_conns
+    max_idle_conns: null
+    # -- Maximum connection lifetime
+    # @default -- dendrite.database.conn_max_lifetime
+    conn_max_lifetime: null
   config:
     config_files: []
 
@@ -163,7 +186,7 @@ clientapi:
   args: "clientapi"
   config:
     # -- Enable or disable registration for this homeserver.
-    registration_disabled: true
+    registration_disabled: false
     # -- Shared secret that allows registration, despite registration_disabled.
     registration_shared_secret: ""
     # -- Configure captcha for registration
@@ -506,6 +529,12 @@ dendrite:
       # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#use-regex
       # - /_matrix/client/.*?/(sync|user/.*?/filter/?.*|keys/changes|rooms/.*?/messages)$
 
+  # -- Configure database connection parameters.
+  # @default -- See values.yaml
+  database:
+    max_open_conns: 100
+    max_idle_conns: 2
+    conn_max_lifetime: -1
   # -- Configure the global settings for dendrite.
   # @default -- See values.yaml
   global:
@@ -589,6 +618,23 @@ dendrite:
       level: info
       params:
         path: /var/log/dendrite
+
+postgresql:
+  # -- Enable and configure postgres as the database for dendrite.
+  # @default -- See value.yaml
+  enabled: false
+  image:
+    repository: bitnami/postgresql
+    tag: "14.4.0"
+  auth:
+    username: dendrite
+    password: changeme
+    database: dendrite
+  primary:
+    persistence:
+      enabled: false
+    initdb:
+      scriptsConfigMap: "dendrite-postgresql-init-scripts"
 
 nats:
   # -- Enable and configure NATS for dendrite. Can be disabled for monolith
