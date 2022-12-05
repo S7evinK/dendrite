@@ -31,7 +31,7 @@ jobs:
           for i in "${CHARTS[@]}"
           do
               IFS='/' read -r -a chart_parts <<< "$i"
-              ./.github/scripts/check-releasenotes.sh "charts/${chart_parts[0]}/${chart_parts[1]}"
+              ./.github/scripts/check-releasenotes.sh "charts/${chart_parts[0]}"
               echo ""
           done
 
