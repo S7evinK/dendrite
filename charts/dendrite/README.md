@@ -185,4 +185,3 @@ Kubernetes: `>=1.21.0-0`
 | userapi.image.pullPolicy | string | `"IfNotPresent"` | image pull policy |
 | userapi.image.repository | string | `"matrixdotorg/dendrite-polylith"` | image repository |
 | userapi.image.tag | string | chart.appVersion | image tag |
-
