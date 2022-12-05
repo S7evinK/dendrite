@@ -4,7 +4,7 @@ appVersion: v0.9.4
 description: Dendrite Matrix Homeserver
 name: dendrite
 version: 7.1.3
-kubeVersion: ">=1.22.0-0"
+kubeVersion: ">=1.21.0-0"
 keywords:
   - dendrite
   - matrix
