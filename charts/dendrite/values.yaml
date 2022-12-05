@@ -58,6 +58,13 @@ persistence:
     mountPath: /var/dendrite/jetstream
     accessMode: ReadWriteOnce
     size: 1Gi
+  # -- Configure fulltext persistence. This is highly recommended in production.
+  # @default -- See values.yaml
+  search:
+    enabled: false
+    mountPath: &fulltextPath /var/dendrite/fulltext
+    accessMode: ReadWriteOnce
+    size: 1Gi
 
 # Configure global database settings
 # @default -- see values.yaml
@@ -127,21 +134,6 @@ appserviceapi:
   ingress:
 
   args: "appservice"
-  # -- Override general dendrite.database parameters.
-  # @default -- See values.yaml
-  database:
-    # -- Custom connection string
-    # @default -- file or derived from included postgresql deployment
-    connection_string: null
-    # -- Maximum open connections
-    # @default -- dendrite.database.max_open_conns
-    max_open_conns: null
-    # -- Maximum dile connections
-    # @default -- dendrite.database.max_idle_conns
-    max_idle_conns: null
-    # -- Maximum connection lifetime
-    # @default -- dendrite.database.conn_max_lifetime
-    conn_max_lifetime: null
   config:
     config_files: []
 
@@ -335,6 +327,16 @@ syncapi:
     # -- Maximum connection lifetime
     # @default -- dendrite.database.conn_max_lifetime
     conn_max_lifetime: null
+  search:
+    # -- Whether or not search is enabled.
+    enabled: false
+    # -- The path where the search index will be created in.
+    index_path: *fulltextPath
+    # -- The language most likely to be used on the server - used when indexing, to
+    # -- ensure the returned results match expectations. A full list of possible languages
+    # -- can be found at https://github.com/blevesearch/bleve/tree/master/analysis/lang
+    language: "en"
+
 
 # -- Configure the Room Server
 # For more information see [the sample dendrite configuration](https://github.com/matrix-org/dendrite/blob/main/dendrite-sample.polylith.yaml)
