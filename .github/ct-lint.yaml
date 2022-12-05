@@ -1,4 +1,4 @@
-remote: https://github.com/matrix-org/dendrite
+remote: https://github.com/S7evinK/dendrite
 target-branch: main
 helm-extra-args: --timeout 600s
 chart-dirs:
