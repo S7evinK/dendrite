@@ -14,7 +14,7 @@ keywords:
   - polylith
 home: https://github.com/samipsolutions/helm-charts/tree/master/charts/stable/dendrite
 maintainers:
-  - name: samip5 # Skyler Mäntysaari
+  - name: samip5  # Skyler Mäntysaari
     url: https://github.com/samip5
 sources:
   - https://github.com/matrix-org/dendrite
