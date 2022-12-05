@@ -40,10 +40,14 @@ jobs:
         if: inputs.chartChangesDetected == 'true'
         run: |
           EXCLUDED=$(yq eval -o=json '.excluded-charts // []' .github/ct-lint.yaml)
+          echo "EXCLUDED: ${EXCLUDED}"
           CHARTS=$(ct list-changed --config .github/ct-lint.yaml)
+          echo "CHARTS: ${CHARTS}"
           CHARTS_JSON=$(echo "${CHARTS}" | jq -R -s -c 'split("\n")[:-1]')
+          echo "CHARTS_JSON: ${CHARTS_JSON}"
           OUTPUT_JSON=$(echo "{\"excluded\": ${EXCLUDED}, \"all\": ${CHARTS_JSON}}" | jq -c '.all-.excluded')
-          echo "CHARTS=${OUTPUT_JSON}" >> $GITHUB_ENV
+          echo "OUTPUT_JSON: ${OUTPUT_JSON}"
+          echo ::set-output name=charts::${OUTPUT_JSON}
           if [[ $(echo ${OUTPUT_JSON} | jq -c '. | length') -gt 0 ]]; then
             echo "DETECTED=true" >> $GITHUB_ENV
           fi
