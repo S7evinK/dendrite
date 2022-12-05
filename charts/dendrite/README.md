@@ -1,10 +1,16 @@
 # dendrite
 
-![Version: 7.1.1](https://img.shields.io/badge/Version-7.1.1-informational?style=flat-square) ![AppVersion: v0.9.4](https://img.shields.io/badge/AppVersion-v0.9.4-informational?style=flat-square)
+![Version: 7.2.0](https://img.shields.io/badge/Version-7.2.0-informational?style=flat-square) ![AppVersion: v0.10.8](https://img.shields.io/badge/AppVersion-v0.10.8-informational?style=flat-square)
 
 Dendrite Matrix Homeserver
 
-**This chart is not maintained by the upstream project and any issues with the chart should be raised [here](https://github.com/samipsolutions/helm-charts/issues/new/choose)**
+**Homepage:** <https://github.com/samipsolutions/helm-charts/tree/master/charts/stable/dendrite>
+
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| samip5 |  | <https://github.com/samip5> |
 
 ## Source Code
 
@@ -13,82 +19,23 @@ Dendrite Matrix Homeserver
 
 ## Requirements
 
-Kubernetes: `>=1.19.0-0`
-
-## Dependencies
+Kubernetes: `>=1.21.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://bjw-s.github.io/helm-charts/ | common | 0.1.0 |
-| https://bjw-s.github.io/helm-charts/ | keyserver(common) | 0.1.0 |
-| https://bjw-s.github.io/helm-charts/ | clientapi(common) | 0.1.0 |
-| https://bjw-s.github.io/helm-charts/ | mediaapi(common) | 0.1.0 |
-| https://bjw-s.github.io/helm-charts/ | syncapi(common) | 0.1.0 |
-| https://bjw-s.github.io/helm-charts/ | roomserver(common) | 0.1.0 |
-| https://bjw-s.github.io/helm-charts/ | federationapi(common) | 0.1.0 |
-| https://bjw-s.github.io/helm-charts/ | userapi(common) | 0.1.0 |
-| https://bjw-s.github.io/helm-charts/ | appserviceapi(common) | 0.1.0 |
-| https://nats-io.github.io/k8s/helm/charts/ | nats | 0.17.1 |
-
-## TL;DR
-
-```console
-helm repo add samipsolutions https://helm.samipsolutions.fi/
-helm repo update
-helm install dendrite samipsolutions/dendrite
-```
-
-## Installing the Chart
-
-To install the chart with the release name `dendrite`
-
-```console
-helm install dendrite samipsolutions/dendrite
-```
-
-## Uninstalling the Chart
-
-To uninstall the `dendrite` deployment
-
-```console
-helm uninstall dendrite
-```
-
-The command removes all the Kubernetes components associated with the chart **including persistent volumes** and deletes the release.
-
-## Configuration
-
-Read through the [values.yaml](./values.yaml) file. It has several commented out suggested values.
-Other values may be used from the [values.yaml](https://github.com/k8s-at-home/library-charts/tree/main/charts/stable/common/values.yaml) from the [common library](https://github.com/k8s-at-home/library-charts/tree/main/charts/stable/common).
-
-Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
-
-```console
-helm install dendrite \
-  --set env.TZ="America/New York" \
-    samipsolutions/dendrite
-```
-
-Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart.
-
-```console
-helm install dendrite samipsolutions/dendrite -f values.yaml
-```
-
-## Custom configuration
-
-### Polylith Ingress
-
-Due to the complexity of setting up ingress for each individual component it
-is left up to the individual to add the necessary ingress fields to polylith deployments.
-
-For more information see:
-- https://github.com/matrix-org/dendrite/blob/master/docs/INSTALL.md#nginx-or-other-reverse-proxy
-- and https://github.com/matrix-org/dendrite/blob/master/docs/nginx/polylith-sample.conf
+| https://charts.bitnami.com/bitnami | postgresql | 11.6.21 |
+| https://library-charts.k8s-at-home.com | common | 4.5.2 |
+| https://library-charts.k8s-at-home.com | clientapi(common) | 4.5.2 |
+| https://library-charts.k8s-at-home.com | mediaapi(common) | 4.5.2 |
+| https://library-charts.k8s-at-home.com | syncapi(common) | 4.5.2 |
+| https://library-charts.k8s-at-home.com | roomserver(common) | 4.5.2 |
+| https://library-charts.k8s-at-home.com | federationapi(common) | 4.5.2 |
+| https://library-charts.k8s-at-home.com | keyserver(common) | 4.5.2 |
+| https://library-charts.k8s-at-home.com | userapi(common) | 4.5.2 |
+| https://library-charts.k8s-at-home.com | appserviceapi(common) | 4.5.2 |
+| https://nats-io.github.io/k8s/helm/charts/ | nats | 0.19.1 |
 
 ## Values
-
-**Important**: When deploying an application Helm chart you can add more values from our common library chart [here](https://github.com/k8s-at-home/library-charts/tree/main/charts/stable/common)
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
@@ -104,17 +51,19 @@ For more information see:
 | clientapi | object | See values.yaml | Configuration for the client api component. For more information see [the sample dendrite configuration](https://github.com/matrix-org/dendrite/blob/main/dendrite-sample.polylith.yaml) |
 | clientapi.config.captcha | object | See values.yaml | Configure captcha for registration |
 | clientapi.config.rate_limiting | object | values.yaml | Configure rate limiting. |
-| clientapi.config.registration_disabled | bool | `true` | Enable or disable registration for this homeserver. |
+| clientapi.config.registration_disabled | bool | `false` | Enable or disable registration for this homeserver. |
 | clientapi.config.registration_shared_secret | string | `""` | Shared secret that allows registration, despite registration_disabled. |
 | clientapi.config.turn | object | See values.yaml | Configure TURN |
 | clientapi.image.pullPolicy | string | `"IfNotPresent"` | image pull policy |
 | clientapi.image.repository | string | `"matrixdotorg/dendrite-polylith"` | image repository |
 | clientapi.image.tag | string | chart.appVersion | image tag |
-| database.conn_max_lifetime | int | `-1` |  |
-| database.connection_string | string | `"file:dendrite?sslmode=disable"` |  |
-| database.max_idle_conns | int | `2` |  |
-| database.max_open_conns | int | `100` |  |
+| database | object | See values.yaml | Override general dendrite.database parameters. |
+| database.conn_max_lifetime | string | dendrite.database.conn_max_lifetime | Maximum connection lifetime |
+| database.connection_string | string | file or derived from included postgresql deployment | Custom connection string |
+| database.max_idle_conns | string | dendrite.database.max_idle_conns | Maximum dile connections |
+| database.max_open_conns | string | dendrite.database.max_open_conns | Maximum open connections |
 | dendrite | object | See values.yaml | Configuration for Dendrite. For more information see [the sample denrite-config.yaml](https://github.com/matrix-org/dendrite/blob/main/dendrite-sample.polylith.yaml) |
+| dendrite.database | object | See values.yaml | Configure database connection parameters. |
 | dendrite.global | object | See values.yaml | Configure the global settings for dendrite. |
 | dendrite.global.cache | object | `{"max_age":"1h","max_size_estimated":"1gb"}` | Congigure the in-memory caches |
 | dendrite.global.cache.max_age | string | `"1h"` | The maximum amount of time that a cache entry can live for in memory |
@@ -129,7 +78,7 @@ For more information see:
 | dendrite.global.presence | object | `{"enable_inbound":false,"enable_outbound":false}` | Configure handling of presence events |
 | dendrite.global.presence.enable_inbound | bool | `false` | Whether inbound presence events are allowed, e.g. receiving presence events from other servers |
 | dendrite.global.presence.enable_outbound | bool | `false` | Whether outbound presence events are allowed, e.g. sending presence events to other servers |
-| dendrite.global.server_name | string | `"localhost"` | (required) Configure the server name for the dendrite instance. |
+| dendrite.global.server_name | required | `"localhost"` | Configure the server name for the dendrite instance. |
 | dendrite.global.server_notices | object | `{"avatar_url":"","display_name":"Server alerts","enabled":false,"local_part":"_server","room_name":"Server Alerts"}` | Server notices allows server admins to send messages to all users. |
 | dendrite.global.server_notices.avatar_url | string | `""` | The mxid of the avatar to use |
 | dendrite.global.server_notices.display_name | string | `"Server alerts"` | The displayname to be used when sending notices |
@@ -160,11 +109,10 @@ For more information see:
 | federationapi.image.pullPolicy | string | `"IfNotPresent"` | image pull policy |
 | federationapi.image.repository | string | `"matrixdotorg/dendrite-polylith"` | image repository |
 | federationapi.image.tag | string | chart.appVersion | image tag |
-| image | object | `{"pullPolicy":"IfNotPresent","repository":"ghcr.io/matrix-org/dendrite-monolith","tag":null}` |  IMPORTANT NOTE This chart inherits from our common library chart. You can check the default values/options here: https://github.com/k8s-at-home/library-charts/tree/main/charts/stable/common/values.yaml |
 | image.pullPolicy | string | `"IfNotPresent"` | image pull policy |
 | image.repository | string | `"ghcr.io/matrix-org/dendrite-monolith"` | image repository |
 | image.tag | string | chart.appVersion | image tag |
-| ingress.main | object | See values.yaml | (Monolith Only) Enable and configure ingress settings for the chart under this key. |
+| ingress.main | Monolith Only | See values.yaml | Enable and configure ingress settings for the chart under this key. |
 | keyserver | object | See values.yaml | Configure the key server. For more information see [the sample dendrite configuration](https://github.com/matrix-org/dendrite/blob/main/dendrite-sample.polylith.yaml) |
 | keyserver.database | object | See values.yaml | Override general dendrite.database parameters. |
 | keyserver.database.conn_max_lifetime | string | dendrite.database.conn_max_lifetime | Maximum connection lifetime |
@@ -194,6 +142,15 @@ For more information see:
 | nats.nats.jetstream.enabled | bool | `true` |  |
 | persistence | object | See values.yaml | Configure persistence settings for the chart under this key. |
 | persistence.jetstream | object | See values.yaml | Configure Jetsream persistence. This is highly recommended in production. |
+| persistence.search | object | See values.yaml | Configure fulltext persistence. This is highly recommended in production. |
+| postgresql.auth.database | string | `"dendrite"` |  |
+| postgresql.auth.password | string | `"changeme"` |  |
+| postgresql.auth.username | string | `"dendrite"` |  |
+| postgresql.enabled | bool | See value.yaml | Enable and configure postgres as the database for dendrite. |
+| postgresql.image.repository | string | `"bitnami/postgresql"` |  |
+| postgresql.image.tag | string | `"14.4.0"` |  |
+| postgresql.primary.initdb.scriptsConfigMap | string | `"dendrite-postgresql-init-scripts"` |  |
+| postgresql.primary.persistence.enabled | bool | `false` |  |
 | roomserver | object | values.yaml | Configure the Room Server For more information see [the sample dendrite configuration](https://github.com/matrix-org/dendrite/blob/main/dendrite-sample.polylith.yaml) |
 | roomserver.database | object | See values.yaml | Override general dendrite.database parameters. |
 | roomserver.database.conn_max_lifetime | string | dendrite.database.conn_max_lifetime | Maximum connection lifetime |
@@ -203,7 +160,7 @@ For more information see:
 | roomserver.image.pullPolicy | string | `"IfNotPresent"` | image pull policy |
 | roomserver.image.repository | string | `"matrixdotorg/dendrite-polylith"` | image repository |
 | roomserver.image.tag | string | chart.appVersion | image tag |
-| service | object | See values.yaml | If added dendrite will start a HTTP and HTTPS listener args:   - "--tls-cert=server.crt"   - "--tls-key=server.key" -- Configures service settings for the chart. |
+| service | object | See values.yaml | Configures service settings for the chart. |
 | service.main.ports.http | object | See values.yaml | Configures the default HTTP listener for dendrite |
 | service.main.ports.https | object | See values.yaml | Configures the HTTPS listener for dendrite |
 | syncapi | object | values.yaml | Configure the Sync API For more information see [the sample dendrite configuration](https://github.com/matrix-org/dendrite/blob/main/dendrite-sample.polylith.yaml) |
@@ -215,6 +172,9 @@ For more information see:
 | syncapi.image.pullPolicy | string | `"IfNotPresent"` | image pull policy |
 | syncapi.image.repository | string | `"matrixdotorg/dendrite-polylith"` | image repository |
 | syncapi.image.tag | string | chart.appVersion | image tag |
+| syncapi.search.enabled | bool | `false` | Whether or not search is enabled. |
+| syncapi.search.index_path | string | `"/var/dendrite/fulltext"` | The path where the search index will be created in. |
+| syncapi.search.language | string | `"en"` | can be found at https://github.com/blevesearch/bleve/tree/master/analysis/lang |
 | userapi | object | values.yaml | Configure the User API For more information see [the sample dendrite configuration](https://github.com/matrix-org/dendrite/blob/main/dendrite-sample.polylith.yaml) |
 | userapi.config.bcrypt_cost | int | 10 | bcrypt cost (2^[cost] = rounds) |
 | userapi.database | object | See values.yaml | Override general dendrite.database parameters. |
@@ -226,32 +186,3 @@ For more information see:
 | userapi.image.repository | string | `"matrixdotorg/dendrite-polylith"` | image repository |
 | userapi.image.tag | string | chart.appVersion | image tag |
 
-## Changelog
-
-### Version 7.1.1
-
-#### Added
-
-N/A
-
-#### Changed
-
-N/A
-
-#### Fixed
-
-* Global database config
-
-### Older versions
-
-A historical overview of changes can be found on [ArtifactHUB](https://artifacthub.io/packages/helm/samipsolutions/dendrite?modal=changelog)
-
-## Support
-
-- See the [Docs](https://docs.k8s-at-home.com/our-helm-charts/getting-started/)
-- Open an [issue](https://github.com/samipsolutions/helm-charts/issues/new/choose)
-- Ask a [question](https://github.com/k8s-at-home/organization/discussions)
-- Join our [Discord](https://discord.gg/sTMX7Vh) community
-
-----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v0.1.1](https://github.com/k8s-at-home/helm-docs/releases/v0.1.1)
