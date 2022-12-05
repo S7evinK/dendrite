@@ -62,14 +62,14 @@ jobs:
           ref: ${{ inputs.checkoutCommit }}
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.3.0
+        uses: helm/chart-testing-action@v2.3.1
 
       - name: Run chart-testing (list-changed)
         id: list-changed
         if: inputs.chartChangesDetected == 'true'
         run: |
           EXCLUDED=$(yq eval -o=json '.excluded-charts // []' .github/ct-install.yaml)
-          CHARTS=$(ct list-changed --config .github/ct-install.yaml)
+          CHARTS=$(ct list-changed --config .github/ct-install.yaml --target-branch ${{ github.event.repository.default_branch }})
           CHARTS_JSON=$(echo "${CHARTS}" | jq -R -s -c 'split("\n")[:-1]')
           OUTPUT_JSON=$(echo "{\"excluded\": ${EXCLUDED}, \"all\": ${CHARTS_JSON}}" | jq -c '.all-.excluded')
           echo ::set-output name=charts::${OUTPUT_JSON}
@@ -105,7 +105,7 @@ jobs:
           python-version: "3.10"
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.3.0
+        uses: helm/chart-testing-action@v2.3.1
 
       - name: Create k3d cluster
         uses: nolar/setup-k3d-k3s@v1
