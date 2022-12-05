@@ -23,6 +23,7 @@
     {{- $_ := set .persistence "search" $.Values.persistence.search -}}
   {{- end }}
 {{- else }}
+  {{- $_ := set .  "database.max_open_conns" "10" -}}
   {{ include "common.values.setup" . }}
   {{- $_ := set .Values.persistence "dendrite-key" (include "dendrite.keyVolume" . | fromYaml) -}}
   {{- $_ := set .Values.persistence "dendrite-config" (include "dendrite.configVolume" . | fromYaml) -}}
