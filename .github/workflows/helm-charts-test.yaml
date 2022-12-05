@@ -80,7 +80,7 @@ jobs:
   install-charts:
     needs:
       - generate-install-matrix
-    if: env.DETECTED == 'true'
+    if: ${{ env.DETECTED == 'true' }} 
     name: Install charts
     strategy:
       matrix: ${{ fromJson(needs.generate-install-matrix.outputs.matrix) }}

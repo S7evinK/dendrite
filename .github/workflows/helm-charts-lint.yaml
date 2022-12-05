@@ -50,5 +50,5 @@ jobs:
 
       - name: Run chart-testing (lint)
         id: lint
-        if: env.DETECTED == 'true'
+        if: ${{ env.DETECTED == 'true' }} 
         run: ct lint --config .github/ct-lint.yaml
