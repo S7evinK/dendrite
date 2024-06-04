@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"time"
 
@@ -130,6 +131,7 @@ type ProfileAPI interface {
 	QueryProfile(ctx context.Context, userID string) (*authtypes.Profile, error)
 	SetAvatarURL(ctx context.Context, localpart string, serverName spec.ServerName, avatarURL string) (*authtypes.Profile, bool, error)
 	SetDisplayName(ctx context.Context, localpart string, serverName spec.ServerName, displayName string) (*authtypes.Profile, bool, error)
+	RetrieveUserProfile(ctx context.Context, userID string) (*authtypes.Profile, error)
 }
 
 // custom api functions required by pinecone / p2p demos
@@ -963,3 +965,7 @@ type PerformMarkAsStaleRequest struct {
 	Domain   spec.ServerName
 	DeviceID string
 }
+
+// ErrProfileNotExists is returned when trying to lookup a user's profile that
+// doesn't exist locally.
+var ErrProfileNotExists = errors.New("no known profile for given user ID")

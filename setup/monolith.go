@@ -15,7 +15,6 @@
 package setup
 
 import (
-	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi"
 	"github.com/matrix-org/dendrite/clientapi/api"
 	"github.com/matrix-org/dendrite/federationapi"
@@ -43,7 +42,6 @@ type Monolith struct {
 	Client    *fclient.Client
 	FedClient fclient.FederationClient
 
-	AppserviceAPI appserviceAPI.AppServiceInternalAPI
 	FederationAPI federationAPI.FederationInternalAPI
 	RoomserverAPI roomserverAPI.RoomserverInternalAPI
 	UserAPI       userapi.UserInternalAPI
@@ -68,7 +66,7 @@ func (m *Monolith) AddAllPublicRoutes(
 		userDirectoryProvider = m.UserAPI
 	}
 	clientapi.AddPublicRoutes(
-		processCtx, routers, cfg, natsInstance, m.FedClient, m.RoomserverAPI, m.AppserviceAPI, transactions.New(),
+		processCtx, routers, cfg, natsInstance, m.FedClient, m.RoomserverAPI, transactions.New(),
 		m.FederationAPI, m.UserAPI, userDirectoryProvider,
 		m.ExtPublicRoomsProvider, enableMetrics,
 	)

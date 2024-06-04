@@ -23,7 +23,6 @@ import (
 	"strconv"
 	"time"
 
-	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi/auth/authtypes"
 	fedsenderapi "github.com/matrix-org/dendrite/federationapi/api"
 	"github.com/matrix-org/dendrite/internal/pushrules"
@@ -470,7 +469,7 @@ func (a *UserInternalAPI) QueryProfile(ctx context.Context, userID string) (*aut
 	prof, err := a.DB.GetProfileByLocalpart(ctx, local, domain)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, appserviceAPI.ErrProfileNotExists
+			return nil, api.ErrProfileNotExists
 		}
 		return nil, err
 	}
@@ -976,6 +975,20 @@ func (a *UserInternalAPI) PerformForgetThreePID(ctx context.Context, req *api.Pe
 
 func (a *UserInternalAPI) PerformSaveThreePIDAssociation(ctx context.Context, req *api.PerformSaveThreePIDAssociationRequest, res *struct{}) error {
 	return a.DB.SaveThreePIDAssociation(ctx, req.ThreePID, req.Localpart, req.ServerName, req.Medium)
+}
+
+func (a *UserInternalAPI) RetrieveUserProfile(
+	ctx context.Context,
+	userID string,
+) (*authtypes.Profile, error) {
+	// Try to query the user from the local database
+	profile, err := a.QueryProfile(ctx, userID)
+	if err == nil {
+		return profile, nil
+	}
+
+	// If no user exists, return
+	return nil, api.ErrProfileNotExists
 }
 
 const pushRulesAccountDataType = "m.push_rules"

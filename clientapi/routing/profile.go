@@ -24,7 +24,6 @@ import (
 	"github.com/matrix-org/gomatrixserverlib/fclient"
 	"github.com/matrix-org/gomatrixserverlib/spec"
 
-	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi/auth/authtypes"
 	"github.com/matrix-org/dendrite/clientapi/httputil"
 	"github.com/matrix-org/dendrite/internal/eventutil"
@@ -40,12 +39,11 @@ import (
 func GetProfile(
 	req *http.Request, profileAPI userapi.ProfileAPI, cfg *config.ClientAPI,
 	userID string,
-	asAPI appserviceAPI.AppServiceInternalAPI,
 	federation fclient.FederationClient,
 ) util.JSONResponse {
-	profile, err := getProfile(req.Context(), profileAPI, cfg, userID, asAPI, federation)
+	profile, err := getProfile(req.Context(), profileAPI, cfg, userID, federation)
 	if err != nil {
-		if err == appserviceAPI.ErrProfileNotExists {
+		if err == userapi.ErrProfileNotExists {
 			return util.JSONResponse{
 				Code: http.StatusNotFound,
 				JSON: spec.NotFound("The user does not exist or does not have a profile"),
@@ -71,10 +69,10 @@ func GetProfile(
 // GetAvatarURL implements GET /profile/{userID}/avatar_url
 func GetAvatarURL(
 	req *http.Request, profileAPI userapi.ProfileAPI, cfg *config.ClientAPI,
-	userID string, asAPI appserviceAPI.AppServiceInternalAPI,
+	userID string,
 	federation fclient.FederationClient,
 ) util.JSONResponse {
-	profile := GetProfile(req, profileAPI, cfg, userID, asAPI, federation)
+	profile := GetProfile(req, profileAPI, cfg, userID, federation)
 	p, ok := profile.JSON.(eventutil.UserProfile)
 	// not a profile response, so most likely an error, return that
 	if !ok {
@@ -160,10 +158,10 @@ func SetAvatarURL(
 // GetDisplayName implements GET /profile/{userID}/displayname
 func GetDisplayName(
 	req *http.Request, profileAPI userapi.ProfileAPI, cfg *config.ClientAPI,
-	userID string, asAPI appserviceAPI.AppServiceInternalAPI,
+	userID string,
 	federation fclient.FederationClient,
 ) util.JSONResponse {
-	profile := GetProfile(req, profileAPI, cfg, userID, asAPI, federation)
+	profile := GetProfile(req, profileAPI, cfg, userID, federation)
 	p, ok := profile.JSON.(eventutil.UserProfile)
 	// not a profile response, so most likely an error, return that
 	if !ok {
@@ -317,7 +315,6 @@ func updateProfile(
 func getProfile(
 	ctx context.Context, profileAPI userapi.ProfileAPI, cfg *config.ClientAPI,
 	userID string,
-	asAPI appserviceAPI.AppServiceInternalAPI,
 	federation fclient.FederationClient,
 ) (*authtypes.Profile, error) {
 	localpart, domain, err := gomatrixserverlib.SplitID('@', userID)
@@ -330,7 +327,7 @@ func getProfile(
 		if fedErr != nil {
 			if x, ok := fedErr.(gomatrix.HTTPError); ok {
 				if x.Code == http.StatusNotFound {
-					return nil, appserviceAPI.ErrProfileNotExists
+					return nil, userapi.ErrProfileNotExists
 				}
 			}
 
@@ -344,7 +341,7 @@ func getProfile(
 		}, nil
 	}
 
-	profile, err := appserviceAPI.RetrieveUserProfile(ctx, userID, asAPI, profileAPI)
+	profile, err := profileAPI.RetrieveUserProfile(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

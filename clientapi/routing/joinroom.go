@@ -19,7 +19,6 @@ import (
 	"net/http"
 	"time"
 
-	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi/httputil"
 	"github.com/matrix-org/dendrite/internal/eventutil"
 	roomserverAPI "github.com/matrix-org/dendrite/roomserver/api"
@@ -69,7 +68,7 @@ func JoinRoomByIDOrAlias(
 	case nil:
 		joinReq.Content["displayname"] = profile.DisplayName
 		joinReq.Content["avatar_url"] = profile.AvatarURL
-	case appserviceAPI.ErrProfileNotExists:
+	case api.ErrProfileNotExists:
 		util.GetLogger(req.Context()).Error("Unable to query user profile, no profile found.")
 		return util.JSONResponse{
 			Code: http.StatusInternalServerError,

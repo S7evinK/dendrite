@@ -21,7 +21,6 @@ import (
 	userapi "github.com/matrix-org/dendrite/userapi/api"
 	"github.com/matrix-org/gomatrixserverlib/fclient"
 
-	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi/api"
 	"github.com/matrix-org/dendrite/clientapi/producers"
 	"github.com/matrix-org/dendrite/clientapi/routing"
@@ -39,12 +38,12 @@ func AddPublicRoutes(
 	natsInstance *jetstream.NATSInstance,
 	federation fclient.FederationClient,
 	rsAPI roomserverAPI.ClientRoomserverAPI,
-	asAPI appserviceAPI.AppServiceInternalAPI,
 	transactionsCache *transactions.Cache,
 	fsAPI federationAPI.ClientFederationAPI,
 	userAPI userapi.ClientUserAPI,
 	userDirectoryProvider userapi.QuerySearchProfilesAPI,
-	extRoomsProvider api.ExtraPublicRoomsProvider, enableMetrics bool,
+	extRoomsProvider api.ExtraPublicRoomsProvider,
+	enableMetrics bool,
 ) {
 	js, natsClient := natsInstance.Prepare(processContext, &cfg.Global.JetStream)
 
@@ -60,7 +59,7 @@ func AddPublicRoutes(
 
 	routing.Setup(
 		routers,
-		cfg, rsAPI, asAPI,
+		cfg, rsAPI,
 		userAPI, userDirectoryProvider, federation,
 		syncProducer, transactionsCache, fsAPI,
 		extRoomsProvider, natsClient, enableMetrics,

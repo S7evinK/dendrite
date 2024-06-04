@@ -12,7 +12,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus"
 
-	asAPI "github.com/matrix-org/dendrite/appservice/api"
 	fsAPI "github.com/matrix-org/dendrite/federationapi/api"
 	"github.com/matrix-org/dendrite/internal/caching"
 	"github.com/matrix-org/dendrite/roomserver/acls"
@@ -53,7 +52,6 @@ type RoomserverInternalAPI struct {
 	KeyRing                gomatrixserverlib.JSONVerifier
 	ServerACLs             *acls.ServerACLs
 	fsAPI                  fsAPI.RoomserverFederationAPI
-	asAPI                  asAPI.AppServiceInternalAPI
 	NATSClient             *nats.Conn
 	JetStream              nats.JetStreamContext
 	Durable                string

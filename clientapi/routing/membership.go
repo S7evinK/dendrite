@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	appserviceAPI "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi/auth/authtypes"
 	"github.com/matrix-org/dendrite/clientapi/httputil"
 	"github.com/matrix-org/dendrite/clientapi/threepid"
@@ -42,7 +41,7 @@ import (
 func SendBan(
 	req *http.Request, profileAPI userapi.ClientUserAPI, device *userapi.Device,
 	roomID string, cfg *config.ClientAPI,
-	rsAPI roomserverAPI.ClientRoomserverAPI, asAPI appserviceAPI.AppServiceInternalAPI,
+	rsAPI roomserverAPI.ClientRoomserverAPI,
 ) util.JSONResponse {
 	body, evTime, reqErr := extractRequestData(req)
 	if reqErr != nil {
@@ -95,16 +94,16 @@ func SendBan(
 		}
 	}
 
-	return sendMembership(req.Context(), profileAPI, device, roomID, spec.Ban, body.Reason, cfg, body.UserID, evTime, rsAPI, asAPI)
+	return sendMembership(req.Context(), profileAPI, device, roomID, spec.Ban, body.Reason, cfg, body.UserID, evTime, rsAPI)
 }
 
 func sendMembership(ctx context.Context, profileAPI userapi.ClientUserAPI, device *userapi.Device,
 	roomID, membership, reason string, cfg *config.ClientAPI, targetUserID string, evTime time.Time,
-	rsAPI roomserverAPI.ClientRoomserverAPI, asAPI appserviceAPI.AppServiceInternalAPI) util.JSONResponse {
+	rsAPI roomserverAPI.ClientRoomserverAPI) util.JSONResponse {
 
 	event, err := buildMembershipEvent(
 		ctx, targetUserID, reason, profileAPI, device, membership,
-		roomID, false, cfg, evTime, rsAPI, asAPI,
+		roomID, false, cfg, evTime, rsAPI,
 	)
 	if err != nil {
 		util.GetLogger(ctx).WithError(err).Error("buildMembershipEvent failed")
@@ -141,7 +140,7 @@ func sendMembership(ctx context.Context, profileAPI userapi.ClientUserAPI, devic
 func SendKick(
 	req *http.Request, profileAPI userapi.ClientUserAPI, device *userapi.Device,
 	roomID string, cfg *config.ClientAPI,
-	rsAPI roomserverAPI.ClientRoomserverAPI, asAPI appserviceAPI.AppServiceInternalAPI,
+	rsAPI roomserverAPI.ClientRoomserverAPI,
 ) util.JSONResponse {
 	body, evTime, reqErr := extractRequestData(req)
 	if reqErr != nil {
@@ -217,13 +216,13 @@ func SendKick(
 		}
 	}
 	// TODO: should we be using SendLeave instead?
-	return sendMembership(req.Context(), profileAPI, device, roomID, spec.Leave, body.Reason, cfg, body.UserID, evTime, rsAPI, asAPI)
+	return sendMembership(req.Context(), profileAPI, device, roomID, spec.Leave, body.Reason, cfg, body.UserID, evTime, rsAPI)
 }
 
 func SendUnban(
 	req *http.Request, profileAPI userapi.ClientUserAPI, device *userapi.Device,
 	roomID string, cfg *config.ClientAPI,
-	rsAPI roomserverAPI.ClientRoomserverAPI, asAPI appserviceAPI.AppServiceInternalAPI,
+	rsAPI roomserverAPI.ClientRoomserverAPI,
 ) util.JSONResponse {
 	body, evTime, reqErr := extractRequestData(req)
 	if reqErr != nil {
@@ -273,13 +272,13 @@ func SendUnban(
 		}
 	}
 	// TODO: should we be using SendLeave instead?
-	return sendMembership(req.Context(), profileAPI, device, roomID, spec.Leave, body.Reason, cfg, body.UserID, evTime, rsAPI, asAPI)
+	return sendMembership(req.Context(), profileAPI, device, roomID, spec.Leave, body.Reason, cfg, body.UserID, evTime, rsAPI)
 }
 
 func SendInvite(
 	req *http.Request, profileAPI userapi.ClientUserAPI, device *userapi.Device,
 	roomID string, cfg *config.ClientAPI,
-	rsAPI roomserverAPI.ClientRoomserverAPI, asAPI appserviceAPI.AppServiceInternalAPI,
+	rsAPI roomserverAPI.ClientRoomserverAPI,
 ) util.JSONResponse {
 	body, evTime, reqErr := extractRequestData(req)
 	if reqErr != nil {
@@ -450,9 +449,9 @@ func buildMembershipEvent(
 	device *userapi.Device,
 	membership, roomID string, isDirect bool,
 	cfg *config.ClientAPI, evTime time.Time,
-	rsAPI roomserverAPI.ClientRoomserverAPI, asAPI appserviceAPI.AppServiceInternalAPI,
+	rsAPI roomserverAPI.ClientRoomserverAPI,
 ) (*types.HeaderedEvent, error) {
-	profile, err := loadProfile(ctx, targetUserID, cfg, profileAPI, asAPI)
+	profile, err := loadProfile(ctx, targetUserID, cfg, profileAPI)
 	if err != nil {
 		return nil, err
 	}
@@ -501,7 +500,6 @@ func loadProfile(
 	userID string,
 	cfg *config.ClientAPI,
 	profileAPI userapi.ClientUserAPI,
-	asAPI appserviceAPI.AppServiceInternalAPI,
 ) (*authtypes.Profile, error) {
 	_, serverName, err := gomatrixserverlib.SplitID('@', userID)
 	if err != nil {
@@ -510,7 +508,7 @@ func loadProfile(
 
 	var profile *authtypes.Profile
 	if cfg.Matrix.IsLocalServerName(serverName) {
-		profile, err = appserviceAPI.RetrieveUserProfile(ctx, userID, asAPI, profileAPI)
+		profile, err = profileAPI.RetrieveUserProfile(ctx, userID)
 	} else {
 		profile = &authtypes.Profile{}
 	}

@@ -22,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	api2 "github.com/matrix-org/dendrite/appservice/api"
 	"github.com/matrix-org/dendrite/clientapi/auth/authtypes"
 	"github.com/matrix-org/dendrite/internal/sqlutil"
 	"github.com/matrix-org/dendrite/userapi/producers"
@@ -130,11 +129,11 @@ func TestQueryProfile(t *testing.T) {
 		},
 		{
 			userID:  fmt.Sprintf("@bob:%s", serverName),
-			wantErr: api2.ErrProfileNotExists,
+			wantErr: api.ErrProfileNotExists,
 		},
 		{
 			userID:  "@alice:wrongdomain.com",
-			wantErr: api2.ErrProfileNotExists,
+			wantErr: api.ErrProfileNotExists,
 		},
 	}
 
