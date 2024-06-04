@@ -29,7 +29,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	"github.com/matrix-org/dendrite/appservice"
 	"github.com/matrix-org/dendrite/federationapi"
 	"github.com/matrix-org/dendrite/roomserver"
 	"github.com/matrix-org/dendrite/setup"
@@ -163,9 +162,6 @@ func main() {
 	rsAPI.SetFederationAPI(fsAPI, keyRing)
 
 	userAPI := userapi.NewInternalAPI(processCtx, cfg, cm, &natsInstance, rsAPI, federationClient, caching.EnableMetrics, fsAPI.IsBlacklistedOrBackingOff)
-	asAPI := appservice.NewInternalAPI(processCtx, cfg, &natsInstance, userAPI, rsAPI)
-
-	rsAPI.SetAppserviceAPI(asAPI)
 	rsAPI.SetUserAPI(userAPI)
 
 	monolith := setup.Monolith{
@@ -174,7 +170,6 @@ func main() {
 		FedClient: federationClient,
 		KeyRing:   keyRing,
 
-		AppserviceAPI: asAPI,
 		// always use the concrete impl here even in -http mode because adding public routes
 		// must be done on the concrete impl not an HTTP client else fedapi will call itself
 		FederationAPI: fsAPI,
