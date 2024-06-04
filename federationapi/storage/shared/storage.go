@@ -39,8 +39,6 @@ type Database struct {
 	FederationQueueJSON      tables.FederationQueueJSON
 	FederationJoinedHosts    tables.FederationJoinedHosts
 	FederationBlacklist      tables.FederationBlacklist
-	FederationAssumedOffline tables.FederationAssumedOffline
-	FederationRelayServers   tables.FederationRelayServers
 	FederationOutboundPeeks  tables.FederationOutboundPeeks
 	FederationInboundPeeks   tables.FederationInboundPeeks
 	NotaryServerKeysJSON     tables.FederationNotaryServerKeysJSON
@@ -174,75 +172,6 @@ func (d *Database) IsServerBlacklisted(
 	serverName spec.ServerName,
 ) (bool, error) {
 	return d.FederationBlacklist.SelectBlacklist(context.TODO(), nil, serverName)
-}
-
-func (d *Database) SetServerAssumedOffline(
-	ctx context.Context,
-	serverName spec.ServerName,
-) error {
-	return d.Writer.Do(d.DB, nil, func(txn *sql.Tx) error {
-		return d.FederationAssumedOffline.InsertAssumedOffline(ctx, txn, serverName)
-	})
-}
-
-func (d *Database) RemoveServerAssumedOffline(
-	ctx context.Context,
-	serverName spec.ServerName,
-) error {
-	return d.Writer.Do(d.DB, nil, func(txn *sql.Tx) error {
-		return d.FederationAssumedOffline.DeleteAssumedOffline(ctx, txn, serverName)
-	})
-}
-
-func (d *Database) RemoveAllServersAssumedOffline(
-	ctx context.Context,
-) error {
-	return d.Writer.Do(d.DB, nil, func(txn *sql.Tx) error {
-		return d.FederationAssumedOffline.DeleteAllAssumedOffline(ctx, txn)
-	})
-}
-
-func (d *Database) IsServerAssumedOffline(
-	ctx context.Context,
-	serverName spec.ServerName,
-) (bool, error) {
-	return d.FederationAssumedOffline.SelectAssumedOffline(ctx, nil, serverName)
-}
-
-func (d *Database) P2PAddRelayServersForServer(
-	ctx context.Context,
-	serverName spec.ServerName,
-	relayServers []spec.ServerName,
-) error {
-	return d.Writer.Do(d.DB, nil, func(txn *sql.Tx) error {
-		return d.FederationRelayServers.InsertRelayServers(ctx, txn, serverName, relayServers)
-	})
-}
-
-func (d *Database) P2PGetRelayServersForServer(
-	ctx context.Context,
-	serverName spec.ServerName,
-) ([]spec.ServerName, error) {
-	return d.FederationRelayServers.SelectRelayServers(ctx, nil, serverName)
-}
-
-func (d *Database) P2PRemoveRelayServersForServer(
-	ctx context.Context,
-	serverName spec.ServerName,
-	relayServers []spec.ServerName,
-) error {
-	return d.Writer.Do(d.DB, nil, func(txn *sql.Tx) error {
-		return d.FederationRelayServers.DeleteRelayServers(ctx, txn, serverName, relayServers)
-	})
-}
-
-func (d *Database) P2PRemoveAllRelayServersForServer(
-	ctx context.Context,
-	serverName spec.ServerName,
-) error {
-	return d.Writer.Do(d.DB, nil, func(txn *sql.Tx) error {
-		return d.FederationRelayServers.DeleteAllRelayServers(ctx, txn, serverName)
-	})
 }
 
 func (d *Database) AddOutboundPeek(

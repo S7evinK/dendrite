@@ -22,7 +22,6 @@ type FederationInternalAPI interface {
 	gomatrixserverlib.KeyDatabase
 	ClientFederationAPI
 	RoomserverFederationAPI
-	P2PFederationAPI
 
 	QueryServerKeys(ctx context.Context, request *QueryServerKeysRequest, response *QueryServerKeysResponse) error
 	LookupServerKeys(ctx context.Context, s spec.ServerName, keyRequests map[gomatrixserverlib.PublicKeyLookupRequest]spec.Timestamp) ([]gomatrixserverlib.ServerKeys, error)
@@ -76,29 +75,6 @@ type RoomserverFederationAPI interface {
 	LookupMissingEvents(ctx context.Context, origin, s spec.ServerName, roomID string, missing fclient.MissingEvents, roomVersion gomatrixserverlib.RoomVersion) (res fclient.RespMissingEvents, err error)
 
 	RoomHierarchies(ctx context.Context, origin, dst spec.ServerName, roomID string, suggestedOnly bool) (res fclient.RoomHierarchyResponse, err error)
-}
-
-type P2PFederationAPI interface {
-	// Get the relay servers associated for the given server.
-	P2PQueryRelayServers(
-		ctx context.Context,
-		request *P2PQueryRelayServersRequest,
-		response *P2PQueryRelayServersResponse,
-	) error
-
-	// Add relay server associations to the given server.
-	P2PAddRelayServers(
-		ctx context.Context,
-		request *P2PAddRelayServersRequest,
-		response *P2PAddRelayServersResponse,
-	) error
-
-	// Remove relay server associations from the given server.
-	P2PRemoveRelayServers(
-		ctx context.Context,
-		request *P2PRemoveRelayServersRequest,
-		response *P2PRemoveRelayServersResponse,
-	) error
 }
 
 // KeyserverFederationAPI is a subset of gomatrixserverlib.FederationClient functions which the keyserver
@@ -232,28 +208,4 @@ type InputPublicKeysRequest struct {
 }
 
 type InputPublicKeysResponse struct {
-}
-
-type P2PQueryRelayServersRequest struct {
-	Server spec.ServerName
-}
-
-type P2PQueryRelayServersResponse struct {
-	RelayServers []spec.ServerName
-}
-
-type P2PAddRelayServersRequest struct {
-	Server       spec.ServerName
-	RelayServers []spec.ServerName
-}
-
-type P2PAddRelayServersResponse struct {
-}
-
-type P2PRemoveRelayServersRequest struct {
-	Server       spec.ServerName
-	RelayServers []spec.ServerName
-}
-
-type P2PRemoveRelayServersResponse struct {
 }

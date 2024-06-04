@@ -166,9 +166,6 @@ user_api:
     max_open_conns: 100
     max_idle_conns: 2
     conn_max_lifetime: -1
-relay_api:
-  database:
-    connection_string: file:relayapi.db
 mscs:
   database:
     connection_string: file:mscs.db

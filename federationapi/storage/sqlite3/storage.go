@@ -60,14 +60,6 @@ func NewDatabase(ctx context.Context, conMan *sqlutil.Connections, dbProperties 
 	if err != nil {
 		return nil, err
 	}
-	assumedOffline, err := NewSQLiteAssumedOfflineTable(d.db)
-	if err != nil {
-		return nil, err
-	}
-	relayServers, err := NewSQLiteRelayServersTable(d.db)
-	if err != nil {
-		return nil, err
-	}
 	outboundPeeks, err := NewSQLiteOutboundPeeksTable(d.db)
 	if err != nil {
 		return nil, err
@@ -110,8 +102,6 @@ func NewDatabase(ctx context.Context, conMan *sqlutil.Connections, dbProperties 
 		FederationQueueEDUs:      queueEDUs,
 		FederationQueueJSON:      queueJSON,
 		FederationBlacklist:      blacklist,
-		FederationAssumedOffline: assumedOffline,
-		FederationRelayServers:   relayServers,
 		FederationOutboundPeeks:  outboundPeeks,
 		FederationInboundPeeks:   inboundPeeks,
 		NotaryServerKeysJSON:     notaryKeys,

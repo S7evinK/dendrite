@@ -66,10 +66,8 @@ func mustCreateFederationDatabase(t *testing.T, dbType test.DBType, realDatabase
 
 type stubFederationClient struct {
 	fclient.FederationClient
-	shouldTxSucceed      bool
-	shouldTxRelaySucceed bool
-	txCount              atomic.Uint32
-	txRelayCount         atomic.Uint32
+	shouldTxSucceed bool
+	txCount         atomic.Uint32
 }
 
 func (f *stubFederationClient) SendTransaction(ctx context.Context, t gomatrixserverlib.Transaction) (res fclient.RespSend, err error) {
@@ -80,16 +78,6 @@ func (f *stubFederationClient) SendTransaction(ctx context.Context, t gomatrixse
 
 	f.txCount.Add(1)
 	return fclient.RespSend{}, result
-}
-
-func (f *stubFederationClient) P2PSendTransactionToRelay(ctx context.Context, u spec.UserID, t gomatrixserverlib.Transaction, forwardingServer spec.ServerName) (res fclient.EmptyResp, err error) {
-	var result error
-	if !f.shouldTxRelaySucceed {
-		result = fmt.Errorf("relay transaction failed")
-	}
-
-	f.txRelayCount.Add(1)
-	return fclient.EmptyResp{}, result
 }
 
 func mustCreatePDU(t *testing.T) *types.HeaderedEvent {
@@ -111,13 +99,11 @@ func testSetup(failuresUntilBlacklist uint32, failuresUntilAssumedOffline uint32
 	db, processContext, close := mustCreateFederationDatabase(t, dbType, realDatabase)
 
 	fc := &stubFederationClient{
-		shouldTxSucceed:      shouldTxSucceed,
-		shouldTxRelaySucceed: shouldTxRelaySucceed,
-		txCount:              atomic.Uint32{},
-		txRelayCount:         atomic.Uint32{},
+		shouldTxSucceed: shouldTxSucceed,
+		txCount:         atomic.Uint32{},
 	}
 
-	stats := statistics.NewStatistics(db, failuresUntilBlacklist, failuresUntilAssumedOffline, false)
+	stats := statistics.NewStatistics(db, failuresUntilBlacklist)
 	signingInfo := []*fclient.SigningIdentity{
 		{
 			KeyID:      "ed21019:auto",
@@ -827,148 +813,4 @@ func TestQueueInteractsWithRealDatabasePDUAndEDU(t *testing.T) {
 		}
 		poll.WaitOn(t, checkRetry, poll.WithTimeout(10*time.Second), poll.WithDelay(100*time.Millisecond))
 	})
-}
-
-func TestSendPDUMultipleFailuresAssumedOffline(t *testing.T) {
-	t.Parallel()
-	failuresUntilBlacklist := uint32(7)
-	failuresUntilAssumedOffline := uint32(2)
-	destination := spec.ServerName("remotehost")
-	db, fc, queues, pc, close := testSetup(failuresUntilBlacklist, failuresUntilAssumedOffline, false, false, t, test.DBTypeSQLite, false)
-	defer close()
-	defer func() {
-		pc.ShutdownDendrite()
-		<-pc.WaitForShutdown()
-	}()
-
-	ev := mustCreatePDU(t)
-	err := queues.SendEvent(ev, "localhost", []spec.ServerName{destination})
-	assert.NoError(t, err)
-
-	check := func(log poll.LogT) poll.Result {
-		if fc.txCount.Load() == failuresUntilAssumedOffline {
-			data, dbErr := db.GetPendingPDUs(pc.Context(), destination, 100)
-			assert.NoError(t, dbErr)
-			if len(data) == 1 {
-				if val, _ := db.IsServerAssumedOffline(context.Background(), destination); val {
-					return poll.Success()
-				}
-				return poll.Continue("waiting for server to be assumed offline")
-			}
-			return poll.Continue("waiting for event to be added to database. Currently present PDU: %d", len(data))
-		}
-		return poll.Continue("waiting for more send attempts before checking database. Currently %d", fc.txCount.Load())
-	}
-	poll.WaitOn(t, check, poll.WithTimeout(5*time.Second), poll.WithDelay(100*time.Millisecond))
-}
-
-func TestSendEDUMultipleFailuresAssumedOffline(t *testing.T) {
-	t.Parallel()
-	failuresUntilBlacklist := uint32(7)
-	failuresUntilAssumedOffline := uint32(2)
-	destination := spec.ServerName("remotehost")
-	db, fc, queues, pc, close := testSetup(failuresUntilBlacklist, failuresUntilAssumedOffline, false, false, t, test.DBTypeSQLite, false)
-	defer close()
-	defer func() {
-		pc.ShutdownDendrite()
-		<-pc.WaitForShutdown()
-	}()
-
-	ev := mustCreateEDU(t)
-	err := queues.SendEDU(ev, "localhost", []spec.ServerName{destination})
-	assert.NoError(t, err)
-
-	check := func(log poll.LogT) poll.Result {
-		if fc.txCount.Load() == failuresUntilAssumedOffline {
-			data, dbErr := db.GetPendingEDUs(pc.Context(), destination, 100)
-			assert.NoError(t, dbErr)
-			if len(data) == 1 {
-				if val, _ := db.IsServerAssumedOffline(context.Background(), destination); val {
-					return poll.Success()
-				}
-				return poll.Continue("waiting for server to be assumed offline")
-			}
-			return poll.Continue("waiting for event to be added to database. Currently present EDU: %d", len(data))
-		}
-		return poll.Continue("waiting for more send attempts before checking database. Currently %d", fc.txCount.Load())
-	}
-	poll.WaitOn(t, check, poll.WithTimeout(5*time.Second), poll.WithDelay(100*time.Millisecond))
-}
-
-func TestSendPDUOnRelaySuccessRemovedFromDB(t *testing.T) {
-	t.Parallel()
-	failuresUntilBlacklist := uint32(16)
-	failuresUntilAssumedOffline := uint32(1)
-	destination := spec.ServerName("remotehost")
-	db, fc, queues, pc, close := testSetup(failuresUntilBlacklist, failuresUntilAssumedOffline, false, true, t, test.DBTypeSQLite, false)
-	defer close()
-	defer func() {
-		pc.ShutdownDendrite()
-		<-pc.WaitForShutdown()
-	}()
-
-	relayServers := []spec.ServerName{"relayserver"}
-	queues.statistics.ForServer(destination).AddRelayServers(relayServers)
-
-	ev := mustCreatePDU(t)
-	err := queues.SendEvent(ev, "localhost", []spec.ServerName{destination})
-	assert.NoError(t, err)
-
-	check := func(log poll.LogT) poll.Result {
-		if fc.txCount.Load() >= 1 {
-			if fc.txRelayCount.Load() == 1 {
-				data, dbErr := db.GetPendingPDUs(pc.Context(), destination, 100)
-				assert.NoError(t, dbErr)
-				if len(data) == 0 {
-					return poll.Success()
-				}
-				return poll.Continue("waiting for event to be removed from database. Currently present PDU: %d", len(data))
-			}
-			return poll.Continue("waiting for more relay send attempts before checking database. Currently %d", fc.txRelayCount.Load())
-		}
-		return poll.Continue("waiting for more send attempts before checking database. Currently %d", fc.txCount.Load())
-	}
-	poll.WaitOn(t, check, poll.WithTimeout(5*time.Second), poll.WithDelay(100*time.Millisecond))
-
-	assumedOffline, _ := db.IsServerAssumedOffline(context.Background(), destination)
-	assert.Equal(t, true, assumedOffline)
-}
-
-func TestSendEDUOnRelaySuccessRemovedFromDB(t *testing.T) {
-	t.Parallel()
-	failuresUntilBlacklist := uint32(16)
-	failuresUntilAssumedOffline := uint32(1)
-	destination := spec.ServerName("remotehost")
-	db, fc, queues, pc, close := testSetup(failuresUntilBlacklist, failuresUntilAssumedOffline, false, true, t, test.DBTypeSQLite, false)
-	defer close()
-	defer func() {
-		pc.ShutdownDendrite()
-		<-pc.WaitForShutdown()
-	}()
-
-	relayServers := []spec.ServerName{"relayserver"}
-	queues.statistics.ForServer(destination).AddRelayServers(relayServers)
-
-	ev := mustCreateEDU(t)
-	err := queues.SendEDU(ev, "localhost", []spec.ServerName{destination})
-	assert.NoError(t, err)
-
-	check := func(log poll.LogT) poll.Result {
-		if fc.txCount.Load() >= 1 {
-			if fc.txRelayCount.Load() == 1 {
-				data, dbErr := db.GetPendingEDUs(pc.Context(), destination, 100)
-				assert.NoError(t, dbErr)
-				if len(data) == 0 {
-					return poll.Success()
-				}
-				return poll.Continue("waiting for event to be removed from database. Currently present EDU: %d", len(data))
-			}
-			return poll.Continue("waiting for more relay send attempts before checking database. Currently %d", fc.txRelayCount.Load())
-		}
-		return poll.Continue("waiting for more send attempts before checking database. Currently %d", fc.txCount.Load())
-	}
-	poll.WaitOn(t, check, poll.WithTimeout(5*time.Second), poll.WithDelay(100*time.Millisecond))
-
-	assumedOffline, _ := db.IsServerAssumedOffline(context.Background(), destination)
-	assert.Equal(t, true, assumedOffline)
 }

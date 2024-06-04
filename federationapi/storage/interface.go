@@ -27,7 +27,6 @@ import (
 )
 
 type Database interface {
-	P2PDatabase
 	gomatrixserverlib.KeyDatabase
 
 	UpdateRoom(ctx context.Context, roomID string, addHosts []types.JoinedHost, removeHosts []string, purgeRoomFirst bool) (joinedHosts []types.JoinedHost, err error)
@@ -57,18 +56,6 @@ type Database interface {
 	RemoveAllServersFromBlacklist() error
 	IsServerBlacklisted(serverName spec.ServerName) (bool, error)
 
-	// Adds the server to the list of assumed offline servers.
-	// If the server already exists in the table, nothing happens and returns success.
-	SetServerAssumedOffline(ctx context.Context, serverName spec.ServerName) error
-	// Removes the server from the list of assumed offline servers.
-	// If the server doesn't exist in the table, nothing happens and returns success.
-	RemoveServerAssumedOffline(ctx context.Context, serverName spec.ServerName) error
-	// Purges all entries from the assumed offline table.
-	RemoveAllServersAssumedOffline(ctx context.Context) error
-	// Gets whether the provided server is present in the table.
-	// If it is present, returns true. If not, returns false.
-	IsServerAssumedOffline(ctx context.Context, serverName spec.ServerName) (bool, error)
-
 	AddOutboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string, renewalInterval int64) error
 	RenewOutboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string, renewalInterval int64) error
 	GetOutboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string) (*types.OutboundPeek, error)
@@ -88,22 +75,4 @@ type Database interface {
 	DeleteExpiredEDUs(ctx context.Context) error
 
 	PurgeRoom(ctx context.Context, roomID string) error
-}
-
-type P2PDatabase interface {
-	// Stores the given list of servers as relay servers for the provided destination server.
-	// Providing duplicates will only lead to a single entry and won't lead to an error.
-	P2PAddRelayServersForServer(ctx context.Context, serverName spec.ServerName, relayServers []spec.ServerName) error
-
-	// Get the list of relay servers associated with the provided destination server.
-	// If no entry exists in the table, an empty list is returned and does not result in an error.
-	P2PGetRelayServersForServer(ctx context.Context, serverName spec.ServerName) ([]spec.ServerName, error)
-
-	// Deletes any entries for the provided destination server that match the provided relayServers list.
-	// If any of the provided servers don't match an entry, nothing happens and no error is returned.
-	P2PRemoveRelayServersForServer(ctx context.Context, serverName spec.ServerName, relayServers []spec.ServerName) error
-
-	// Deletes all entries for the provided destination server.
-	// If the destination server doesn't exist in the table, nothing happens and no error is returned.
-	P2PRemoveAllRelayServersForServer(ctx context.Context, serverName spec.ServerName) error
 }

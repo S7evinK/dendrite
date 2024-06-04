@@ -1,7 +1,6 @@
 package statistics
 
 import (
-	"context"
 	"math"
 	"math/rand"
 	"sync"
@@ -29,28 +28,17 @@ type Statistics struct {
 	// just blacklist the host altogether? The backoff is exponential,
 	// so the max time here to attempt is 2**failures seconds.
 	FailuresUntilBlacklist uint32
-
-	// How many times should we tolerate consecutive failures before we
-	// mark the destination as offline. At this point we should attempt
-	// to send messages to the user's async relay servers if we know them.
-	FailuresUntilAssumedOffline uint32
-
-	enableRelays bool
 }
 
 func NewStatistics(
 	db storage.Database,
 	failuresUntilBlacklist uint32,
-	failuresUntilAssumedOffline uint32,
-	enableRelays bool,
 ) Statistics {
 	return Statistics{
-		DB:                          db,
-		FailuresUntilBlacklist:      failuresUntilBlacklist,
-		FailuresUntilAssumedOffline: failuresUntilAssumedOffline,
-		backoffTimers:               make(map[spec.ServerName]*time.Timer),
-		servers:                     make(map[spec.ServerName]*ServerStatistics),
-		enableRelays:                enableRelays,
+		DB:                     db,
+		FailuresUntilBlacklist: failuresUntilBlacklist,
+		backoffTimers:          make(map[spec.ServerName]*time.Timer),
+		servers:                make(map[spec.ServerName]*ServerStatistics),
 	}
 }
 
@@ -65,9 +53,8 @@ func (s *Statistics) ForServer(serverName spec.ServerName) *ServerStatistics {
 	if !found {
 		s.mutex.Lock()
 		server = &ServerStatistics{
-			statistics:        s,
-			serverName:        serverName,
-			knownRelayServers: []spec.ServerName{},
+			statistics: s,
+			serverName: serverName,
 		}
 		s.servers[serverName] = server
 		s.mutex.Unlock()
@@ -77,28 +64,6 @@ func (s *Statistics) ForServer(serverName spec.ServerName) *ServerStatistics {
 		} else {
 			server.blacklisted.Store(blacklisted)
 		}
-
-		// Don't bother hitting the database 2 additional times
-		// if we don't want to use relays.
-		if !s.enableRelays {
-			return server
-		}
-
-		assumedOffline, err := s.DB.IsServerAssumedOffline(context.Background(), serverName)
-		if err != nil {
-			logrus.WithError(err).Errorf("Failed to get assumed offline entry %q", serverName)
-		} else {
-			server.assumedOffline.Store(assumedOffline)
-		}
-
-		knownRelayServers, err := s.DB.P2PGetRelayServersForServer(context.Background(), serverName)
-		if err != nil {
-			logrus.WithError(err).Errorf("Failed to get relay server list for %q", serverName)
-		} else {
-			server.relayMutex.Lock()
-			server.knownRelayServers = knownRelayServers
-			server.relayMutex.Unlock()
-		}
 	}
 	return server
 }
@@ -107,7 +72,6 @@ type SendMethod uint8
 
 const (
 	SendDirect SendMethod = iota
-	SendViaRelay
 )
 
 // ServerStatistics contains information about our interactions with a
@@ -115,18 +79,15 @@ const (
 // many times we failed etc. It also manages the backoff time and black-
 // listing a remote host if it remains uncooperative.
 type ServerStatistics struct {
-	statistics        *Statistics     //
-	serverName        spec.ServerName //
-	blacklisted       atomic.Bool     // is the node blacklisted
-	assumedOffline    atomic.Bool     // is the node assumed to be offline
-	backoffStarted    atomic.Bool     // is the backoff started
-	backoffUntil      atomic.Value    // time.Time until this backoff interval ends
-	backoffCount      atomic.Uint32   // number of times BackoffDuration has been called
-	successCounter    atomic.Uint32   // how many times have we succeeded?
-	backoffNotifier   func()          // notifies destination queue when backoff completes
-	notifierMutex     sync.Mutex
-	knownRelayServers []spec.ServerName
-	relayMutex        sync.Mutex
+	statistics      *Statistics     //
+	serverName      spec.ServerName //
+	blacklisted     atomic.Bool     // is the node blacklisted
+	backoffStarted  atomic.Bool     // is the backoff started
+	backoffUntil    atomic.Value    // time.Time until this backoff interval ends
+	backoffCount    atomic.Uint32   // number of times BackoffDuration has been called
+	successCounter  atomic.Uint32   // how many times have we succeeded?
+	backoffNotifier func()          // notifies destination queue when backoff completes
+	notifierMutex   sync.Mutex
 }
 
 const maxJitterMultiplier = 1.4
@@ -175,8 +136,6 @@ func (s *ServerStatistics) Success(method SendMethod) {
 				logrus.WithError(err).Errorf("Failed to remove %q from blacklist", s.serverName)
 			}
 		}
-
-		s.removeAssumedOffline()
 	}
 }
 
@@ -196,15 +155,6 @@ func (s *ServerStatistics) Failure() (time.Time, bool) {
 	// unset the backoffStarted flag when done.
 	if s.backoffStarted.CompareAndSwap(false, true) {
 		backoffCount := s.backoffCount.Add(1)
-
-		if backoffCount >= s.statistics.FailuresUntilAssumedOffline {
-			s.assumedOffline.CompareAndSwap(false, true)
-			if s.statistics.DB != nil {
-				if err := s.statistics.DB.SetServerAssumedOffline(context.Background(), s.serverName); err != nil {
-					logrus.WithError(err).Errorf("Failed to set %q as assumed offline", s.serverName)
-				}
-			}
-		}
 
 		if backoffCount >= s.statistics.FailuresUntilBlacklist {
 			s.blacklisted.Store(true)
@@ -234,7 +184,6 @@ func (s *ServerStatistics) Failure() (time.Time, bool) {
 // MarkServerAlive removes the assumed offline and blacklisted statuses from this server.
 // Returns whether the server was blacklisted before this point.
 func (s *ServerStatistics) MarkServerAlive() bool {
-	s.removeAssumedOffline()
 	wasBlacklisted := s.removeBlacklist()
 	return wasBlacklisted
 }
@@ -281,12 +230,6 @@ func (s *ServerStatistics) Blacklisted() bool {
 	return s.blacklisted.Load()
 }
 
-// AssumedOffline returns true if the server is assumed offline and false
-// otherwise.
-func (s *ServerStatistics) AssumedOffline() bool {
-	return s.assumedOffline.Load()
-}
-
 // removeBlacklist removes the blacklisted status from the server.
 // Returns whether the server was blacklisted.
 func (s *ServerStatistics) removeBlacklist() bool {
@@ -302,59 +245,8 @@ func (s *ServerStatistics) removeBlacklist() bool {
 	return wasBlacklisted
 }
 
-// removeAssumedOffline removes the assumed offline status from the server.
-func (s *ServerStatistics) removeAssumedOffline() {
-	if s.AssumedOffline() {
-		_ = s.statistics.DB.RemoveServerAssumedOffline(context.Background(), s.serverName)
-	}
-	s.assumedOffline.Store(false)
-}
-
 // SuccessCount returns the number of successful requests. This is
 // usually useful in constructing transaction IDs.
 func (s *ServerStatistics) SuccessCount() uint32 {
 	return s.successCounter.Load()
-}
-
-// KnownRelayServers returns the list of relay servers associated with this
-// server.
-func (s *ServerStatistics) KnownRelayServers() []spec.ServerName {
-	s.relayMutex.Lock()
-	defer s.relayMutex.Unlock()
-	return s.knownRelayServers
-}
-
-func (s *ServerStatistics) AddRelayServers(relayServers []spec.ServerName) {
-	seenSet := make(map[spec.ServerName]bool)
-	uniqueList := []spec.ServerName{}
-	for _, srv := range relayServers {
-		if seenSet[srv] {
-			continue
-		}
-		seenSet[srv] = true
-		uniqueList = append(uniqueList, srv)
-	}
-
-	err := s.statistics.DB.P2PAddRelayServersForServer(context.Background(), s.serverName, uniqueList)
-	if err != nil {
-		logrus.WithError(err).Errorf("Failed to add relay servers for %q. Servers: %v", s.serverName, uniqueList)
-		return
-	}
-
-	for _, newServer := range uniqueList {
-		alreadyKnown := false
-		knownRelayServers := s.KnownRelayServers()
-		for _, srv := range knownRelayServers {
-			if srv == newServer {
-				alreadyKnown = true
-			}
-		}
-		if !alreadyKnown {
-			{
-				s.relayMutex.Lock()
-				s.knownRelayServers = append(s.knownRelayServers, newServer)
-				s.relayMutex.Unlock()
-			}
-		}
-	}
 }

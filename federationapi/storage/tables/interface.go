@@ -87,13 +87,6 @@ type FederationAssumedOffline interface {
 	DeleteAllAssumedOffline(ctx context.Context, txn *sql.Tx) error
 }
 
-type FederationRelayServers interface {
-	InsertRelayServers(ctx context.Context, txn *sql.Tx, serverName spec.ServerName, relayServers []spec.ServerName) error
-	SelectRelayServers(ctx context.Context, txn *sql.Tx, serverName spec.ServerName) ([]spec.ServerName, error)
-	DeleteRelayServers(ctx context.Context, txn *sql.Tx, serverName spec.ServerName, relayServers []spec.ServerName) error
-	DeleteAllRelayServers(ctx context.Context, txn *sql.Tx, serverName spec.ServerName) error
-}
-
 type FederationOutboundPeeks interface {
 	InsertOutboundPeek(ctx context.Context, txn *sql.Tx, serverName spec.ServerName, roomID, peekID string, renewalInterval int64) (err error)
 	RenewOutboundPeek(ctx context.Context, txn *sql.Tx, serverName spec.ServerName, roomID, peekID string, renewalInterval int64) (err error)

@@ -41,7 +41,6 @@ type InMemoryFederationDatabase struct {
 	pendingEDUs        map[*receipt.Receipt]*gomatrixserverlib.EDU
 	associatedPDUs     map[spec.ServerName]map[*receipt.Receipt]struct{}
 	associatedEDUs     map[spec.ServerName]map[*receipt.Receipt]struct{}
-	relayServers       map[spec.ServerName][]spec.ServerName
 }
 
 func NewInMemoryFederationDatabase() *InMemoryFederationDatabase {
@@ -54,7 +53,6 @@ func NewInMemoryFederationDatabase() *InMemoryFederationDatabase {
 		pendingEDUs:        make(map[*receipt.Receipt]*gomatrixserverlib.EDU),
 		associatedPDUs:     make(map[spec.ServerName]map[*receipt.Receipt]struct{}),
 		associatedEDUs:     make(map[spec.ServerName]map[*receipt.Receipt]struct{}),
-		relayServers:       make(map[spec.ServerName][]spec.ServerName),
 	}
 }
 
@@ -312,122 +310,6 @@ func (d *InMemoryFederationDatabase) IsServerBlacklisted(
 	return isBlacklisted, nil
 }
 
-func (d *InMemoryFederationDatabase) SetServerAssumedOffline(
-	ctx context.Context,
-	serverName spec.ServerName,
-) error {
-	d.dbMutex.Lock()
-	defer d.dbMutex.Unlock()
-
-	d.assumedOffline[serverName] = struct{}{}
-	return nil
-}
-
-func (d *InMemoryFederationDatabase) RemoveServerAssumedOffline(
-	ctx context.Context,
-	serverName spec.ServerName,
-) error {
-	d.dbMutex.Lock()
-	defer d.dbMutex.Unlock()
-
-	delete(d.assumedOffline, serverName)
-	return nil
-}
-
-func (d *InMemoryFederationDatabase) RemoveAllServersAssumedOffine(
-	ctx context.Context,
-) error {
-	d.dbMutex.Lock()
-	defer d.dbMutex.Unlock()
-
-	d.assumedOffline = make(map[spec.ServerName]struct{})
-	return nil
-}
-
-func (d *InMemoryFederationDatabase) IsServerAssumedOffline(
-	ctx context.Context,
-	serverName spec.ServerName,
-) (bool, error) {
-	d.dbMutex.Lock()
-	defer d.dbMutex.Unlock()
-
-	assumedOffline := false
-	if _, ok := d.assumedOffline[serverName]; ok {
-		assumedOffline = true
-	}
-
-	return assumedOffline, nil
-}
-
-func (d *InMemoryFederationDatabase) P2PGetRelayServersForServer(
-	ctx context.Context,
-	serverName spec.ServerName,
-) ([]spec.ServerName, error) {
-	d.dbMutex.Lock()
-	defer d.dbMutex.Unlock()
-
-	knownRelayServers := []spec.ServerName{}
-	if relayServers, ok := d.relayServers[serverName]; ok {
-		knownRelayServers = relayServers
-	}
-
-	return knownRelayServers, nil
-}
-
-func (d *InMemoryFederationDatabase) P2PAddRelayServersForServer(
-	ctx context.Context,
-	serverName spec.ServerName,
-	relayServers []spec.ServerName,
-) error {
-	d.dbMutex.Lock()
-	defer d.dbMutex.Unlock()
-
-	if knownRelayServers, ok := d.relayServers[serverName]; ok {
-		for _, relayServer := range relayServers {
-			alreadyKnown := false
-			for _, knownRelayServer := range knownRelayServers {
-				if relayServer == knownRelayServer {
-					alreadyKnown = true
-				}
-			}
-			if !alreadyKnown {
-				d.relayServers[serverName] = append(d.relayServers[serverName], relayServer)
-			}
-		}
-	} else {
-		d.relayServers[serverName] = relayServers
-	}
-
-	return nil
-}
-
-func (d *InMemoryFederationDatabase) P2PRemoveRelayServersForServer(
-	ctx context.Context,
-	serverName spec.ServerName,
-	relayServers []spec.ServerName,
-) error {
-	d.dbMutex.Lock()
-	defer d.dbMutex.Unlock()
-
-	if knownRelayServers, ok := d.relayServers[serverName]; ok {
-		for _, relayServer := range relayServers {
-			for i, knownRelayServer := range knownRelayServers {
-				if relayServer == knownRelayServer {
-					d.relayServers[serverName] = append(
-						d.relayServers[serverName][:i],
-						d.relayServers[serverName][i+1:]...,
-					)
-					break
-				}
-			}
-		}
-	} else {
-		d.relayServers[serverName] = relayServers
-	}
-
-	return nil
-}
-
 func (d *InMemoryFederationDatabase) FetchKeys(ctx context.Context, requests map[gomatrixserverlib.PublicKeyLookupRequest]spec.Timestamp) (map[gomatrixserverlib.PublicKeyLookupRequest]gomatrixserverlib.PublicKeyLookupResult, error) {
 	return nil, nil
 }
@@ -457,10 +339,6 @@ func (d *InMemoryFederationDatabase) GetJoinedHostsForRooms(ctx context.Context,
 }
 
 func (d *InMemoryFederationDatabase) RemoveAllServersAssumedOffline(ctx context.Context) error {
-	return nil
-}
-
-func (d *InMemoryFederationDatabase) P2PRemoveAllRelayServersForServer(ctx context.Context, serverName spec.ServerName) error {
 	return nil
 }
 

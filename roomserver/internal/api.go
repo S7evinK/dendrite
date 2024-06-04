@@ -216,10 +216,6 @@ func (r *RoomserverInternalAPI) SetUserAPI(userAPI userapi.RoomserverUserAPI) {
 	r.Inputer.UserAPI = userAPI
 }
 
-func (r *RoomserverInternalAPI) SetAppserviceAPI(asAPI asAPI.AppServiceInternalAPI) {
-	r.asAPI = asAPI
-}
-
 func (r *RoomserverInternalAPI) DefaultRoomVersion() gomatrixserverlib.RoomVersion {
 	return r.defaultRoomVersion
 }
