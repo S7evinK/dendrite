@@ -172,7 +172,6 @@ Can send image in room message
 AS cannot create users outside its own namespace
 Regular users cannot register within the AS namespace
 AS can't set displayname for random users
-AS user (not ghost) can join room without registering, with user_id query param
 Changing the actions of an unknown default rule fails with 404
 Changing the actions of an unknown rule fails with 404
 Enabling an unknown default rule fails with 404
@@ -443,7 +442,6 @@ Banned servers cannot get room state ids
 Banned servers cannot backfill
 Inbound /v1/send_leave rejects leaves from other servers
 Guest users can accept invites to private rooms over federation
-AS user (not ghost) can join room without registering
 Can search public room list
 Can get remote public room list
 Asking for a remote rooms list, but supplying the local server's name, returns the local rooms list
@@ -651,7 +649,6 @@ Multiple calls to /sync should not cause 500 errors
 Canonical alias can be set
 Canonical alias can include alt_aliases
 Can delete canonical alias
-AS can make room aliases
 /context/ with lazy_load_members filter works
 /upgrade creates a new room
 /upgrade should preserve room visibility for public rooms
@@ -757,8 +754,6 @@ Local device key changes appear in /keys/changes
 Can get rooms/{roomId}/members at a given point
 Can filter rooms/{roomId}/members
 Current state appears in timeline in private history with many messages after
-AS can publish rooms in their own list
-AS and main public room lists are separate
 /upgrade preserves direct room state
 local user has tags copied to the new room
 remote user has tags copied to the new room
@@ -784,8 +779,6 @@ Invited user can reject local invite after originator leaves
 Guest users can join guest_access rooms
 Forgotten room messages cannot be paginated
 Local device key changes get to remote servers with correct prev_id
-HS provides query metadata
-HS can provide query metadata on a single protocol
 Invites over federation are correctly pushed
 Invites over federation are correctly pushed with name
 User can create and send/receive messages in a room with version 11
