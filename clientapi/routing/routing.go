@@ -369,17 +369,6 @@ func Setup(
 			)
 		}, httputil.WithAllowGuests()),
 	).Methods(http.MethodPost, http.MethodOptions)
-	v3mux.Handle("/rooms/{roomID}/unpeek",
-		httputil.MakeAuthAPI("unpeek", userAPI, func(req *http.Request, device *userapi.Device) util.JSONResponse {
-			vars, err := httputil.URLDecodeMapValues(mux.Vars(req))
-			if err != nil {
-				return util.ErrorResponse(err)
-			}
-			return UnpeekRoomByID(
-				req, device, rsAPI, vars["roomID"],
-			)
-		}),
-	).Methods(http.MethodPost, http.MethodOptions)
 	v3mux.Handle("/rooms/{roomID}/ban",
 		httputil.MakeAuthAPI("membership", userAPI, func(req *http.Request, device *userapi.Device) util.JSONResponse {
 			vars, err := httputil.URLDecodeMapValues(mux.Vars(req))
@@ -924,7 +913,6 @@ func Setup(
 
 	v3mux.Handle("/rooms/{roomID}/initialSync",
 		httputil.MakeExternalAPI("rooms_initial_sync", func(req *http.Request) util.JSONResponse {
-			// TODO: Allow people to peek into rooms.
 			return util.JSONResponse{
 				Code: http.StatusForbidden,
 				JSON: spec.GuestAccessForbidden("Guest access not implemented"),

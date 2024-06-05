@@ -62,14 +62,6 @@ func NewDatabase(ctx context.Context, conMan *sqlutil.Connections, dbProperties 
 	if err != nil {
 		return nil, err
 	}
-	inboundPeeks, err := NewPostgresInboundPeeksTable(d.db)
-	if err != nil {
-		return nil, err
-	}
-	outboundPeeks, err := NewPostgresOutboundPeeksTable(d.db)
-	if err != nil {
-		return nil, err
-	}
 	notaryJSON, err := NewPostgresNotaryServerKeysTable(d.db)
 	if err != nil {
 		return nil, fmt.Errorf("NewPostgresNotaryServerKeysTable: %s", err)
@@ -104,8 +96,6 @@ func NewDatabase(ctx context.Context, conMan *sqlutil.Connections, dbProperties 
 		FederationQueueEDUs:      queueEDUs,
 		FederationQueueJSON:      queueJSON,
 		FederationBlacklist:      blacklist,
-		FederationInboundPeeks:   inboundPeeks,
-		FederationOutboundPeeks:  outboundPeeks,
 		NotaryServerKeysJSON:     notaryJSON,
 		NotaryServerKeysMetadata: notaryMetadata,
 		ServerSigningKeys:        serverSigningKeys,

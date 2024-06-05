@@ -63,8 +63,6 @@ type RoomserverFederationAPI interface {
 	SendInvite(ctx context.Context, event gomatrixserverlib.PDU, strippedState []gomatrixserverlib.InviteStrippedState) (gomatrixserverlib.PDU, error)
 	// Handle sending an invite to a remote server.
 	SendInviteV3(ctx context.Context, event gomatrixserverlib.ProtoEvent, invitee spec.UserID, version gomatrixserverlib.RoomVersion, strippedState []gomatrixserverlib.InviteStrippedState) (gomatrixserverlib.PDU, error)
-	// Handle an instruction to peek a room on a remote server.
-	PerformOutboundPeek(ctx context.Context, request *PerformOutboundPeekRequest, response *PerformOutboundPeekResponse) error
 	// Query the server names of the joined hosts in a room.
 	// Unlike QueryJoinedHostsInRoom, this function returns a de-duplicated slice
 	// containing only the server names (without information for membership events).
@@ -146,16 +144,6 @@ type PerformJoinRequest struct {
 
 type PerformJoinResponse struct {
 	JoinedVia spec.ServerName
-	LastError *gomatrix.HTTPError
-}
-
-type PerformOutboundPeekRequest struct {
-	RoomID string `json:"room_id"`
-	// The sorted list of servers to try. Servers will be tried sequentially, after de-duplication.
-	ServerNames types.ServerNames `json:"server_names"`
-}
-
-type PerformOutboundPeekResponse struct {
 	LastError *gomatrix.HTTPError
 }
 

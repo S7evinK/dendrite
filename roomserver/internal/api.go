@@ -34,9 +34,6 @@ type RoomserverInternalAPI struct {
 	*query.Queryer
 	*perform.Inviter
 	*perform.Joiner
-	*perform.Peeker
-	*perform.InboundPeeker
-	*perform.Unpeeker
 	*perform.Leaver
 	*perform.Publisher
 	*perform.Backfiller
@@ -145,23 +142,6 @@ func (r *RoomserverInternalAPI) SetFederationAPI(fsAPI fsAPI.RoomserverFederatio
 		RSAPI:   r,
 		Inputer: r.Inputer,
 		Queryer: r.Queryer,
-	}
-	r.Peeker = &perform.Peeker{
-		ServerName: r.ServerName,
-		Cfg:        &r.Cfg.RoomServer,
-		DB:         r.DB,
-		FSAPI:      r.fsAPI,
-		Inputer:    r.Inputer,
-	}
-	r.InboundPeeker = &perform.InboundPeeker{
-		DB:      r.DB,
-		Inputer: r.Inputer,
-	}
-	r.Unpeeker = &perform.Unpeeker{
-		ServerName: r.ServerName,
-		Cfg:        &r.Cfg.RoomServer,
-		FSAPI:      r.fsAPI,
-		Inputer:    r.Inputer,
 	}
 	r.Leaver = &perform.Leaver{
 		Cfg:     &r.Cfg.RoomServer,

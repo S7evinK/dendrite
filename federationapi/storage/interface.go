@@ -56,16 +56,6 @@ type Database interface {
 	RemoveAllServersFromBlacklist() error
 	IsServerBlacklisted(serverName spec.ServerName) (bool, error)
 
-	AddOutboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string, renewalInterval int64) error
-	RenewOutboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string, renewalInterval int64) error
-	GetOutboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string) (*types.OutboundPeek, error)
-	GetOutboundPeeks(ctx context.Context, roomID string) ([]types.OutboundPeek, error)
-
-	AddInboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string, renewalInterval int64) error
-	RenewInboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string, renewalInterval int64) error
-	GetInboundPeek(ctx context.Context, serverName spec.ServerName, roomID, peekID string) (*types.InboundPeek, error)
-	GetInboundPeeks(ctx context.Context, roomID string) ([]types.InboundPeek, error)
-
 	// Update the notary with the given server keys from the given server name.
 	UpdateNotaryKeys(ctx context.Context, serverName spec.ServerName, serverKeys gomatrixserverlib.ServerKeys) error
 	// Query the notary for the server keys for the given server. If `optKeyIDs` is not empty, multiple server keys may be returned (between 1 - len(optKeyIDs))
