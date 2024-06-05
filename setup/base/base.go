@@ -34,7 +34,6 @@ import (
 
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/gorilla/mux"
-	"github.com/kardianos/minwinsvc"
 	"github.com/matrix-org/dendrite/internal"
 	"github.com/matrix-org/dendrite/internal/httputil"
 	"github.com/matrix-org/gomatrixserverlib/fclient"
@@ -247,7 +246,6 @@ func SetupAndServeHTTP(
 		}()
 	}
 
-	minwinsvc.SetOnExit(processContext.ShutdownDendrite)
 	<-processContext.WaitForShutdown()
 
 	logrus.Infof("Stopping HTTP listeners")
