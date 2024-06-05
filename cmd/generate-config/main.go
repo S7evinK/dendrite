@@ -57,11 +57,8 @@ func main() {
 		cfg.SyncAPI.Fulltext.IndexPath = config.Path(filepath.Join(*dirPath, "searchindex"))
 		cfg.Logging = []config.LogrusHook{
 			{
-				Type:  "file",
+				Type:  "std",
 				Level: "info",
-				Params: map[string]interface{}{
-					"path": filepath.Join(*dirPath, "log"),
-				},
 			},
 		}
 		if *defaultsForCI {

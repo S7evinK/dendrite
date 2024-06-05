@@ -42,9 +42,6 @@ func SetupHookLogging(hooks []config.LogrusHook) {
 		}
 
 		switch hook.Type {
-		case "file":
-			checkFileHookParams(hook.Params)
-			setupFileHook(hook, level)
 		case "std":
 			setupStdLogHook(level)
 		default:

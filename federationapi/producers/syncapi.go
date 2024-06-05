@@ -21,15 +21,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/matrix-org/gomatrixserverlib"
-	"github.com/matrix-org/gomatrixserverlib/spec"
-	"github.com/nats-io/nats.go"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/matrix-org/dendrite/setup/config"
 	"github.com/matrix-org/dendrite/setup/jetstream"
 	"github.com/matrix-org/dendrite/syncapi/types"
 	userapi "github.com/matrix-org/dendrite/userapi/api"
+	"github.com/matrix-org/gomatrixserverlib"
+	"github.com/matrix-org/gomatrixserverlib/spec"
+	"github.com/nats-io/nats.go"
+	log "github.com/sirupsen/logrus"
 )
 
 // SyncAPIProducer produces events for the sync API server to consume

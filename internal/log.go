@@ -21,13 +21,10 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
 
-	"github.com/matrix-org/dendrite/setup/config"
-	"github.com/matrix-org/dugong"
 	"github.com/matrix-org/util"
 
 	"github.com/sirupsen/logrus"
@@ -112,45 +109,6 @@ func SetupStdLogging() {
 			QuoteEmptyFields: true,
 			CallerPrettyfier: callerPrettyfier,
 		},
-	})
-}
-
-// File type hooks should be provided a path to a directory to store log files
-func checkFileHookParams(params map[string]interface{}) {
-	path, ok := params["path"]
-	if !ok {
-		logrus.Fatalf("Expecting a parameter \"path\" for logging hook of type \"file\"")
-	}
-
-	if _, ok := path.(string); !ok {
-		logrus.Fatalf("Parameter \"path\" for logging hook of type \"file\" should be a string")
-	}
-}
-
-// Add a new FSHook to the logger. Each component will log in its own file
-func setupFileHook(hook config.LogrusHook, level logrus.Level) {
-	dirPath := (hook.Params["path"]).(string)
-	fullPath := filepath.Join(dirPath, "dendrite.log")
-
-	if err := os.MkdirAll(path.Dir(fullPath), os.ModePerm); err != nil {
-		logrus.Fatalf("Couldn't create directory %s: %q", path.Dir(fullPath), err)
-	}
-
-	logrus.AddHook(&logLevelHook{
-		level,
-		dugong.NewFSHook(
-			fullPath,
-			&utcFormatter{
-				&logrus.TextFormatter{
-					TimestampFormat:  "2006-01-02T15:04:05.000000000Z07:00",
-					DisableColors:    true,
-					DisableTimestamp: false,
-					DisableSorting:   false,
-					QuoteEmptyFields: true,
-				},
-			},
-			&dugong.DailyRotationSchedule{GZip: true},
-		),
 	})
 }
 
