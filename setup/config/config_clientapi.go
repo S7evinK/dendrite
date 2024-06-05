@@ -54,8 +54,6 @@ type ClientAPI struct {
 
 	// Rate-limiting options
 	RateLimiting RateLimiting `yaml:"rate_limiting"`
-
-	MSCs *MSCs `yaml:"-"`
 }
 
 func (c *ClientAPI) Defaults(opts DefaultOpts) {

@@ -161,7 +161,7 @@ func TestGetAuthChainMultiple(t *testing.T) {
 }
 
 func mustCreateDatabase(t *testing.T, dbType test.DBType) (storage.Database, func()) {
-	conStr, close := test.PrepareDBConnectionString(t, dbType)
+	conStr, close := test.PrepareDBConnectionString(t)
 	caches := caching.NewRistrettoCache(8*1024*1024, time.Hour, caching.DisableMetrics)
 	cm := sqlutil.NewConnectionManager(nil, config.DatabaseOptions{})
 	db, err := storage.Open(context.Background(), cm, &config.DatabaseOptions{ConnectionString: config.DataSource(conStr)}, caches)

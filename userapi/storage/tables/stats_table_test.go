@@ -16,7 +16,6 @@ import (
 	"github.com/matrix-org/dendrite/test"
 	"github.com/matrix-org/dendrite/userapi/api"
 	"github.com/matrix-org/dendrite/userapi/storage/postgres"
-	"github.com/matrix-org/dendrite/userapi/storage/sqlite3"
 	"github.com/matrix-org/dendrite/userapi/storage/tables"
 	"github.com/matrix-org/dendrite/userapi/types"
 )
@@ -33,7 +32,7 @@ func mustMakeDBs(t *testing.T, dbType test.DBType) (
 		err        error
 	)
 
-	connStr, close := test.PrepareDBConnectionString(t, dbType)
+	connStr, close := test.PrepareDBConnectionString(t)
 	db, err := sqlutil.Open(&config.DatabaseOptions{
 		ConnectionString: config.DataSource(connStr),
 	}, nil)
@@ -42,19 +41,6 @@ func mustMakeDBs(t *testing.T, dbType test.DBType) (
 	}
 
 	switch dbType {
-	case test.DBTypeSQLite:
-		accTable, err = sqlite3.NewSQLiteAccountsTable(db, "localhost")
-		if err != nil {
-			t.Fatalf("unable to create acc db: %v", err)
-		}
-		devTable, err = sqlite3.NewSQLiteDevicesTable(db, "localhost")
-		if err != nil {
-			t.Fatalf("unable to open device db: %v", err)
-		}
-		statsTable, err = sqlite3.NewSQLiteStatsTable(db, "localhost")
-		if err != nil {
-			t.Fatalf("unable to open stats db: %v", err)
-		}
 	case test.DBTypePostgres:
 		accTable, err = postgres.NewPostgresAccountsTable(db, "localhost")
 		if err != nil {

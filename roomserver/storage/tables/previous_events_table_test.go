@@ -6,7 +6,6 @@ import (
 
 	"github.com/matrix-org/dendrite/internal/sqlutil"
 	"github.com/matrix-org/dendrite/roomserver/storage/postgres"
-	"github.com/matrix-org/dendrite/roomserver/storage/sqlite3"
 	"github.com/matrix-org/dendrite/roomserver/storage/tables"
 	"github.com/matrix-org/dendrite/setup/config"
 	"github.com/matrix-org/dendrite/test"
@@ -16,20 +15,16 @@ import (
 
 func mustCreatePreviousEventsTable(t *testing.T, dbType test.DBType) (tab tables.PreviousEvents, close func()) {
 	t.Helper()
-	connStr, close := test.PrepareDBConnectionString(t, dbType)
+	connStr, close := test.PrepareDBConnectionString(t)
 	db, err := sqlutil.Open(&config.DatabaseOptions{
 		ConnectionString: config.DataSource(connStr),
-	}, sqlutil.NewExclusiveWriter())
+	}, sqlutil.NewDummyWriter())
 	assert.NoError(t, err)
 	switch dbType {
 	case test.DBTypePostgres:
 		err = postgres.CreatePrevEventsTable(db)
 		assert.NoError(t, err)
 		tab, err = postgres.PreparePrevEventsTable(db)
-	case test.DBTypeSQLite:
-		err = sqlite3.CreatePrevEventsTable(db)
-		assert.NoError(t, err)
-		tab, err = sqlite3.PreparePrevEventsTable(db)
 	}
 	assert.NoError(t, err)
 

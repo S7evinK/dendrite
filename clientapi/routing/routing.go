@@ -75,7 +75,6 @@ func Setup(
 	natsClient *nats.Conn, enableMetrics bool,
 ) {
 	cfg := &dendriteCfg.ClientAPI
-	mscCfg := &dendriteCfg.MSCs
 	publicAPIMux := routers.Client
 	wkMux := routers.WellKnown
 	synapseAdminRouter := routers.SynapseAdmin
@@ -91,9 +90,6 @@ func Setup(
 	unstableFeatures := map[string]bool{
 		"org.matrix.e2e_cross_signing": true,
 		"org.matrix.msc2285.stable":    true,
-	}
-	for _, msc := range cfg.MSCs.MSCs {
-		unstableFeatures["org.matrix."+msc] = true
 	}
 
 	// singleflight protects /join endpoints from being invoked
@@ -332,22 +328,6 @@ func Setup(
 		}, httputil.WithAllowGuests()),
 	).Methods(http.MethodPost, http.MethodOptions)
 
-	if mscCfg.Enabled("msc2753") {
-		v3mux.Handle("/peek/{roomIDOrAlias}",
-			httputil.MakeAuthAPI(spec.Peek, userAPI, func(req *http.Request, device *userapi.Device) util.JSONResponse {
-				if r := rateLimits.Limit(req, device); r != nil {
-					return *r
-				}
-				vars, err := httputil.URLDecodeMapValues(mux.Vars(req))
-				if err != nil {
-					return util.ErrorResponse(err)
-				}
-				return PeekRoomByIDOrAlias(
-					req, device, rsAPI, vars["roomIDOrAlias"],
-				)
-			}),
-		).Methods(http.MethodPost, http.MethodOptions)
-	}
 	v3mux.Handle("/joined_rooms",
 		httputil.MakeAuthAPI("joined_rooms", userAPI, func(req *http.Request, device *userapi.Device) util.JSONResponse {
 			return GetJoinedRooms(req, device, rsAPI)

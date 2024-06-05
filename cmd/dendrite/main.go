@@ -34,7 +34,6 @@ import (
 	"github.com/matrix-org/dendrite/setup"
 	basepkg "github.com/matrix-org/dendrite/setup/base"
 	"github.com/matrix-org/dendrite/setup/config"
-	"github.com/matrix-org/dendrite/setup/mscs"
 	"github.com/matrix-org/dendrite/userapi"
 )
 
@@ -177,12 +176,6 @@ func main() {
 		UserAPI:       userAPI,
 	}
 	monolith.AddAllPublicRoutes(processCtx, cfg, routers, cm, &natsInstance, caches, caching.EnableMetrics)
-
-	if len(cfg.MSCs.MSCs) > 0 {
-		if err := mscs.Enable(cfg, cm, routers, &monolith, caches); err != nil {
-			logrus.WithError(err).Fatalf("Failed to enable MSCs")
-		}
-	}
 
 	upCounter := prometheus.NewCounter(prometheus.CounterOpts{
 		Namespace: "dendrite",

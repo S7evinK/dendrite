@@ -26,7 +26,7 @@ import (
 var ctx = context.Background()
 
 func MustCreateDatabase(t *testing.T, dbType test.DBType) (storage.Database, func()) {
-	connStr, close := test.PrepareDBConnectionString(t, dbType)
+	connStr, close := test.PrepareDBConnectionString(t)
 	cm := sqlutil.NewConnectionManager(nil, config.DatabaseOptions{})
 	db, err := storage.NewSyncServerDatasource(context.Background(), cm, &config.DatabaseOptions{
 		ConnectionString: config.DataSource(connStr),

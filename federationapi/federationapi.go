@@ -55,7 +55,6 @@ func AddPublicRoutes(
 	enableMetrics bool,
 ) {
 	cfg := &dendriteConfig.FederationAPI
-	mscCfg := &dendriteConfig.MSCs
 	js, _ := natsInstance.Prepare(processContext, &cfg.Matrix.JetStream)
 	producer := &producers.SyncAPIProducer{
 		JetStream:              js,
@@ -84,7 +83,7 @@ func AddPublicRoutes(
 		routers,
 		dendriteConfig,
 		rsAPI, f, keyRing,
-		federation, userAPI, mscCfg,
+		federation, userAPI,
 		producer, enableMetrics,
 	)
 }

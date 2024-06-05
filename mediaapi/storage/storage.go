@@ -22,15 +22,12 @@ import (
 
 	"github.com/matrix-org/dendrite/internal/sqlutil"
 	"github.com/matrix-org/dendrite/mediaapi/storage/postgres"
-	"github.com/matrix-org/dendrite/mediaapi/storage/sqlite3"
 	"github.com/matrix-org/dendrite/setup/config"
 )
 
 // NewMediaAPIDatasource opens a database connection.
 func NewMediaAPIDatasource(conMan *sqlutil.Connections, dbProperties *config.DatabaseOptions) (Database, error) {
 	switch {
-	case dbProperties.ConnectionString.IsSQLite():
-		return sqlite3.NewDatabase(conMan, dbProperties)
 	case dbProperties.ConnectionString.IsPostgres():
 		return postgres.NewDatabase(conMan, dbProperties)
 	default:

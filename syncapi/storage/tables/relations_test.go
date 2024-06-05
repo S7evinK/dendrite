@@ -8,7 +8,6 @@ import (
 	"github.com/matrix-org/dendrite/internal/sqlutil"
 	"github.com/matrix-org/dendrite/setup/config"
 	"github.com/matrix-org/dendrite/syncapi/storage/postgres"
-	"github.com/matrix-org/dendrite/syncapi/storage/sqlite3"
 	"github.com/matrix-org/dendrite/syncapi/storage/tables"
 	"github.com/matrix-org/dendrite/syncapi/types"
 	"github.com/matrix-org/dendrite/test"
@@ -16,10 +15,10 @@ import (
 
 func newRelationsTable(t *testing.T, dbType test.DBType) (tables.Relations, *sql.DB, func()) {
 	t.Helper()
-	connStr, close := test.PrepareDBConnectionString(t, dbType)
+	connStr, close := test.PrepareDBConnectionString(t)
 	db, err := sqlutil.Open(&config.DatabaseOptions{
 		ConnectionString: config.DataSource(connStr),
-	}, sqlutil.NewExclusiveWriter())
+	}, sqlutil.NewDummyWriter())
 	if err != nil {
 		t.Fatalf("failed to open db: %s", err)
 	}
@@ -28,12 +27,6 @@ func newRelationsTable(t *testing.T, dbType test.DBType) (tables.Relations, *sql
 	switch dbType {
 	case test.DBTypePostgres:
 		tab, err = postgres.NewPostgresRelationsTable(db)
-	case test.DBTypeSQLite:
-		var stream sqlite3.StreamIDStatements
-		if err = stream.Prepare(db); err != nil {
-			t.Fatalf("failed to prepare stream stmts: %s", err)
-		}
-		tab, err = sqlite3.NewSqliteRelationsTable(db, &stream)
 	}
 	if err != nil {
 		t.Fatalf("failed to make new table: %s", err)

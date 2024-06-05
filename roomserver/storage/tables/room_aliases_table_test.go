@@ -6,7 +6,6 @@ import (
 
 	"github.com/matrix-org/dendrite/internal/sqlutil"
 	"github.com/matrix-org/dendrite/roomserver/storage/postgres"
-	"github.com/matrix-org/dendrite/roomserver/storage/sqlite3"
 	"github.com/matrix-org/dendrite/roomserver/storage/tables"
 	"github.com/matrix-org/dendrite/setup/config"
 	"github.com/matrix-org/dendrite/test"
@@ -15,20 +14,16 @@ import (
 
 func mustCreateRoomAliasesTable(t *testing.T, dbType test.DBType) (tab tables.RoomAliases, close func()) {
 	t.Helper()
-	connStr, close := test.PrepareDBConnectionString(t, dbType)
+	connStr, close := test.PrepareDBConnectionString(t)
 	db, err := sqlutil.Open(&config.DatabaseOptions{
 		ConnectionString: config.DataSource(connStr),
-	}, sqlutil.NewExclusiveWriter())
+	}, sqlutil.NewDummyWriter())
 	assert.NoError(t, err)
 	switch dbType {
 	case test.DBTypePostgres:
 		err = postgres.CreateRoomAliasesTable(db)
 		assert.NoError(t, err)
 		tab, err = postgres.PrepareRoomAliasesTable(db)
-	case test.DBTypeSQLite:
-		err = sqlite3.CreateRoomAliasesTable(db)
-		assert.NoError(t, err)
-		tab, err = sqlite3.PrepareRoomAliasesTable(db)
 	}
 	assert.NoError(t, err)
 

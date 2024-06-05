@@ -61,7 +61,6 @@ func Setup(
 	keys gomatrixserverlib.JSONVerifier,
 	federation fclient.FederationClient,
 	userAPI userapi.FederationUserAPI,
-	mscCfg *config.MSCs,
 	producer *producers.SyncAPIProducer, enableMetrics bool,
 ) {
 	fedMux := routers.Federation
@@ -318,38 +317,6 @@ func Setup(
 			)
 		},
 	)).Methods(http.MethodGet)
-
-	if mscCfg.Enabled("msc2444") {
-		v1fedmux.Handle("/peek/{roomID}/{peekID}", MakeFedAPI(
-			"federation_peek", cfg.Matrix.ServerName, cfg.Matrix.IsLocalServerName, keys, wakeup,
-			func(httpReq *http.Request, request *fclient.FederationRequest, vars map[string]string) util.JSONResponse {
-				if roomserverAPI.IsServerBannedFromRoom(httpReq.Context(), rsAPI, vars["roomID"], request.Origin()) {
-					return util.JSONResponse{
-						Code: http.StatusForbidden,
-						JSON: spec.Forbidden("Forbidden by server ACLs"),
-					}
-				}
-				roomID := vars["roomID"]
-				peekID := vars["peekID"]
-				queryVars := httpReq.URL.Query()
-				remoteVersions := []gomatrixserverlib.RoomVersion{}
-				if vers, ok := queryVars["ver"]; ok {
-					// The remote side supplied a ?ver= so use that to build up the list
-					// of supported room versions
-					for _, v := range vers {
-						remoteVersions = append(remoteVersions, gomatrixserverlib.RoomVersion(v))
-					}
-				} else {
-					// The remote side didn't supply a ?ver= so just assume that they only
-					// support room version 1
-					remoteVersions = append(remoteVersions, gomatrixserverlib.RoomVersionV1)
-				}
-				return Peek(
-					httpReq, request, cfg, rsAPI, roomID, peekID, remoteVersions,
-				)
-			},
-		)).Methods(http.MethodPut, http.MethodDelete)
-	}
 
 	v1fedmux.Handle("/make_join/{roomID}/{userID}", MakeFedAPI(
 		"federation_make_join", cfg.Matrix.ServerName, cfg.Matrix.IsLocalServerName, keys, wakeup,

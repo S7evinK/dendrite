@@ -12,20 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !windows
-// +build !windows
-
 package internal
 
 import (
 	"io"
-	"log/syslog"
 
 	"github.com/MFAshby/stdemuxerhook"
-	"github.com/sirupsen/logrus"
-	lSyslog "github.com/sirupsen/logrus/hooks/syslog"
-
 	"github.com/matrix-org/dendrite/setup/config"
+	"github.com/sirupsen/logrus"
 )
 
 // SetupHookLogging configures the logging hooks defined in the configuration.
@@ -51,9 +45,6 @@ func SetupHookLogging(hooks []config.LogrusHook) {
 		case "file":
 			checkFileHookParams(hook.Params)
 			setupFileHook(hook, level)
-		case "syslog":
-			checkSyslogHookParams(hook.Params)
-			setupSyslogHook(hook, level)
 		case "std":
 			setupStdLogHook(level)
 		default:
@@ -65,38 +56,10 @@ func SetupHookLogging(hooks []config.LogrusHook) {
 	logrus.SetOutput(io.Discard)
 }
 
-func checkSyslogHookParams(params map[string]interface{}) {
-	addr, ok := params["address"]
-	if !ok {
-		logrus.Fatalf("Expecting a parameter \"address\" for logging hook of type \"syslog\"")
-	}
-
-	if _, ok := addr.(string); !ok {
-		logrus.Fatalf("Parameter \"address\" for logging hook of type \"syslog\" should be a string")
-	}
-
-	proto, ok2 := params["protocol"]
-	if !ok2 {
-		logrus.Fatalf("Expecting a parameter \"protocol\" for logging hook of type \"syslog\"")
-	}
-
-	if _, ok2 := proto.(string); !ok2 {
-		logrus.Fatalf("Parameter \"protocol\" for logging hook of type \"syslog\" should be a string")
-	}
-
-}
-
 func setupStdLogHook(level logrus.Level) {
 	if stdLevelLogAdded[level] {
 		return
 	}
 	logrus.AddHook(&logLevelHook{level, stdemuxerhook.New(logrus.StandardLogger())})
 	stdLevelLogAdded[level] = true
-}
-
-func setupSyslogHook(hook config.LogrusHook, level logrus.Level) {
-	syslogHook, err := lSyslog.NewSyslogHook(hook.Params["protocol"].(string), hook.Params["address"].(string), syslog.LOG_INFO, "dendrite")
-	if err == nil {
-		logrus.AddHook(&logLevelHook{level, syslogHook})
-	}
 }

@@ -19,7 +19,7 @@ import (
 
 func mustCreateFederationDatabase(t *testing.T, dbType test.DBType) (storage.Database, func()) {
 	caches := caching.NewRistrettoCache(8*1024*1024, time.Hour, false)
-	connStr, dbClose := test.PrepareDBConnectionString(t, dbType)
+	connStr, dbClose := test.PrepareDBConnectionString(t)
 	ctx := context.Background()
 	cm := sqlutil.NewConnectionManager(nil, config.DatabaseOptions{})
 	db, err := storage.NewDatabase(ctx, cm, &config.DatabaseOptions{

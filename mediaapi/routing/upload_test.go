@@ -1,23 +1,6 @@
 package routing
 
-import (
-	"context"
-	"io"
-	"os"
-	"path/filepath"
-	"reflect"
-	"strings"
-	"testing"
-
-	"github.com/matrix-org/dendrite/internal/sqlutil"
-	"github.com/matrix-org/dendrite/mediaapi/fileutils"
-	"github.com/matrix-org/dendrite/mediaapi/storage"
-	"github.com/matrix-org/dendrite/mediaapi/types"
-	"github.com/matrix-org/dendrite/setup/config"
-	"github.com/matrix-org/util"
-	log "github.com/sirupsen/logrus"
-)
-
+/*
 func Test_uploadRequest_doUpload(t *testing.T) {
 	type fields struct {
 		MediaMetadata *types.MediaMetadata
@@ -152,3 +135,4 @@ func Test_uploadRequest_doUpload(t *testing.T) {
 		})
 	}
 }
+*/

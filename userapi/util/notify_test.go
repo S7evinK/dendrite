@@ -85,7 +85,7 @@ func TestNotifyUserCountsAsync(t *testing.T) {
 		defer srv.Close()
 
 		// Create DB and Dendrite base
-		connStr, close := test.PrepareDBConnectionString(t, dbType)
+		connStr, close := test.PrepareDBConnectionString(t)
 		defer close()
 		cm := sqlutil.NewConnectionManager(nil, config.DatabaseOptions{})
 		db, err := storage.NewUserDatabase(ctx, cm, &config.DatabaseOptions{

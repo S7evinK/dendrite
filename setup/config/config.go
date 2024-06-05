@@ -63,8 +63,6 @@ type Dendrite struct {
 	SyncAPI       SyncAPI       `yaml:"sync_api"`
 	UserAPI       UserAPI       `yaml:"user_api"`
 
-	MSCs MSCs `yaml:"mscs"`
-
 	// The config for tracing the dendrite servers.
 	Tracing struct {
 		// Set to true to enable tracer hooks. If false, no tracing is set up.
@@ -322,7 +320,6 @@ func (c *Dendrite) Defaults(opts DefaultOpts) {
 	c.SyncAPI.Defaults(opts)
 	c.UserAPI.Defaults(opts)
 	c.AppServiceAPI.Defaults(opts)
-	c.MSCs.Defaults(opts)
 	c.Wiring()
 }
 
@@ -334,7 +331,7 @@ func (c *Dendrite) Verify(configErrs *ConfigErrors) {
 		&c.Global, &c.ClientAPI, &c.FederationAPI,
 		&c.KeyServer, &c.MediaAPI, &c.RoomServer,
 		&c.SyncAPI, &c.UserAPI,
-		&c.AppServiceAPI, &c.MSCs,
+		&c.AppServiceAPI,
 	} {
 		c.Verify(configErrs)
 	}
@@ -350,11 +347,9 @@ func (c *Dendrite) Wiring() {
 	c.SyncAPI.Matrix = &c.Global
 	c.UserAPI.Matrix = &c.Global
 	c.AppServiceAPI.Matrix = &c.Global
-	c.MSCs.Matrix = &c.Global
 
 	c.ClientAPI.Derived = &c.Derived
 	c.AppServiceAPI.Derived = &c.Derived
-	c.ClientAPI.MSCs = &c.MSCs
 }
 
 // Error returns a string detailing how many errors were contained within a

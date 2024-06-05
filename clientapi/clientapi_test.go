@@ -992,7 +992,7 @@ func TestTurnserver(t *testing.T) {
 	alice := test.NewUser(t)
 	ctx := context.Background()
 
-	cfg, processCtx, close := testrig.CreateConfig(t, test.DBTypeSQLite)
+	cfg, processCtx, close := testrig.CreateConfig(t, test.DBTypePostgres)
 	cfg.ClientAPI.RateLimiting.Enabled = false
 	defer close()
 	natsInstance := jetstream.NATSInstance{}

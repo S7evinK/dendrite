@@ -26,12 +26,11 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/matrix-org/dendrite/setup/config"
+	"github.com/matrix-org/dugong"
 	"github.com/matrix-org/util"
 
-	"github.com/matrix-org/dugong"
 	"github.com/sirupsen/logrus"
-
-	"github.com/matrix-org/dendrite/setup/config"
 )
 
 // logrus is using a global variable when we're using `logrus.AddHook`

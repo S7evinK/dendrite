@@ -37,7 +37,6 @@ func main() {
 			for name, db := range map[string]*config.DatabaseOptions{
 				"federationapi": &cfg.FederationAPI.Database,
 				"keyserver":     &cfg.KeyServer.Database,
-				"mscs":          &cfg.MSCs.Database,
 				"mediaapi":      &cfg.MediaAPI.Database,
 				"roomserver":    &cfg.RoomServer.Database,
 				"syncapi":       &cfg.SyncAPI.Database,
@@ -73,7 +72,6 @@ func main() {
 			// don't hit matrix.org when running tests!!!
 			cfg.FederationAPI.KeyPerspectives = config.KeyPerspectives{}
 			cfg.MediaAPI.BasePath = config.Path(filepath.Join(*dirPath, "media"))
-			cfg.MSCs.MSCs = []string{"msc2836", "msc2444", "msc2753"}
 			cfg.Logging[0].Level = "trace"
 			cfg.Logging[0].Type = "std"
 			cfg.UserAPI.BCryptCost = bcrypt.MinCost

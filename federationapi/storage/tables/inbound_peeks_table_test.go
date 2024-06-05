@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/matrix-org/dendrite/federationapi/storage/postgres"
-	"github.com/matrix-org/dendrite/federationapi/storage/sqlite3"
 	"github.com/matrix-org/dendrite/federationapi/storage/tables"
 	"github.com/matrix-org/dendrite/internal/sqlutil"
 	"github.com/matrix-org/dendrite/setup/config"
@@ -17,10 +16,10 @@ import (
 )
 
 func mustCreateInboundpeeksTable(t *testing.T, dbType test.DBType) (tables.FederationInboundPeeks, func()) {
-	connStr, close := test.PrepareDBConnectionString(t, dbType)
+	connStr, close := test.PrepareDBConnectionString(t)
 	db, err := sqlutil.Open(&config.DatabaseOptions{
 		ConnectionString: config.DataSource(connStr),
-	}, sqlutil.NewExclusiveWriter())
+	}, sqlutil.NewDummyWriter())
 	if err != nil {
 		t.Fatalf("failed to open database: %s", err)
 	}
@@ -28,8 +27,6 @@ func mustCreateInboundpeeksTable(t *testing.T, dbType test.DBType) (tables.Feder
 	switch dbType {
 	case test.DBTypePostgres:
 		tab, err = postgres.NewPostgresInboundPeeksTable(db)
-	case test.DBTypeSQLite:
-		tab, err = sqlite3.NewSQLiteInboundPeeksTable(db)
 	}
 	if err != nil {
 		t.Fatalf("failed to create table: %s", err)

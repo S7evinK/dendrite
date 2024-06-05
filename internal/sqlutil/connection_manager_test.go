@@ -14,7 +14,7 @@ func TestConnectionManager(t *testing.T) {
 
 	t.Run("component defined connection string", func(t *testing.T) {
 		test.WithAllDatabases(t, func(t *testing.T, dbType test.DBType) {
-			conStr, close := test.PrepareDBConnectionString(t, dbType)
+			conStr, close := test.PrepareDBConnectionString(t)
 			t.Cleanup(close)
 			cm := sqlutil.NewConnectionManager(nil, config.DatabaseOptions{})
 
@@ -25,11 +25,6 @@ func TestConnectionManager(t *testing.T) {
 			}
 
 			switch dbType {
-			case test.DBTypeSQLite:
-				_, ok := writer.(*sqlutil.ExclusiveWriter)
-				if !ok {
-					t.Fatalf("expected exclusive writer")
-				}
 			case test.DBTypePostgres:
 				_, ok := writer.(*sqlutil.DummyWriter)
 				if !ok {
@@ -69,7 +64,7 @@ func TestConnectionManager(t *testing.T) {
 
 	t.Run("global connection pool", func(t *testing.T) {
 		test.WithAllDatabases(t, func(t *testing.T, dbType test.DBType) {
-			conStr, close := test.PrepareDBConnectionString(t, dbType)
+			conStr, close := test.PrepareDBConnectionString(t)
 			t.Cleanup(close)
 			cm := sqlutil.NewConnectionManager(nil, config.DatabaseOptions{ConnectionString: config.DataSource(conStr)})
 
@@ -80,11 +75,6 @@ func TestConnectionManager(t *testing.T) {
 			}
 
 			switch dbType {
-			case test.DBTypeSQLite:
-				_, ok := writer.(*sqlutil.ExclusiveWriter)
-				if !ok {
-					t.Fatalf("expected exclusive writer")
-				}
 			case test.DBTypePostgres:
 				_, ok := writer.(*sqlutil.DummyWriter)
 				if !ok {
@@ -108,7 +98,7 @@ func TestConnectionManager(t *testing.T) {
 
 	t.Run("shutdown", func(t *testing.T) {
 		test.WithAllDatabases(t, func(t *testing.T, dbType test.DBType) {
-			conStr, close := test.PrepareDBConnectionString(t, dbType)
+			conStr, close := test.PrepareDBConnectionString(t)
 			t.Cleanup(close)
 
 			processCtx := process.NewProcessContext()

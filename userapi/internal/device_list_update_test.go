@@ -369,7 +369,7 @@ func TestDebounce(t *testing.T) {
 func mustCreateKeyserverDB(t *testing.T, dbType test.DBType) (storage.KeyDatabase, func()) {
 	t.Helper()
 
-	connStr, clearDB := test.PrepareDBConnectionString(t, dbType)
+	connStr, clearDB := test.PrepareDBConnectionString(t)
 	cm := sqlutil.NewConnectionManager(nil, config.DatabaseOptions{})
 	db, err := storage.NewKeyDatabase(cm, &config.DatabaseOptions{ConnectionString: config.DataSource(connStr)})
 	if err != nil {
